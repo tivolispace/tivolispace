@@ -16,7 +16,7 @@ namespace DefaultNamespace
         
         public void UpdateWindowTitle()
         {
-            var windowTitle = "Maki @ Squirrel Nut Cafe (NOT CONNECTED) (NOT LOGGED IN) v0.1 - Tivoli Cloud VR";
+            var windowTitle = "Maki @ Squirrel Nut Cafe (Not Connected) v0.1 - Tivoli Cloud VR";
             
             #if UNITY_STANDALONE_WIN
             SetWindowText(windowPtr, windowTitle);
