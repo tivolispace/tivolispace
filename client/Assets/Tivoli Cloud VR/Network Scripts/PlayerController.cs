@@ -10,7 +10,7 @@ public class PlayerController : NetworkBehaviour
     
     public Transform nametag;
     
-    private Rigidbody rigidbody;
+    private Rigidbody playerRigidbody;
     public Transform cameraBoom;
     
     private InputActions inputActions;
@@ -19,7 +19,7 @@ public class PlayerController : NetworkBehaviour
 
     public void Awake()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        playerRigidbody = GetComponent<Rigidbody>();
     }
 
     public override void OnStartLocalPlayer()
@@ -72,7 +72,7 @@ public class PlayerController : NetworkBehaviour
         var moveXy = inputActions.Player.Move.ReadValue<Vector2>();
         var positionOffset = Quaternion.Euler(0, transform.localEulerAngles.y, 0) *
                              new Vector3(moveXy.x, 0, moveXy.y);
-        rigidbody.MovePosition(transform.position + positionOffset * 0.1f);
+        playerRigidbody.MovePosition(transform.position + positionOffset * 0.1f);
     }
     
     private void LockMouse()
