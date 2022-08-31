@@ -40,7 +40,7 @@ namespace Mirror
             OutMessageEvent = null;
         }
 
-        internal static void OnSend<T>(T message, int channel, int bytes, int count)
+        public static void OnSend<T>(T message, int channel, int bytes, int count)
             where T : struct, NetworkMessage
         {
             if (count > 0 && OutMessageEvent != null)

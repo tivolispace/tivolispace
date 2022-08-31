@@ -1,99 +1,73 @@
 ﻿using Mirror;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class PlayerController : NetworkBehaviour
 {
-    [SyncVar(hook = nameof(OnUsernameChanged))]
-    private string username;
-    
-    public Transform nametag;
-    
-    private Rigidbody playerRigidbody;
     public Transform cameraBoom;
     
-    private InputActions inputActions;
-
-    private bool mouseLocked;
+    private Rigidbody _playerRigidbody;
+    
+    private InputActions _inputActions;
+    
+    private bool _mouseLocked;
 
     public void Awake()
     {
-        playerRigidbody = GetComponent<Rigidbody>();
+        _playerRigidbody = GetComponent<Rigidbody>();
     }
-
+    
     public override void OnStartLocalPlayer()
     {
-        inputActions = new InputActions();
-        inputActions.Player.Enable();
-        inputActions.Player.Move.Enable();
-        inputActions.Player.Look.Enable();
-        inputActions.Player.Look.performed += OnLook;
-        inputActions.Player.ActivateLook.Enable();
+        _inputActions = new InputActions();
+        _inputActions.Player.Enable();
+        _inputActions.Player.Move.Enable();
+        _inputActions.Player.Look.Enable();
+        _inputActions.Player.Look.performed += OnLook;
+        _inputActions.Player.ActivateLook.Enable();
 
+        // attach main camera
         Camera.main.transform.parent = cameraBoom;
         Camera.main.transform.localPosition = new Vector3(0f, 0f, -2f);
         cameraBoom.transform.eulerAngles = new Vector3(10f, 0f, 0f);
-        
-        CmdSetupPlayer(SystemInfo.deviceName);
     }
 
     public override void OnStopLocalPlayer()
     {
-        inputActions.Disable();
-        
+        // detach main camera
         Camera.main.transform.parent = null;
-    }
-
-    [Command]
-    private void CmdSetupPlayer(string _username)
-    {
-        username = _username;
-    }
-    
-    private void OnUsernameChanged(string _old, string _new)
-    {
-        if (isLocalPlayer) return;
-        nametag.GetComponentInChildren<TextMeshPro>().text = _new;
-    }
-    
-    private void Update()
-    {
-        if (!isLocalPlayer)
-        {
-            nametag.transform.LookAt(Camera.main.transform);
-        }
     }
     
     private void FixedUpdate()
     {
         if (!isLocalPlayer) return;
         
-        var moveXy = inputActions.Player.Move.ReadValue<Vector2>();
+        var moveXy = _inputActions.Player.Move.ReadValue<Vector2>();
         var positionOffset = Quaternion.Euler(0, transform.localEulerAngles.y, 0) *
                              new Vector3(moveXy.x, 0, moveXy.y);
-        playerRigidbody.MovePosition(transform.position + positionOffset * 0.1f);
+        _playerRigidbody.MovePosition(transform.position + positionOffset * 0.1f);
     }
     
     private void LockMouse()
     {
-        if (mouseLocked) return;
+        if (_mouseLocked) return;
         Cursor.lockState = CursorLockMode.Locked;
-        mouseLocked = true;
+        _mouseLocked = true;
     }
     
     private void UnlockMouse()
     {
-        if (!mouseLocked) return;
+        if (!_mouseLocked) return;
         Cursor.lockState = CursorLockMode.None;
-        mouseLocked = false;
+        _mouseLocked = false;
     }
-    
+
     private void OnLook(InputAction.CallbackContext context)
     {
         if (!isLocalPlayer) return;
         
-        var activateLook = inputActions.Player.ActivateLook.ReadValue<float>() > 0.5f;
+        var activateLook = _inputActions.Player.ActivateLook.ReadValue<float>() > 0.5f;
         if (activateLook)
         {
             LockMouse();
@@ -106,7 +80,7 @@ public class PlayerController : NetworkBehaviour
         
         const float sensitivity = 0.25f;
     
-        var lookDelta = inputActions.Player.Look.ReadValue<Vector2>();
+        var lookDelta = _inputActions.Player.Look.ReadValue<Vector2>();
         transform.localEulerAngles += new Vector3(0f, lookDelta.x * sensitivity, 0f);
     
         var newCameraBoom = cameraBoom.localEulerAngles + new Vector3(-lookDelta.y * sensitivity, 0f, 0f);
