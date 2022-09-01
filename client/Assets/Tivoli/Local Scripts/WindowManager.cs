@@ -6,10 +6,12 @@ namespace DefaultNamespace
     public class WindowManager
     {
         #if UNITY_STANDALONE_WIN
-        [DllImport("user32.dll", EntryPoint = "SetWindowText")]
+        [DllImport("user32.dll", EntryPoint = "SetWindowText", CharSet = CharSet.Unicode)]
         private static extern bool SetWindowText(IntPtr hwnd, String lpString);
         [DllImport("user32.dll", EntryPoint = "FindWindow")]
         private static extern IntPtr FindWindow(String className, String windowName);
+        // [DllImport("user32.dll")]
+        // private static extern System.IntPtr GetActiveWindow();
 
         private IntPtr windowPtr;
         #endif
@@ -28,6 +30,9 @@ namespace DefaultNamespace
             #if UNITY_STANDALONE_WIN
             windowPtr = FindWindow(null, "Tivoli Cloud VR");
             #endif
+            
+            // TODO: use xdotool for linux support
+            // TODO: mac os needs support
             
             UpdateWindowTitle();
         }
