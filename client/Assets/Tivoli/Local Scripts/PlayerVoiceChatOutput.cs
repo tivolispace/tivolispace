@@ -50,5 +50,13 @@ namespace Tivoli.Network_Scripts
 
             OnAudioSample?.Invoke(stereoData, percentUnderRun);
         }
+
+        private void Update()
+        {
+            if (_audioSource.isPlaying == false)
+            {
+                _audioSource.Play();
+            }
+        }
     }
 }

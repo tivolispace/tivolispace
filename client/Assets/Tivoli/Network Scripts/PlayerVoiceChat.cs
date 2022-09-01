@@ -1,8 +1,6 @@
-﻿using System;
-using Mirror;
+﻿using Mirror;
 using Tivoli.Local_Scripts;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Tivoli.Network_Scripts
 {
@@ -62,8 +60,6 @@ namespace Tivoli.Network_Scripts
             var ushortSamples = SamplesToUshort(pcmSamples);
             // Transport.activeTransport.GetMaxPacketSize(Channels.Unreliable);
             CmdSendVoice(ushortSamples);
-            
-            Debug.Log("SENDING SAMPLES "+pcmSamples.Length);
             _sent += pcmSamples.Length;
         }
 

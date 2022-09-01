@@ -45,8 +45,8 @@ namespace Tivoli.Local_Scripts
                     var length = _pos - _lastPos;
                     var samples = new float[length];
                     _microphone.GetData(samples, _lastPos);
-                    _lastPos = _pos;
                     OnPcmData(samples);
+                    _lastPos = _pos;
                 }
             }
         }
