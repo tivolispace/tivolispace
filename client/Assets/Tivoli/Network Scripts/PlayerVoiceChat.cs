@@ -17,9 +17,6 @@ namespace Tivoli.Network_Scripts
         private void Awake()
         {
             _player = GetComponent<Player>();
-
-            AudioSettings.outputSampleRate = 44100;
-            AudioSettings.speakerMode = AudioSpeakerMode.Stereo;
         }
 
         public override void OnStartLocalPlayer()

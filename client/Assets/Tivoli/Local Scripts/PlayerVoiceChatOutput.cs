@@ -15,6 +15,9 @@ namespace Tivoli.Network_Scripts
         private void Awake()
         {
             _audioSource = GetComponent<AudioSource>();
+            
+            // TODO: maybe put empty audio clip in to get mono 48000 
+            
             _audioSource.loop = true;
             _audioSource.Play();
         }
