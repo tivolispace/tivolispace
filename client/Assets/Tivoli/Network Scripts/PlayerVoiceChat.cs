@@ -21,6 +21,8 @@ namespace Tivoli.Network_Scripts
 
         public override void OnStartLocalPlayer()
         {
+            // TODO: change this or clean it up
+            
             var voiceMicrophone = new GameObject
             {
                 name = "Voice Microphone"
