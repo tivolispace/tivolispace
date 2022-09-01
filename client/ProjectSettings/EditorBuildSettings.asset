@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Tivoli/Scene.unity
+    guid: 5b28a2ecaa97b984696ba014f3e6b8ac
   m_configObjects: {}
