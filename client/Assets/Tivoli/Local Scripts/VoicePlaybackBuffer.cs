@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using UnityEngine;
 
 namespace Tivoli.Local_Scripts
 {
@@ -50,7 +49,7 @@ namespace Tivoli.Local_Scripts
                 {
                     if (_decodedBuffers.Count == 0)
                     {
-                        Debug.LogError("No available decode buffers!");
+                        // Debug.LogError("No available decode buffers!");
                         return 0;
                     }
                     
@@ -82,7 +81,7 @@ namespace Tivoli.Local_Scripts
                 var count = _decodedBuffers.Count;
                 if (count > 10) // const
                 {
-                    Debug.LogWarning("Max buffer size reached, dropping");
+                    // Debug.LogWarning("Max buffer size reached, dropping");
                 }
                 else
                 {

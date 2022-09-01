@@ -10,9 +10,8 @@ namespace Tivoli.Network_Scripts
     {
         private Player _player;
 
-        private AudioClip _microphone;
-        private int _lastPos, _pos;
-        
+        private VoiceMicrophone _voiceMicrophone;
+
         private int _sent, _recv;
 
         public PlayerVoiceChatOutput playerVoiceChatOutput;
@@ -21,31 +20,26 @@ namespace Tivoli.Network_Scripts
         {
             _player = GetComponent<Player>();
 
-            AudioSettings.outputSampleRate = 48000;
+            AudioSettings.outputSampleRate = 44100;
             AudioSettings.speakerMode = AudioSpeakerMode.Stereo;
-        }
-
-        private void StartMicrophone()
-        {
-            if (_microphone != null) return;
-            _microphone = Microphone.Start(null, true, 5, 48000);
-        }
-        
-        private void StopMicrophone()
-        {
-            if (_microphone == null) return;
-            Microphone.End(null);
-            _microphone = null;
         }
 
         public override void OnStartLocalPlayer()
         {
-            StartMicrophone();
+            var voiceMicrophone = new GameObject
+            {
+                name = "Voice Microphone"
+            };
+            _voiceMicrophone = voiceMicrophone.AddComponent<VoiceMicrophone>();
+
+            _voiceMicrophone.OnPcmData += SendPcmSamples;
+            
+            _voiceMicrophone.StartMicrophone();
         }
 
         public override void OnStopLocalPlayer()
         {
-            StopMicrophone();
+            _voiceMicrophone.StopMicrophone();
         }
 
         // TODO: switch to unreliable when we have opus
@@ -68,6 +62,8 @@ namespace Tivoli.Network_Scripts
             var ushortSamples = SamplesToUshort(pcmSamples);
             // Transport.activeTransport.GetMaxPacketSize(Channels.Unreliable);
             CmdSendVoice(ushortSamples);
+            
+            Debug.Log("SENDING SAMPLES "+pcmSamples.Length);
             _sent += pcmSamples.Length;
         }
 
@@ -80,41 +76,6 @@ namespace Tivoli.Network_Scripts
             }
 
             return compressed;
-        }
-        
-        private float[] GetMicrophoneSamples()
-        {
-            if ((_pos = Microphone.GetPosition(null)) > 0)
-            {
-                if (_lastPos > _pos)
-                {
-                    // mic loop reset
-                    _lastPos = 0;
-                }
-
-                if (_pos - _lastPos > 0)
-                {
-                    var length = _pos - _lastPos;
-                    var samples = new float[length];
-                    _microphone.GetData(samples, _lastPos);
-                    _lastPos = _pos;
-                    return samples;
-                }
-            }
-
-            return new float[] { };
-        }
-
-        private void Update()
-        {
-            if (!isLocalPlayer || !NetworkClient.isConnected) return;
-
-            // send voice
-            var samples = GetMicrophoneSamples();
-            if (samples.Length > 0)
-            {
-                SendPcmSamples(samples);
-            }
         }
 
         private void OnGUI()
