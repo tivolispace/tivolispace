@@ -41,6 +41,12 @@ namespace Tivoli.Scripts.Voice
             _microphone = UnityEngine.Microphone.Start(_microphoneDeviceName, true, MicrophoneRecordLength, MicrophoneSampleRate);
             #endif
 
+            if (_microphone.frequency != MicrophoneSampleRate)
+            {
+                Debug.LogError("Selected microphone is not at target sample rate of " + MicrophoneSampleRate);
+                StopMicrophone(true);
+            }
+
             if (_microphone.channels > 2)
             {
                 Debug.LogError("Selected microphone has more than 2 channels");
