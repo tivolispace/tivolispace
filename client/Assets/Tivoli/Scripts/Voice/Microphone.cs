@@ -11,10 +11,10 @@ namespace Tivoli.Scripts.Voice
         private string _microphoneDeviceName;  // null is default mic
         private AudioClip _microphone;
 
-        public Action<float[]> OnPcmData;
+        public Action<float[]> OnPcmSamples;
 
         // opus doesnt take 44100, but does take 48000 
-        private const int MicrophoneSampleRate = 48000;
+        public const int MicrophoneSampleRate = 48000;
         // long enough to not hear clipping but short enough to fit in memory
         private const int MicrophoneRecordLength = 60 * 5;
         
@@ -22,9 +22,9 @@ namespace Tivoli.Scripts.Voice
         private int _totalSamplesSent;
         private int _numTimesLooped;
         
-        // 960 samples per outgoing packet, though opus will compress super well  
+        // 960 samples per outgoing packet, though opus will compress super well
         private const int NumFramesPerOutgoingPacket = 2;
-        private const int NumSamplesPerOutgoingPacket = NumFramesPerOutgoingPacket * MicrophoneSampleRate / 100;
+        public const int NumSamplesPerOutgoingPacket = NumFramesPerOutgoingPacket * MicrophoneSampleRate / 100;
 
         public void StartMicrophone(bool force = false)
         {
@@ -60,11 +60,16 @@ namespace Tivoli.Scripts.Voice
             _microphone = null;
         }
 
+        ~Microphone()
+        {
+            StopMicrophone();
+        }
+
         public void UpdateMicrophone(string microphoneDeviceName)
         {
-            StopMicrophone(true);
+            StopMicrophone();
             _microphoneDeviceName = microphoneDeviceName;
-            StartMicrophone(true);
+            StartMicrophone();
         }
 
         public string[] GetMicrophoneNames()
@@ -121,11 +126,11 @@ namespace Tivoli.Scripts.Voice
                 switch (_microphone.channels)
                 {
                     case 1:
-                        OnPcmData(samples);
+                        OnPcmSamples(samples);
                         break;
                     case 2:
                         // will divide length by 2 again since we're doing * channels above
-                        OnPcmData(StereoToMono(samples));
+                        OnPcmSamples(StereoToMono(samples));
                         break;
                 }
             }
