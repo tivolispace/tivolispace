@@ -9,7 +9,7 @@ namespace Tivoli.Scripts.Voice
         private AudioSource _audioSource;
 
         private Action<float[], float> OnAudioSample;
-        private readonly VoicePlaybackBuffer _voicePlaybackBuffer = new();
+        private readonly PlaybackBuffer _playbackBuffer = new();
 
         private void Awake()
         {
@@ -34,14 +34,14 @@ namespace Tivoli.Scripts.Voice
 
         public void AddUshortSamples(ushort[] compressed)
         {
-            _voicePlaybackBuffer.AddDecodedAudio(SamplesToFloat(compressed));
+            _playbackBuffer.AddPcmBuffer(SamplesToFloat(compressed));
         }
 
         private void OnAudioFilterRead(float[] stereoData, int channels)
         {
             var monoData = new float[stereoData.Length / 2];
 
-            var numRead = _voicePlaybackBuffer.Read(monoData, 0, monoData.Length);
+            var numRead = _playbackBuffer.Read(monoData, 0, monoData.Length);
             var percentUnderRun = 1f - (float) numRead / monoData.Length;
 
             for (var i = 0; i < monoData.Length; i++)

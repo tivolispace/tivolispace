@@ -8,7 +8,7 @@ namespace Tivoli.Scripts.Voice
     {
         private Player.Player _player;
 
-        private VoiceMicrophone _voiceMicrophone;
+        private Microphone _microphone;
 
         private int _sent, _recv;
 
@@ -21,13 +21,13 @@ namespace Tivoli.Scripts.Voice
 
         public override void OnStartLocalPlayer()
         {
-           _voiceMicrophone.StartMicrophone();
-           _voiceMicrophone.OnPcmData = SendPcmSamples;
+           _microphone.StartMicrophone();
+           _microphone.OnPcmData = SendPcmSamples;
         }
 
         public override void OnStopLocalPlayer()
         {
-            _voiceMicrophone.StopMicrophone();
+            _microphone.StopMicrophone();
         }
 
         // TODO: switch to unreliable when we have opus
@@ -66,7 +66,7 @@ namespace Tivoli.Scripts.Voice
 
         private void Update()
         {
-            _voiceMicrophone.Update();
+            _microphone.Update();
         }
         
         private void OnGUI()
