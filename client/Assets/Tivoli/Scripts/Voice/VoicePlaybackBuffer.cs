@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Tivoli.Local_Scripts
+namespace Tivoli.Scripts.Voice
 {
     public class VoicePlaybackBuffer
     {

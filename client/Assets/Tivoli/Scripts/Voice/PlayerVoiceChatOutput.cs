@@ -1,8 +1,7 @@
 ﻿using System;
-using Tivoli.Local_Scripts;
 using UnityEngine;
 
-namespace Tivoli.Network_Scripts
+namespace Tivoli.Scripts.Voice
 {
     [RequireComponent(typeof(AudioSource))]
     public class PlayerVoiceChatOutput : MonoBehaviour

@@ -1,12 +1,12 @@
 ﻿using Mirror;
-using Tivoli.Local_Scripts;
 using UnityEngine;
 
-namespace Tivoli.Network_Scripts
+namespace Tivoli.Scripts.Voice
 {
+    [RequireComponent(typeof(Player.Player))]
     public class PlayerVoiceChat : NetworkBehaviour
     {
-        private Player _player;
+        private Player.Player _player;
 
         private VoiceMicrophone _voiceMicrophone;
 
@@ -16,22 +16,13 @@ namespace Tivoli.Network_Scripts
 
         private void Awake()
         {
-            _player = GetComponent<Player>();
+            _player = GetComponent<Player.Player>();
         }
 
         public override void OnStartLocalPlayer()
         {
-            // TODO: change this or clean it up
-            
-            var voiceMicrophone = new GameObject
-            {
-                name = "Voice Microphone"
-            };
-            _voiceMicrophone = voiceMicrophone.AddComponent<VoiceMicrophone>();
-
-            _voiceMicrophone.OnPcmData += SendPcmSamples;
-            
-            _voiceMicrophone.StartMicrophone();
+           _voiceMicrophone.StartMicrophone();
+           _voiceMicrophone.OnPcmData = SendPcmSamples;
         }
 
         public override void OnStopLocalPlayer()
@@ -73,6 +64,11 @@ namespace Tivoli.Network_Scripts
             return compressed;
         }
 
+        private void Update()
+        {
+            _voiceMicrophone.Update();
+        }
+        
         private void OnGUI()
         {
             if (isLocalPlayer)

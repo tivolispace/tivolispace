@@ -1,10 +1,13 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Tivoli.Local_Scripts
+namespace Tivoli.Scripts.Voice
 {
-    public class VoiceMicrophone : MonoBehaviour
+    public abstract class VoiceMicrophone
     {
+        // null is default
+        private string _microphoneDeviceName;
+        
         private AudioClip _microphone;
         private int _lastPos, _pos;
 
@@ -14,22 +17,37 @@ namespace Tivoli.Local_Scripts
         {
             if (!force && _microphone != null) return;
             Debug.Log("Starting microphone");
-            _microphone = Microphone.Start(null, true, 5, 44100);
+            // 5 minutes length
+            _microphone = Microphone.Start(_microphoneDeviceName, true, 60 * 5, 44100);
         }
         
         public void StopMicrophone(bool force = false)
         {
             if (!force && _microphone == null) return;
             Debug.Log("Stopping microphone");
-            Microphone.End(null);
+            Microphone.End(_microphoneDeviceName);
             _microphone = null;
         }
-        
-        private void Update()
+
+        public void UpdateMicrophone(string microphoneDeviceName)
         {
-            var isRecording = Microphone.IsRecording(null);
+            StopMicrophone(true);
+            _microphoneDeviceName = microphoneDeviceName;
+            StartMicrophone(true);
+        }
+
+        public string[] GetMicrophoneNames()
+        {
+            return Microphone.devices;
+        }
+        
+        public void Update()
+        {
+            var isRecording = Microphone.IsRecording(_microphoneDeviceName);
             if (!isRecording && _microphone != null) StartMicrophone(true);
             else if (isRecording && _microphone == null) StopMicrophone(true);
+
+            if (_microphone == null) return;
             
             // send voice
             if ((_pos = Microphone.GetPosition(null)) > 0)

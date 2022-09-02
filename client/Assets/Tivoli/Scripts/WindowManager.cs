@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace DefaultNamespace
+namespace Tivoli.Scripts
 {
     public class WindowManager
     {

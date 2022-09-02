@@ -1,10 +1,9 @@
 ﻿using Mirror;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = System.Random;
 
-namespace Tivoli.Network_Scripts
+namespace Tivoli.Scripts.Player
 {
     public class Player : NetworkBehaviour
     {
@@ -25,7 +24,7 @@ namespace Tivoli.Network_Scripts
         [Command]
         private void CmdSetupPlayer(string newUsername)
         {
-            this.username = newUsername;
+            username = newUsername;
         }
     
         private void OnUsernameChanged(string @old, string @new)
