@@ -34,6 +34,7 @@ namespace Tivoli.Scripts.Voice
             }
             else
             {
+                // TODO: not all machines have 48000 sample rate
                 _opusDecoderThreaded = new OpusDecoderThreaded(Microphone.MicrophoneSampleRate, 2);
                 _opusDecoderThreaded.OnDecoded += OnVoiceDecoded;
             }

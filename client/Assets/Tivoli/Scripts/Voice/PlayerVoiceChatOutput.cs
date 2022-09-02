@@ -14,10 +14,10 @@ namespace Tivoli.Scripts.Voice
         private void Awake()
         {
             _audioSource = GetComponent<AudioSource>();
-            
-            // TODO: maybe put empty audio clip in to get mono 48000 
-            
             _audioSource.loop = true;
+            _audioSource.spatialize = true;
+            _audioSource.spatializePostEffects = true; // we're using OnAudioFilterRead to feed samples in
+            _audioSource.spatialBlend = 1;
             _audioSource.Play();
         }
 
