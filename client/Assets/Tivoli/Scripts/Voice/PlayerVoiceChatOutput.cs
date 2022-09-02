@@ -55,6 +55,8 @@ namespace Tivoli.Scripts.Voice
             // opus can and does convert to stereo for us so less work is done in this thread
             
             var numRead = _playbackBuffer.Read(stereoData, 0, stereoData.Length);
+
+            // TODO: do we need percentUnderRun and OnAudioSample?
             var percentUnderRun = 1f - (float) numRead / stereoData.Length;
 
             OnAudioSample?.Invoke(stereoData, percentUnderRun);
