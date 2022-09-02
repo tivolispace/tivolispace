@@ -4,3 +4,4 @@
 *.blend1.meta
 .idea
 /export
+.DS_Store
