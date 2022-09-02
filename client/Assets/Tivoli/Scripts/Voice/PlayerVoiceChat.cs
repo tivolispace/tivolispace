@@ -28,9 +28,12 @@ namespace Tivoli.Scripts.Voice
                 _opusEncoderThreaded = new OpusEncoderThreaded(Microphone.MicrophoneSampleRate, 1);
                 _opusEncoderThreaded.OnEncoded += OnMicrophoneEncoded;
                 
-                _microphone = new Microphone();
+                _microphone = new Microphone
+                {
+                    OnPcmSamples = OnMicrophonePcmSamples
+                };
+                
                 _microphone.StartMicrophone();
-                _microphone.OnPcmSamples = OnMicrophonePcmSamples;
             }
             else
             {

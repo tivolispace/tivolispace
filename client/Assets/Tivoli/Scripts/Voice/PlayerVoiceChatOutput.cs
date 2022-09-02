@@ -15,9 +15,6 @@ namespace Tivoli.Scripts.Voice
         {
             _audioSource = GetComponent<AudioSource>();
             _audioSource.loop = true;
-            _audioSource.spatialize = true;
-            _audioSource.spatializePostEffects = true; // we're using OnAudioFilterRead to feed samples in
-            _audioSource.spatialBlend = 1;
             _audioSource.Play();
         }
 
