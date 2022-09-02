@@ -8,7 +8,7 @@ namespace Tivoli.Scripts.Voice
     {
         private Player.Player _player;
 
-        private Microphone _microphone;
+        private readonly Microphone _microphone = new();
 
         private int _sent, _recv;
 
