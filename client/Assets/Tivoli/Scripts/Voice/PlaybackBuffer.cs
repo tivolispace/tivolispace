@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace Tivoli.Scripts.Voice
@@ -22,6 +23,11 @@ namespace Tivoli.Scripts.Voice
 
         private const int MaxBuffers = 10;
 
+        public int GetAvailableSamples()
+        {
+            return _pcmBuffers.ToArray().Sum(pcmBuffer => pcmBuffer.PcmLength);
+        }
+        
         public int Read(float[] buffer, int offset, int count)
         {
             var readCount = 0;

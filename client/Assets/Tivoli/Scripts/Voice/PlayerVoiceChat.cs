@@ -23,6 +23,9 @@ namespace Tivoli.Scripts.Voice
 
         public override void OnStartClient()
         {
+            // make encoder and decoder sample sample rate and channels
+            // although it can convert mono to stereo, it doesn't seem to resample
+            // resamplers live in Microphone and PlayerVoiceChatOutput and will adapt hardware 
             if (isLocalPlayer)
             {
                 _opusEncoderThreaded = new OpusEncoderThreaded(Microphone.MicrophoneSampleRate, 1);
@@ -37,9 +40,7 @@ namespace Tivoli.Scripts.Voice
             }
             else
             {
-                // TODO: not all machines have 48000 sample rate, like 24000 or 44100. we need a resampler
-                // opus doesnt seem to resample for us
-                _opusDecoderThreaded = new OpusDecoderThreaded(Microphone.MicrophoneSampleRate, 2);
+                _opusDecoderThreaded = new OpusDecoderThreaded(Microphone.MicrophoneSampleRate, 1);
                 _opusDecoderThreaded.OnDecoded += OnVoiceDecoded;
             }
         }
@@ -71,8 +72,13 @@ namespace Tivoli.Scripts.Voice
                 return;
             }
             
+            
+            // FOR TESTING send straight to output
+            playerVoiceChatOutput.AddPcmSamples(pcmSamples);
+            
+            
             // Debug.Log("adding samples: "+pcmSamples.Length);
-            _opusEncoderThreaded.AddToEncodeQueue(pcmSamples);
+            // _opusEncoderThreaded.AddToEncodeQueue(pcmSamples);
         }
 
         private void OnMicrophoneEncoded(byte[] opusData)
