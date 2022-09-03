@@ -386,7 +386,8 @@ PlayerSettings:
   enableCrashReportAPI: 0
   cameraUsageDescription: 
   locationUsageDescription: 
-  microphoneUsageDescription: Required for talking to other people in-world
+  microphoneUsageDescription: Tivoli requires microphone access in order to talk
+    to other people
   bluetoothUsageDescription: 
   switchNMETAOverride: 
   switchNetLibKey: 
