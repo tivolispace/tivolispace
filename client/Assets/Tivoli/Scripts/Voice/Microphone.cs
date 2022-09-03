@@ -13,7 +13,7 @@ namespace Tivoli.Scripts.Voice
 
         public Action<float[]> OnPcmSamples;
 
-        // opus doesnt take 44100, but does take 48000 
+        // the whole program should revolve around this sample rate
         public const int MicrophoneSampleRate = 48000;
         // long enough to not hear clipping but short enough to fit in memory
         private const int MicrophoneRecordLength = 60 * 5;

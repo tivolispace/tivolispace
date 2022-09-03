@@ -8,6 +8,8 @@ namespace Tivoli.Scripts.Voice
     {
         private Player.Player _player;
 
+        private const int TargetSampleRate = Microphone.MicrophoneSampleRate;
+        
         private OpusEncoderThreaded _opusEncoderThreaded;
         private Microphone _microphone;
         
@@ -28,7 +30,7 @@ namespace Tivoli.Scripts.Voice
             // resamplers live in Microphone and PlayerVoiceChatOutput and will adapt hardware 
             if (isLocalPlayer)
             {
-                _opusEncoderThreaded = new OpusEncoderThreaded(Microphone.MicrophoneSampleRate, 1);
+                _opusEncoderThreaded = new OpusEncoderThreaded(TargetSampleRate, 1);
                 _opusEncoderThreaded.OnEncoded += OnMicrophoneEncoded;
                 
                 _microphone = new Microphone
@@ -40,7 +42,7 @@ namespace Tivoli.Scripts.Voice
             }
             else
             {
-                _opusDecoderThreaded = new OpusDecoderThreaded(Microphone.MicrophoneSampleRate, 1);
+                _opusDecoderThreaded = new OpusDecoderThreaded(TargetSampleRate, 1);
                 _opusDecoderThreaded.OnDecoded += OnVoiceDecoded;
             }
         }

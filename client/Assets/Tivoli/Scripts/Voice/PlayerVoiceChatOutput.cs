@@ -8,19 +8,48 @@ namespace Tivoli.Scripts.Voice
     public class PlayerVoiceChatOutput : MonoBehaviour
     {
         private AudioSource _audioSource;
+        private AudioClip _dummyClip;
 
         private readonly PlaybackBuffer _playbackBuffer = new();
 
-        private const int InputSampleRate = 48000;
-        private const int OutputSampleRate = 44100;
-        private const float ResampleFactor = (float) InputSampleRate / OutputSampleRate;
+        private const int TargetSampleRate = Microphone.MicrophoneSampleRate;
 
-        // private bool _resamplingRequired = true;
-        private readonly SpeexMonoResampler _resampler = new(InputSampleRate, OutputSampleRate);
-        
+        private SpeexMonoResampler _resampler;
+        private bool _resamplingRequired;
+        private float _resampleFactor;
+
         private void Awake()
         {
+            _dummyClip = AudioClip.Create("Dummy", TargetSampleRate, 1, TargetSampleRate, false);
+            var samples = new float[TargetSampleRate];
+            for (var i = 0; i < TargetSampleRate; i++)
+            {
+                samples[i] = 1f;
+            }
+
+            _dummyClip.SetData(samples, 0);
+            _dummyClip.hideFlags = HideFlags.DontSave;
+
+            // this is set to 48000 in unity settings, and should stay that way
+            // but on macos it'll freely change. therefore we need to resample
+            // TODO: resampler doesnt work well from 48000 to 44100
+            
+            var outputSampleRate = AudioSettings.outputSampleRate;
+            if (outputSampleRate != TargetSampleRate)
+            {
+                _resampler = new SpeexMonoResampler(TargetSampleRate, outputSampleRate);
+                _resamplingRequired = true;
+                _resampleFactor = (float) TargetSampleRate / outputSampleRate;
+                Debug.Log(_resampleFactor);
+                Debug.LogWarning(
+                    $"Unity can't resample to {TargetSampleRate} so we're manually resampling to {outputSampleRate}");
+            }
+
             _audioSource = GetComponent<AudioSource>();
+#if UNITY_EDITOR
+            if (_audioSource.playOnAwake) Debug.LogError("Please turn \"Play On Awake\" off");
+#endif
+            _audioSource.clip = _dummyClip;
             _audioSource.loop = true;
             _audioSource.Play();
         }
@@ -40,15 +69,16 @@ namespace Tivoli.Scripts.Voice
         // {
         //     _playbackBuffer.AddPcmBuffer(SamplesToFloat(compressed));
         // }
-        
+
         public void AddPcmSamples(float[] pcmSamples)
         {
             _playbackBuffer.AddPcmBuffer(pcmSamples);
         }
 
-        private static void MonoToStereo(float[] mono, float[] stereo)
+        // TODO: there has got to be a way to optimize this
+        private static void MonoToStereo(IReadOnlyList<float> mono, IList<float> stereo)
         {
-            for (var i = 0; i < mono.Length; i++)
+            for (var i = 0; i < mono.Count; i++)
             {
                 stereo[i * 2] = mono[i];
                 stereo[i * 2 + 1] = mono[i];
@@ -57,80 +87,58 @@ namespace Tivoli.Scripts.Voice
 
         private void OnAudioFilterRead(float[] output, int channels)
         {
-            // if (channels > 2) return;
-            //
-            // Debug.Log("ON READ");
-            //
-            // var outputMonoLength = output.Length / channels;
-            //
-            // var lengthWeNeedBeforeResample = Mathf.CeilToInt(outputMonoLength * ResampleFactor);
-            // if (_playbackBuffer.GetAvailableSamples() < lengthWeNeedBeforeResample * 2)
-            // {
-            //     return;
-            // }
-            //
-            // Debug.Log("to fill"+output.Length);
-            // Debug.Log("we need"+lengthWeNeedBeforeResample);
-            //
-            // Debug.Log("buffer has:"+_playbackBuffer.GetAvailableSamples());
-            //
-            // var bufferRawData = new float[lengthWeNeedBeforeResample];
-            // var bufferRead = _playbackBuffer.Read(bufferRawData, 0, bufferRawData.Length);
-            // Debug.Log("buffer asked:" +lengthWeNeedBeforeResample);
-            // Debug.Log("buffer read:"+bufferRead);
-            // var bufferData = new float[bufferRead];
-            // Array.Copy(bufferRawData, bufferData, bufferRead);
-            //
-            // var resampledData = new float[outputMonoLength];
-            // var resampledRead = _resampler.Resample(bufferData, resampledData);
-            // Debug.Log("resampled asked:" +bufferData.Length);
-            // Debug.Log("resampled read:" +resampledRead);
-            //
-            // if (channels == 2)
-            // {
-            //     MonoToStereo(resampledData, output);
-            // }
-            // else
-            // {
-            //     Array.Copy(resampledData, output, resampledData.Length);
-            // }
-
             if (channels > 2) return;
-            
+
             var outputMonoLength = output.Length / channels;
-            
-            // * 2 just to give some slack for now
-            if (_playbackBuffer.GetAvailableSamples() < outputMonoLength)
-            {
-                return;
-            }
-            
-            Debug.Log("to fill"+output.Length);
-            Debug.Log("we need"+outputMonoLength);
-            
-            Debug.Log("buffer has:"+_playbackBuffer.GetAvailableSamples());
-            
-            var bufferRawData = new float[outputMonoLength];
+            // Debug.Log("outputMonoLength: "+ outputMonoLength);
+
+            var lengthWeNeed = _resamplingRequired
+                ? Mathf.CeilToInt(outputMonoLength * _resampleFactor)
+                : outputMonoLength;
+            // Debug.Log("lengthWeNeed: "+lengthWeNeed);
+
+            // we dont have enough samples to play yet
+            if (_playbackBuffer.GetAvailableSamples() < lengthWeNeed * 2) return;
+
+            var bufferRawData = new float[lengthWeNeed];
             var bufferRead = _playbackBuffer.Read(bufferRawData, 0, bufferRawData.Length);
-            Debug.Log("buffer asked:" +outputMonoLength);
-            Debug.Log("buffer read:"+bufferRead);
             var bufferData = new float[bufferRead];
             Array.Copy(bufferRawData, bufferData, bufferRead);
+            // Debug.Log("bufferRead: " +bufferRead);
 
-            if (channels == 2)
+            if (_resamplingRequired)
             {
-                MonoToStereo(bufferData, output);
+                var resampledData = new float[outputMonoLength];
+                var resampledRead = _resampler.Resample(bufferData, resampledData);
+                // Debug.Log("resampledRead: " +resampledRead);
+
+                if (channels == 2)
+                {
+                    MonoToStereo(resampledData, output);
+                }
+                else
+                {
+                    Array.Copy(resampledData, output, output.Length);
+                }
             }
-            // else
-            // {
-            //     Array.Copy(resampledData, output, resampledData.Length);
-            // }
+            else
+            {
+                if (channels == 2)
+                {
+                    MonoToStereo(bufferData, output);
+                }
+                else
+                {
+                    Array.Copy(bufferData, output, output.Length);
+                }
+            }
         }
 
         private void Update()
         {
             if (_audioSource.isPlaying == false)
             {
+                Debug.LogWarning("Audio source randomly stopped playing, starting again");
                 _audioSource.Play();
             }
         }
