@@ -30,7 +30,7 @@ namespace Tivoli.Scripts.Player
         private void OnUsernameChanged(string @old, string @new)
         {
             if (isLocalPlayer) return;
-            nametagTransform.GetComponentInChildren<TextMeshPro>().text = @new;
+            nametagTransform.GetComponentInChildren<TextMeshPro>().text = $"<lowercase>{@new}</lowercase>";
         }
     
         private void Update()
