@@ -16,6 +16,8 @@ namespace Tivoli.Scripts.Voice
         private readonly Thread _encodeThread;
 
         public Action<byte[]> OnEncoded;
+        
+        private const int MaxInQueue = 10;
 
         public OpusEncoderThreaded(int inputSampleRate, int inputChannels)
         {
@@ -34,9 +36,9 @@ namespace Tivoli.Scripts.Voice
         {
             lock (_encoderInput)
             {
-                if (_encoderInput.Count > 50)
+                if (_encoderInput.Count > MaxInQueue)
                 {
-                    Debug.LogWarning("Encoder has more than 50 inputs waiting, will clear");
+                    Debug.LogWarning($"Encoder has more than {MaxInQueue} inputs waiting, will clear");
                     _encoderInput.Clear();
                 }
                 _encoderInput.Enqueue(pcmSamples);
@@ -57,9 +59,9 @@ namespace Tivoli.Scripts.Voice
                 var output = _opusEncoder.Encode(input);
                 lock (_encoderOutput)
                 {
-                    if (_encoderOutput.Count > 50)
+                    if (_encoderOutput.Count > MaxInQueue)
                     {
-                        Debug.LogWarning("Encoder has more than 50 outputs waiting, will clear");
+                        Debug.LogWarning($"Encoder has more than {MaxInQueue} outputs waiting, will clear");
                         _encoderOutput.Clear();
                     }
                     _encoderOutput.Enqueue(output);

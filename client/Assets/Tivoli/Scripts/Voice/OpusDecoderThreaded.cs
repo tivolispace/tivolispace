@@ -19,6 +19,8 @@ namespace Tivoli.Scripts.Voice
 
         private int _outputSampleRate;
         private int _outputChannels;
+        
+        private const int MaxInQueue = 10;
 
         public OpusDecoderThreaded(int outputSampleRate, int outputChannels)
         {
@@ -39,9 +41,9 @@ namespace Tivoli.Scripts.Voice
         {
             lock (_decoderInput)
             {
-                if (_decoderInput.Count > 50)
+                if (_decoderInput.Count > MaxInQueue)
                 {
-                    Debug.LogWarning("Decoder has more than 50 inputs waiting, will clear");
+                    Debug.LogWarning($"Decoder has more than {MaxInQueue} inputs waiting, will clear");
                     _decoderInput.Clear();
                 }
 
@@ -67,9 +69,9 @@ namespace Tivoli.Scripts.Voice
 
                 lock (_decoderOutput)
                 {
-                    if (_decoderOutput.Count > 50)
+                    if (_decoderOutput.Count > MaxInQueue)
                     {
-                        Debug.LogWarning("Decoder has more than 50 outputs waiting, will clear");
+                        Debug.LogWarning($"Decoder has more than {MaxInQueue} outputs waiting, will clear");
                         _decoderOutput.Clear();
                     }
 
