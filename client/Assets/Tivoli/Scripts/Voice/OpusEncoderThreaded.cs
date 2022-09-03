@@ -17,7 +17,7 @@ namespace Tivoli.Scripts.Voice
 
         public Action<byte[]> OnEncoded;
         
-        private const int MaxInQueue = 10;
+        private const int MaxInQueue = 20;
 
         public OpusEncoderThreaded(int inputSampleRate, int inputChannels)
         {

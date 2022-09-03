@@ -74,13 +74,11 @@ namespace Tivoli.Scripts.Voice
                 return;
             }
             
-            
             // FOR TESTING send straight to output
-            playerVoiceChatOutput.AddPcmSamples(pcmSamples);
-            
+            // playerVoiceChatOutput.AddPcmSamples(pcmSamples);
             
             // Debug.Log("adding samples: "+pcmSamples.Length);
-            // _opusEncoderThreaded.AddToEncodeQueue(pcmSamples);
+            _opusEncoderThreaded.AddToEncodeQueue(pcmSamples);
         }
 
         private void OnMicrophoneEncoded(byte[] opusData)

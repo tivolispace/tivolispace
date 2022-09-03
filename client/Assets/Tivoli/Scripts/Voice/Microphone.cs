@@ -41,9 +41,11 @@ namespace Tivoli.Scripts.Voice
             _microphone = UnityEngine.Microphone.Start(_microphoneDeviceName, true, MicrophoneRecordLength, MicrophoneSampleRate);
             #endif
 
+            // usually doesn't happen. even on mac with airpods max where the mic is 24000,
+            // the audio clip will output 48000. hooray lol no manual resampling
             if (_microphone.frequency != MicrophoneSampleRate)
             {
-                Debug.LogError("Selected microphone is not at target sample rate of " + MicrophoneSampleRate);
+                Debug.LogError($"Selected microphone has sample rate of {_microphone.frequency} but should be {MicrophoneSampleRate}");
                 StopMicrophone(true);
             }
 

@@ -20,7 +20,7 @@ namespace Tivoli.Scripts.Voice
         private int _outputSampleRate;
         private int _outputChannels;
         
-        private const int MaxInQueue = 10;
+        private const int MaxInQueue = 20;
 
         public OpusDecoderThreaded(int outputSampleRate, int outputChannels)
         {

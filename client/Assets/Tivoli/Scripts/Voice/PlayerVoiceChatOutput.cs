@@ -98,7 +98,7 @@ namespace Tivoli.Scripts.Voice
             // Debug.Log("lengthWeNeed: "+lengthWeNeed);
 
             // we dont have enough samples to play yet
-            if (_playbackBuffer.GetAvailableSamples() < lengthWeNeed * 2) return;
+            // if (_playbackBuffer.GetAvailableSamples() < lengthWeNeed * 2) return;
 
             var bufferRawData = new float[lengthWeNeed];
             var bufferRead = _playbackBuffer.Read(bufferRawData, 0, bufferRawData.Length);
