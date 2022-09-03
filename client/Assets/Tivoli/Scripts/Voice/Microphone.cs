@@ -23,7 +23,7 @@ namespace Tivoli.Scripts.Voice
         private int _numTimesLooped;
         
         // 960 samples per outgoing packet, though opus will compress super well
-        private const int NumFramesPerOutgoingPacket = 2;
+        public const int NumFramesPerOutgoingPacket = 2;
         public const int NumSamplesPerOutgoingPacket = NumFramesPerOutgoingPacket * MicrophoneSampleRate / 100;
 
         public void StartMicrophone(bool force = false)

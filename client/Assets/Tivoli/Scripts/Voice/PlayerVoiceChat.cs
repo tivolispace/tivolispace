@@ -37,7 +37,8 @@ namespace Tivoli.Scripts.Voice
             }
             else
             {
-                // TODO: not all machines have 48000 sample rate
+                // TODO: not all machines have 48000 sample rate, like 24000 or 44100. we need a resampler
+                // opus doesnt seem to resample for us
                 _opusDecoderThreaded = new OpusDecoderThreaded(Microphone.MicrophoneSampleRate, 2);
                 _opusDecoderThreaded.OnDecoded += OnVoiceDecoded;
             }

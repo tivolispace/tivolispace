@@ -44,6 +44,7 @@ namespace Tivoli.Scripts.Voice
                     Debug.LogWarning("Decoder has more than 50 inputs waiting, will clear");
                     _decoderInput.Clear();
                 }
+
                 _decoderInput.Enqueue(opusData);
             }
         }
@@ -59,9 +60,11 @@ namespace Tivoli.Scripts.Voice
                     input = _decoderInput.Dequeue();
                 }
 
-                var pcmData = new float[Microphone.NumSamplesPerOutgoingPacket * _outputChannels];
+                var pcmData = new float[Microphone.NumFramesPerOutgoingPacket * _outputSampleRate / 100 *
+                                        _outputChannels];
+
                 var length = _opusDecoder.Decode(input, pcmData);
-                
+
                 lock (_decoderOutput)
                 {
                     if (_decoderOutput.Count > 50)
@@ -69,6 +72,7 @@ namespace Tivoli.Scripts.Voice
                         Debug.LogWarning("Decoder has more than 50 outputs waiting, will clear");
                         _decoderOutput.Clear();
                     }
+
                     _decoderOutput.Enqueue(pcmData);
                 }
             }
