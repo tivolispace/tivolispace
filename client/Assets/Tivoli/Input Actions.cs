@@ -53,6 +53,15 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""BoomLength"",
+                    ""type"": ""Value"",
+                    ""id"": ""7f36e39f-36e7-44be-b5dc-2d18a40cc4be"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -132,6 +141,17 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                     ""action"": ""ActivateLook"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""af53e037-b833-4f5e-8a22-3ef0bb6b1c16"",
+                    ""path"": ""<Mouse>/scroll/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""BoomLength"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -143,6 +163,7 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
         m_Player_ActivateLook = m_Player.FindAction("ActivateLook", throwIfNotFound: true);
+        m_Player_BoomLength = m_Player.FindAction("BoomLength", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -205,6 +226,7 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Look;
     private readonly InputAction m_Player_ActivateLook;
+    private readonly InputAction m_Player_BoomLength;
     public struct PlayerActions
     {
         private @InputActions m_Wrapper;
@@ -212,6 +234,7 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
         public InputAction @Move => m_Wrapper.m_Player_Move;
         public InputAction @Look => m_Wrapper.m_Player_Look;
         public InputAction @ActivateLook => m_Wrapper.m_Player_ActivateLook;
+        public InputAction @BoomLength => m_Wrapper.m_Player_BoomLength;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -230,6 +253,9 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                 @ActivateLook.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnActivateLook;
                 @ActivateLook.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnActivateLook;
                 @ActivateLook.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnActivateLook;
+                @BoomLength.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBoomLength;
+                @BoomLength.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBoomLength;
+                @BoomLength.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBoomLength;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -243,6 +269,9 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                 @ActivateLook.started += instance.OnActivateLook;
                 @ActivateLook.performed += instance.OnActivateLook;
                 @ActivateLook.canceled += instance.OnActivateLook;
+                @BoomLength.started += instance.OnBoomLength;
+                @BoomLength.performed += instance.OnBoomLength;
+                @BoomLength.canceled += instance.OnBoomLength;
             }
         }
     }
@@ -252,5 +281,6 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
         void OnMove(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
         void OnActivateLook(InputAction.CallbackContext context);
+        void OnBoomLength(InputAction.CallbackContext context);
     }
 }
