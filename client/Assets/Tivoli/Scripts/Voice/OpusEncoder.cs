@@ -22,6 +22,11 @@ namespace Tivoli.Scripts.Voice
         private const int MaxPacketSize = 1000; // stay within MTU of 1500
         private readonly byte[] _encodedPacket = new byte[MaxPacketSize];
 
+        // https://wiki.xiph.org/Opus_Recommended_Settings
+        // 64 Kb/s is the default
+        // 1 channel 24 Kb/s gives full band, recommended for voice
+        private const int Bitrate = 24000;
+
         public OpusEncoder(int inputSampleRate, int inputChannels)
         {
             if (!PermittedSampleRates.Contains(inputSampleRate))
@@ -48,7 +53,7 @@ namespace Tivoli.Scripts.Voice
             _sampleSize = SampleSize(bitDepth, inputChannels);
 
             // 64 KB/s is the default but we can change it here
-            OpusNativeMethods.opus_encoder_ctl(_encoder, OpusNativeMethods.OpusCtl.SetBitrateRequest, 64000);
+            OpusNativeMethods.opus_encoder_ctl(_encoder, OpusNativeMethods.OpusCtl.SetBitrateRequest, Bitrate);
         }
 
         private static int SampleSize(int bitDepth, int channelCount)
