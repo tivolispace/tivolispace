@@ -19,7 +19,7 @@ namespace Tivoli.Scripts.Voice
 
         private int _outputSampleRate;
         private int _outputChannels;
-        
+
         private const int MaxInQueue = 20;
 
         public OpusDecoderThreaded(int outputSampleRate, int outputChannels)
@@ -62,10 +62,11 @@ namespace Tivoli.Scripts.Voice
                     input = _decoderInput.Dequeue();
                 }
 
-                var pcmData = new float[Microphone.NumFramesPerOutgoingPacket * _outputSampleRate / 100 *
-                                        _outputChannels];
-
-                var length = _opusDecoder.Decode(input, pcmData);
+                var pcmRawData =
+                    new float[Microphone.NumFramesPerOutgoingPacket * _outputSampleRate / 100 * _outputChannels];
+                var length = _opusDecoder.Decode(input, pcmRawData);
+                var pcmData = new float[length];
+                Array.Copy(pcmRawData, pcmData, length);
 
                 lock (_decoderOutput)
                 {

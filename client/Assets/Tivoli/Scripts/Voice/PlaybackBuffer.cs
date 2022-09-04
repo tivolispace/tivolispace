@@ -23,11 +23,14 @@ namespace Tivoli.Scripts.Voice
 
         private const int MaxBuffers = 10;
 
-        // probably needs lock(_bufferLock) otherwise it errors often
-        // public int GetAvailableSamples()
-        // {
-        //     return _pcmBuffers.ToArray().Sum(pcmBuffer => pcmBuffer.PcmLength);
-        // }
+        // TODO: make this better
+        public int GetAvailableSamples()
+        {
+            lock (_bufferLock)
+            {
+                return _pcmBuffers.ToArray().Sum(pcmBuffer => pcmBuffer.PcmLength);
+            }
+        }
         
         public int Read(float[] buffer, int offset, int count)
         {

@@ -1,0 +1,90 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using UnityEngine;
+
+namespace Tivoli.Scripts.Voice
+{
+    public class SpeexMonoResamplerThreaded
+    {
+        private readonly SpeexMonoResampler _resampler;
+
+        private readonly Queue<float[]> _resampleInput = new();
+        private readonly Queue<float[]> _resampleOutput = new();
+
+        private bool _isRunning = true;
+        private readonly Thread _resampleThread;
+
+        public Action<float[]> OnResampled;
+        
+        private const int MaxInQueue = 20;
+
+        private readonly float _resampleFactor;
+
+        public SpeexMonoResamplerThreaded(int inputSampleRate, int outputSampleRate)
+        {
+            _resampleFactor = (float) inputSampleRate / outputSampleRate;
+            _resampler = new SpeexMonoResampler(inputSampleRate, outputSampleRate);
+            _resampleThread = new Thread(ResampleThread);
+            _resampleThread.Start();
+        }
+
+        ~SpeexMonoResamplerThreaded()
+        {
+            _isRunning = false;
+            _resampleThread.Join();
+        }
+
+        public void AddToResampleQueue(float[] pcmSamples)
+        {
+            lock (_resampleInput)
+            {
+                if (_resampleInput.Count > MaxInQueue)
+                {
+                    Debug.LogWarning($"Resample has more than {MaxInQueue} inputs waiting, will clear");
+                    _resampleInput.Clear();
+                }
+                _resampleInput.Enqueue(pcmSamples);
+            }
+        }
+
+        private void ResampleThread()
+        {
+            while (_isRunning)
+            {
+                float[] input;
+                lock (_resampleInput)
+                {
+                    if (_resampleInput.Count == 0) continue;
+                    input = _resampleInput.Dequeue();
+                }
+
+                var resampledRawData = new float[Mathf.CeilToInt(input.Length * _resampleFactor)];
+                var length = _resampler.Resample(input, resampledRawData);
+                var resampledData = new float[length];
+                Array.Copy(resampledRawData, resampledData, length);
+                
+                lock (_resampleOutput)
+                {
+                    if (_resampleOutput.Count > MaxInQueue)
+                    {
+                        Debug.LogWarning($"Resampler has more than {MaxInQueue} outputs waiting, will clear");
+                        _resampleOutput.Clear();
+                    }
+                    _resampleOutput.Enqueue(resampledData);
+                }
+            }
+        }
+
+        public void Update()
+        {
+            lock (_resampleOutput)
+            {
+                while (_resampleOutput.Count > 0)
+                {
+                    OnResampled(_resampleOutput.Dequeue());
+                }
+            }
+        }
+    }
+}
