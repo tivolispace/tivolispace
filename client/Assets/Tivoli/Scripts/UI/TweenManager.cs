@@ -133,7 +133,7 @@ public class TweenManager
         private float _endTime;
 
         public float Current;
-        public bool Finished;
+        public bool Finished = true;
 
         private Interpolation _interpolation;
         private readonly Action<float> _transition;
