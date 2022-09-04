@@ -41,7 +41,7 @@ namespace Tivoli.Scripts.Voice
             {
                 if (_resampleInput.Count > MaxInQueue)
                 {
-                    Debug.LogWarning($"Resample has more than {MaxInQueue} inputs waiting, will clear");
+                    Debug.Log($"Resample has more than {MaxInQueue} inputs waiting, will clear");
                     _resampleInput.Clear();
                 }
                 _resampleInput.Enqueue(pcmSamples);
@@ -68,7 +68,7 @@ namespace Tivoli.Scripts.Voice
                 {
                     if (_resampleOutput.Count > MaxInQueue)
                     {
-                        Debug.LogWarning($"Resampler has more than {MaxInQueue} outputs waiting, will clear");
+                        Debug.Log($"Resampler has more than {MaxInQueue} outputs waiting, will clear");
                         _resampleOutput.Clear();
                     }
                     _resampleOutput.Enqueue(resampledData);

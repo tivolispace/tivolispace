@@ -43,7 +43,7 @@ namespace Tivoli.Scripts.Voice
             {
                 if (_decoderInput.Count > MaxInQueue)
                 {
-                    Debug.LogWarning($"Decoder has more than {MaxInQueue} inputs waiting, will clear");
+                    Debug.Log($"Decoder has more than {MaxInQueue} inputs waiting, will clear");
                     _decoderInput.Clear();
                 }
 
@@ -72,7 +72,7 @@ namespace Tivoli.Scripts.Voice
                 {
                     if (_decoderOutput.Count > MaxInQueue)
                     {
-                        Debug.LogWarning($"Decoder has more than {MaxInQueue} outputs waiting, will clear");
+                        Debug.Log($"Decoder has more than {MaxInQueue} outputs waiting, will clear");
                         _decoderOutput.Clear();
                     }
 

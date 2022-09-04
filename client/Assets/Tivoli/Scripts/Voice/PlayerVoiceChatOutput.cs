@@ -82,7 +82,7 @@ namespace Tivoli.Scripts.Voice
         {
             if (_audioSource.isPlaying == false)
             {
-                Debug.LogWarning("Audio source randomly stopped playing, starting again");
+                // Debug.Log("Audio source randomly stopped playing, starting again");
                 _audioSource.Play();
             }
         }

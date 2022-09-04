@@ -38,7 +38,7 @@ namespace Tivoli.Scripts.Voice
             {
                 if (_encoderInput.Count > MaxInQueue)
                 {
-                    Debug.LogWarning($"Encoder has more than {MaxInQueue} inputs waiting, will clear");
+                    Debug.Log($"Encoder has more than {MaxInQueue} inputs waiting, will clear");
                     _encoderInput.Clear();
                 }
                 _encoderInput.Enqueue(pcmSamples);
@@ -61,7 +61,7 @@ namespace Tivoli.Scripts.Voice
                 {
                     if (_encoderOutput.Count > MaxInQueue)
                     {
-                        Debug.LogWarning($"Encoder has more than {MaxInQueue} outputs waiting, will clear");
+                        Debug.Log($"Encoder has more than {MaxInQueue} outputs waiting, will clear");
                         _encoderOutput.Clear();
                     }
                     _encoderOutput.Enqueue(output);
