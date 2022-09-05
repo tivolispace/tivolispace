@@ -18,7 +18,7 @@ public class Button : MonoBehaviour
     private TweenManager.Tweener _characterSpacing;
 
     private const float HoverDuration = 250; // ms
-    private const EasingFunctions.Easing Easing = EasingFunctions.Easing.OutQuint;
+    private const EasingFunctions.Easing Easing = EasingFunctions.Easing.OutBounce;
 
     private void Awake()
     {

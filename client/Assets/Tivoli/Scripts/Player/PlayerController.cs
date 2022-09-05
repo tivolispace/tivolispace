@@ -131,7 +131,7 @@ namespace Tivoli.Scripts.Player
                 case > 6f:
                     return;
                 default:
-                    _cameraBoomTweener.Tween(to, 100, EasingFunctions.Easing.MaterialDecelerate);
+                    _cameraBoomTweener.Tween(to, 100, EasingFunctions.Easing.Out);
                     break;
             }
         }

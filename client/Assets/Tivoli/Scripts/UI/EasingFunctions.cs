@@ -3,11 +3,16 @@ using UnityEngine;
 
 namespace Tivoli.Scripts.UI
 {
-    public class EasingFunctions
+    public static class EasingFunctions
     {
+        // https://github.com/ppy/osu-framework/blob/2d4142c5433492868f1ba7a2f670afeb84a9e906/osu.Framework/Graphics/Easing.cs
+        // https://github.com/ppy/osu-framework/blob/2d4142c5433492868f1ba7a2f670afeb84a9e906/osu.Framework/Graphics/Transforms/DefaultEasingFunction.cs
+
         public enum Easing
         {
-            Linear,
+            None,
+            Out,
+            In,
             InQuad,
             OutQuad,
             InOutQuad,
@@ -29,333 +34,186 @@ namespace Tivoli.Scripts.UI
             InCirc,
             OutCirc,
             InOutCirc,
+            InElastic,
+            OutElastic,
+            OutElasticHalf,
+            OutElasticQuarter,
+            InOutElastic,
             InBack,
             OutBack,
             InOutBack,
             InBounce,
             OutBounce,
             InOutBounce,
-            InElastic,
-            OutElastic,
-            InOutElastic,
-            MaterialStandard,
-            MaterialDecelerate,
-            MaterialAccelerate,
+            OutPow10,
         }
 
-        // https://github.com/ai/easings.net/blob/master/src/easings/easingsFunctions.ts
-        
-        public static float Linear(float x)
-        {
-            return x;
-        }
+        private const float ElasticConst = 2f * Mathf.PI / .3f;
+        private const float ElasticConst2 = .3f / 4f;
 
-        public static float InQuad(float x)
-        {
-            return x * x;
-        }
+        private const float BackConst = 1.70158f;
+        private const float BackConst2 = BackConst * 1.525f;
 
-        public static float OutQuad(float x)
-        {
-            return 1f - (1f - x) * (1f - x);
-        }
+        private const float BounceConst = 1f / 2.75f;
 
-        public static float InOutQuad(float x)
+        // constants used to fix expo and elastic curves to start/end at 0/1
+        private static readonly float ExpoOffset = Mathf.Pow(2f, -10f);
+        private static readonly float ElasticOffsetFull = Mathf.Pow(2f, -11f);
+
+        private static readonly float ElasticOffsetHalf =
+            Mathf.Pow(2f, -10f) * Mathf.Sin((.5f - ElasticConst2) * ElasticConst);
+
+        private static readonly float ElasticOffsetQuarter =
+            Mathf.Pow(2f, -10f) * Mathf.Sin((.25f - ElasticConst2) * ElasticConst);
+
+        private static readonly float InOutElasticOffset =
+            Mathf.Pow(2f, -10f) * Mathf.Sin((1f - ElasticConst2 * 1.5f) * ElasticConst / 1.5f);
+
+        public static float Ease(float t, Easing easing)
         {
-            return x switch
+            switch (easing)
             {
-                < 0.5f => 2f * x * x,
-                _ => 1f - Mathf.Pow(-2f * x + 2f, 2f) / 2f
-            };
-        }
+                default:
+                case Easing.None:
+                    return t;
 
-        public static float InCubic(float x)
-        {
-            return x * x * x;
-        }
+                case Easing.In:
+                case Easing.InQuad:
+                    return t * t;
 
-        public static float OutCubic(float x)
-        {
-            return 1f - Mathf.Pow(1f - x, 3);
-        }
+                case Easing.Out:
+                case Easing.OutQuad:
+                    return t * (2f - t);
 
-        public static float InOutCubic(float x)
-        {
-            return x switch
-            {
-                < 0.5f => 4f * x * x * x,
-                _ => 1f - Mathf.Pow(-2f * x + 2f, 3f) / 2f
-            };
-        }
+                case Easing.InOutQuad:
+                    if (t < .5f) return t * t * 2f;
 
-        public static float InQuart(float x)
-        {
-            return x * x * x * x;
-        }
+                    return --t * t * -2f + 1f;
 
-        public static float OutQuart(float x)
-        {
-            return 1f - Mathf.Pow(1f - x, 4f);
-        }
+                case Easing.InCubic:
+                    return t * t * t;
 
-        public static float InOutQuart(float x)
-        {
-            return x switch
-            {
-                < 0.5f => 8f * x * x * x * x,
-                _ => 1f - Mathf.Pow(-2f * x + 2f, 4f) / 2f
-            };
-        }
+                case Easing.OutCubic:
+                    return --t * t * t + 1f;
 
-        public static float InQuint(float x)
-        {
-            return x * x * x * x * x;
-        }
+                case Easing.InOutCubic:
+                    if (t < .5f) return t * t * t * 4f;
+                    return --t * t * t * 4f + 1f;
 
-        public static float OutQuint(float x)
-        {
-            return 1f - Mathf.Pow(1f - x, 5f);
-        }
+                case Easing.InQuart:
+                    return t * t * t * t;
 
-        public static float InOutQuint(float x)
-        {
-            return x switch
-            {
-                < 0.5f => 16f * x * x * x * x * x,
-                _ => 1f - Mathf.Pow(-2f * x + 2f, 5f) / 2f
-            };
-        }
+                case Easing.OutQuart:
+                    return 1f - --t * t * t * t;
 
-        public static float InSine(float x)
-        {
-            return 1f - Mathf.Cos((x * Mathf.PI) / 2f);
-        }
-        
-        public static float OutSine(float x)
-        {
-            return Mathf.Sin((x * Mathf.PI) / 2f);
-        }
-        
-        public static float InOutSine(float x)
-        {
-            return -(Mathf.Cos(Mathf.PI * x) - 1f) / 2f;
-        }
+                case Easing.InOutQuart:
+                    if (t < .5f) return t * t * t * t * 8f;
+                    return --t * t * t * t * -8f + 1f;
 
-        public static float InExpo(float x)
-        {
-            return x switch
-            {
-                0f => 0f,
-                _ => Mathf.Pow(2f, 10f * x - 10f),
-            };
-        }
-        
-        public static float OutExpo(float x)
-        {
-            return x switch
-            {
-                1f => 1f,
-                _ => 1f - Mathf.Pow(2f, -10f * x),
-            };
-        }
-        
-        public static float InOutExpo(float x)
-        {
-            return x switch
-            {
-                0f => 0f,
-                1f => 1f,
-                < 0.5f => Mathf.Pow(2f, 20f * x - 10f) / 2f,
-                _ => (2f - Mathf.Pow(2f, -20f * x + 10f)) / 2f
-            };
-        }
+                case Easing.InQuint:
+                    return t * t * t * t * t;
 
-        public static float InCirc(float x)
-        {
-            return 1f - Mathf.Sqrt(1f - Mathf.Pow(x, 2f));
-        }
-        
-        public static float OutCirc(float x)
-        {
-            return Mathf.Sqrt(1f - Mathf.Pow(x - 1f, 2f));
-        }
-        
-        public static float InOutCirc(float x)
-        {
-            return x switch
-            {
-                < 0.5f => (1f - Mathf.Sqrt(1f - Mathf.Pow(2f * x, 2f))) / 2f,
-                _ => (Mathf.Sqrt(1f - Mathf.Pow(-2f * x + 2f, 2f)) + 1f) / 2f
-            };
-        }
+                case Easing.OutQuint:
+                    return --t * t * t * t * t + 1f;
 
-        private const float C1 = 1.70158f;
-        private const float C2 = C1 * 1.525f;
-        private const float C3 = C1 + 1f;
-        private const float C4 = (2f * Mathf.PI) / 3f;
-        private const float C5 = (2f * Mathf.PI) / 4.5f;
+                case Easing.InOutQuint:
+                    if (t < .5f) return t * t * t * t * t * 16f;
+                    return --t * t * t * t * t * 16f + 1f;
 
-        public static float InBack(float x)
-        {
-            return C3 * x * x * x - C1 * x * x;
-        }
-        
-        public static float OutBack(float x)
-        {
-            return 1f + C3 * Mathf.Pow(x - 1f, 3f) + C1 * Mathf.Pow(x - 1f, 2f);
-        }
+                case Easing.InSine:
+                    return 1f - Mathf.Cos(t * Mathf.PI * .5f);
 
-        public static float InOutBack(float x)
-        {
-            return x switch
-            {
-                < 0.5f => (Mathf.Pow(2f * x, 2f) * ((C2 + 1f) * 2f * x - C2)) / 2f,
-                _ => (Mathf.Pow(2f * x - 2f, 2f) * ((C2 + 1f) * (x * 2f - 2f) + C2) + 2f) / 2f
-            };
-        }
+                case Easing.OutSine:
+                    return Mathf.Sin(t * Mathf.PI * .5f);
 
-        private static float InElastic(float x)
-        {
-            return x switch
-            {
-                0f => 0f,
-                1f => 1f,
-                _ => -Mathf.Pow(2f, 10f * x - 10f) * Mathf.Sin((x * 10f - 10.75f) * C4)
-            };
-        }
+                case Easing.InOutSine:
+                    return .5f - .5f * Mathf.Cos(Mathf.PI * t);
 
-        private static float OutElastic(float x)
-        {
-            return x switch
-            {
-                0f => 0f,
-                1f => 1f,
-                _ => Mathf.Pow(2f, -10f * x) * Mathf.Sin((x * 10f - 0.75f) * C4) + 1f
-            };
-        }
+                case Easing.InExpo:
+                    return Mathf.Pow(2f, 10f * (t - 1f)) + ExpoOffset * (t - 1f);
 
-        private static float InOutElastic(float x)
-        {
-            return x switch
-            {
-                0f => 0f,
-                1f => 1f,
-                < 0.5f => -(Mathf.Pow(2f, 20f * x - 10f) * Mathf.Sin((20f * x - 11.125f) * C5)) / 2f,
-                _ => (Mathf.Pow(2f, -20f * x + 10f) * Mathf.Sin((20f * x - 11.125f) * C5)) / 2f + 1f
-            };
-        }
+                case Easing.OutExpo:
+                    return -Mathf.Pow(2f, -10f * t) + 1f + ExpoOffset * t;
 
-        private static float BounceOut(float x)
-        {
-            const float n1 = 7.5625f;
-            const float d1 = 2.75f;
-            return x switch
-            {
-                < 1f / d1 => n1 * x * x,
-                < 2f / d1 => n1 * (x -= 1.5f / d1) * x + 0.75f,
-                < 2.5f / d1 => n1 * (x -= 2.25f / d1) * x + 0.9375f,
-                _ => n1 * (x -= 2.625f / d1) * x + 0.984375f
-            };
-        }
+                case Easing.InOutExpo:
+                    if (t < .5f) return .5f * (Mathf.Pow(2f, 20f * t - 10f) + ExpoOffset * (2f * t - 1f));
+                    return 1f - .5f * (Mathf.Pow(2f, -20f * t + 10f) + ExpoOffset * (-2f * t + 1f));
 
-        private static float InBounce(float x)
-        {
-            return 1 - BounceOut(1 - x);
-        }
+                case Easing.InCirc:
+                    return 1f - Mathf.Sqrt(1f - t * t);
 
-        private static float OutBounce(float x)
-        {
-            return BounceOut(x);
-        }
+                case Easing.OutCirc:
+                    return Mathf.Sqrt(1f - --t * t);
 
-        private static float InOutBounce(float x)
-        {
-            return x switch
-            {
-                < 0.5f => (1f - BounceOut(1f - 2f * x)) / 2f,
-                _ => (1f + BounceOut(2f * x - 1f)) / 2f
-            };
-        }
-        
-        // https://material.io/design/motion/speed.html#easing
-        
-        private static Vector2 Lerp2D(Vector2 a, Vector2 b, float n)
-        {
-            return new Vector2(Mathf.Lerp(a.x, b.x, n), Mathf.Lerp(a.y, b.y, n));
-        }
+                case Easing.InOutCirc:
+                    if ((t *= 2f) < 1f) return .5f - .5f * Mathf.Sqrt(1f - t * t);
+                    return .5f * Mathf.Sqrt(1f - (t -= 2f) * t) + .5f;
 
-        private static float CubicBezier(float _1, float _2, float _3, float _4, float n)
-        {
-            var a = new Vector2(0, 0);
-            var b = new Vector2(_1, _2);
-            var c = new Vector2(_3, _4);
-            var d = new Vector2(1, 1);
+                case Easing.InElastic:
+                    return -Mathf.Pow(2f, -10f + 10f * t) * Mathf.Sin((1f - ElasticConst2 - t) * ElasticConst) +
+                           ElasticOffsetFull * (1f - t);
 
-            var ab = Lerp2D(a, b, n);
-            var bc = Lerp2D(b, c, n);
-            var cd = Lerp2D(c, d, n);
-            var abbc = Lerp2D(ab, bc, n);
-            var bccd = Lerp2D(bc, cd, n);
-            var dest = Lerp2D(abbc, bccd, n);
+                case Easing.OutElastic:
+                    return Mathf.Pow(2f, -10f * t) * Mathf.Sin((t - ElasticConst2) * ElasticConst) + 1f -
+                           ElasticOffsetFull * t;
 
-            return dest.y;
-        }
+                case Easing.OutElasticHalf:
+                    return Mathf.Pow(2f, -10f * t) * Mathf.Sin((.5f * t - ElasticConst2) * ElasticConst) + 1f -
+                           ElasticOffsetHalf * t;
 
-        private static float MaterialStandard(float n)
-        {
-            return CubicBezier(0.4f, 0f, 0.2f, 1f, n);
-        }
+                case Easing.OutElasticQuarter:
+                    return Mathf.Pow(2f, -10 * t) * Mathf.Sin((.25f * t - ElasticConst2) * ElasticConst) + 1f -
+                           ElasticOffsetQuarter * t;
 
-        private static float MaterialDecelerate(float n)
-        {
-            return CubicBezier(0f, 0f, 0.2f, 1f, n);
-        }
+                case Easing.InOutElastic:
+                    if ((t *= 2) < 1)
+                    {
+                        return -.5f * (Mathf.Pow(2f, -10f + 10f * t) *
+                                       Mathf.Sin((1f - ElasticConst2 * 1.5f - t) * ElasticConst / 1.5f)
+                                       - InOutElasticOffset * (1f - t));
+                    }
 
-        private static float MaterialAccelerate(float n)
-        {
-            return CubicBezier(0.4f, 0f, 1f, 1f, n);
-        }
+                    return .5f * (Mathf.Pow(2f, -10f * --t) *
+                                  Mathf.Sin((t - ElasticConst2 * 1.5f) * ElasticConst / 1.5f)
+                                  - InOutElasticOffset * t) + 1f;
 
-        public static float Ease(float x, Easing easing)
-        {
-            return easing switch
-            {
-                Easing.Linear => Linear(x),
-                Easing.InQuad => InQuad(x),
-                Easing.OutQuad => OutQuad(x),
-                Easing.InOutQuad => InOutQuad(x),
-                Easing.InCubic => InCubic(x),
-                Easing.OutCubic => OutCubic(x),
-                Easing.InOutCubic => InOutCubic(x),
-                Easing.InQuart => InQuart(x),
-                Easing.OutQuart => OutQuart(x),
-                Easing.InOutQuart => InOutQuart(x),
-                Easing.InQuint => InQuint(x),
-                Easing.OutQuint => OutQuint(x),
-                Easing.InOutQuint => InOutQuint(x),
-                Easing.InSine => InSine(x),
-                Easing.OutSine => OutSine(x),
-                Easing.InOutSine => InOutSine(x),
-                Easing.InExpo => InExpo(x),
-                Easing.OutExpo => OutExpo(x),
-                Easing.InOutExpo => InOutExpo(x),
-                Easing.InCirc => InCirc(x),
-                Easing.OutCirc => OutCirc(x),
-                Easing.InOutCirc => InOutCirc(x),
-                Easing.InBack => InBack(x),
-                Easing.OutBack => OutBack(x),
-                Easing.InOutBack => InOutBack(x),
-                Easing.InBounce => InBounce(x),
-                Easing.OutBounce => OutBounce(x),
-                Easing.InOutBounce => InOutBounce(x),
-                Easing.InElastic => InElastic(x),
-                Easing.OutElastic => OutElastic(x),
-                Easing.InOutElastic => InOutElastic(x),
-                Easing.MaterialStandard => MaterialStandard(x),
-                Easing.MaterialDecelerate => MaterialDecelerate(x),
-                Easing.MaterialAccelerate => MaterialAccelerate(x),
-                _ => throw new NotImplementedException("Easing not implemented: " + easing)
-            };
+                case Easing.InBack:
+                    return t * t * ((BackConst + 1f) * t - BackConst);
+
+                case Easing.OutBack:
+                    return --t * t * ((BackConst + 1f) * t + BackConst) + 1f;
+
+                case Easing.InOutBack:
+                    if ((t *= 2f) < 1f) return .5f * t * t * ((BackConst2 + 1f) * t - BackConst2);
+                    return .5f * ((t -= 2f) * t * ((BackConst2 + 1f) * t + BackConst2) + 2f);
+
+                case Easing.InBounce:
+                    t = 1f - t;
+                    return t switch
+                    {
+                        < BounceConst => 1f - 7.5625f * t * t,
+                        < 2f * BounceConst => 1f - (7.5625f * (t -= 1.5f * BounceConst) * t + .75f),
+                        < 2.5f * BounceConst => 1f - (7.5625f * (t -= 2.25f * BounceConst) * t + .9375f),
+                        _ => 1f - (7.5625f * (t -= 2.625f * BounceConst) * t + .984375f)
+                    };
+
+                case Easing.OutBounce:
+                    return t switch
+                    {
+                        < BounceConst => 7.5625f * t * t,
+                        < 2f * BounceConst => 7.5625f * (t -= 1.5f * BounceConst) * t + .75f,
+                        < 2.5f * BounceConst => 7.5625f * (t -= 2.25f * BounceConst) * t + .9375f,
+                        _ => 7.5625f * (t -= 2.625f * BounceConst) * t + .984375f
+                    };
+
+                case Easing.InOutBounce:
+                    if (t < .5f)
+                        return .5f - .5f * Ease(1f - t * 2f, Easing.OutBounce);
+                    return Ease((t - .5f) * 2f, Easing.OutBounce) * .5f + .5f;
+
+                case Easing.OutPow10:
+                    return --t * Mathf.Pow(t, 10f) + 1f;
+            }
         }
     }
 }
