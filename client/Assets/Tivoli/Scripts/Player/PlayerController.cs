@@ -1,4 +1,5 @@
 ﻿using Mirror;
+using Tivoli.Scripts.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -37,10 +38,7 @@ namespace Tivoli.Scripts.Player
             Camera.main.transform.parent = cameraBoom;
 
             _cameraBoomTweener = _tweenManager.NewTweener(
-                length =>
-                {
-                    Camera.main.transform.localPosition = new Vector3(0f, 0f, -length);
-                }, 2f
+                length => { Camera.main.transform.localPosition = new Vector3(0f, 0f, -length); }, 2f
             );
 
             // rotate down a little
@@ -56,7 +54,7 @@ namespace Tivoli.Scripts.Player
         private void Update()
         {
             if (!isLocalPlayer) return;
-            
+
             _tweenManager.Update();
         }
 
@@ -126,14 +124,14 @@ namespace Tivoli.Scripts.Player
 
             var lengthDelta = (delta < 0 ? 1f : -1f) * 0.4f;
             var to = _cameraBoomTweener.To + lengthDelta;
-            
+
             switch (to)
             {
                 case < 1f:
                 case > 6f:
                     return;
                 default:
-                    _cameraBoomTweener.Tween(to, 100, TweenManager.Interpolation.Decelerate);
+                    _cameraBoomTweener.Tween(to, 100, EasingFunctions.Easing.MaterialDecelerate);
                     break;
             }
         }

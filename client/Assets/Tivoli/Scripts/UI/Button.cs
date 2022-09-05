@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Tivoli.Scripts.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -17,7 +18,7 @@ public class Button : MonoBehaviour
     private TweenManager.Tweener _characterSpacing;
 
     private const float HoverDuration = 250; // ms
-    private const TweenManager.Interpolation Interpolation = TweenManager.Interpolation.EaseOutBounce;
+    private const EasingFunctions.Easing Easing = EasingFunctions.Easing.OutQuint;
 
     private void Awake()
     {
@@ -38,13 +39,13 @@ public class Button : MonoBehaviour
 
     private void OnMouseEnter()
     {
-        _cubeWidth.Tween(_initialCubeWidth + 1f, HoverDuration, Interpolation);
-        _characterSpacing.Tween(text.fontSize, HoverDuration, Interpolation);
+        _cubeWidth.Tween(_initialCubeWidth + 1f, HoverDuration, Easing);
+        _characterSpacing.Tween(text.fontSize, HoverDuration, Easing);
     }
 
     private void OnMouseExit()
     {
-        _cubeWidth.Tween(_initialCubeWidth, HoverDuration, Interpolation);
-        _characterSpacing.Tween(0, HoverDuration, Interpolation);
+        _cubeWidth.Tween(_initialCubeWidth, HoverDuration, Easing);
+        _characterSpacing.Tween(0, HoverDuration, Easing);
     }
 }
