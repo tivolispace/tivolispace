@@ -19,9 +19,7 @@ namespace Tivoli.Scripts.Voice
         private SpeexMonoResamplerThreaded _resamplerThreaded;
         
         public PlayerVoiceChatOutput playerVoiceChatOutput;
-
-        private int _sent, _recv;
-
+        
         private void Awake()
         {
             _player = GetComponent<Player.Player>();
@@ -103,7 +101,6 @@ namespace Tivoli.Scripts.Voice
 
         private void OnMicrophoneEncoded(byte[] opusData)
         {
-            _sent += opusData.Length;
             // Debug.Log("encoded: "+opusData.Length);
             
             // FOR TESTING send straight to decoder
@@ -121,8 +118,6 @@ namespace Tivoli.Scripts.Voice
         [ClientRpc(channel = Channels.Unreliable, includeOwner = false)]
         private void RpcReceiveVoice(byte[] opusData)
         {
-            _recv += opusData.Length;
-
             if (_opusDecoderThreaded == null)
             {
                 Debug.LogError("Failed to decode voice because decoder isn't available");
@@ -155,20 +150,6 @@ namespace Tivoli.Scripts.Voice
             _opusEncoderThreaded?.Update();
             _opusDecoderThreaded?.Update();
             _resamplerThreaded?.Update();
-        }
-
-        private void OnGUI()
-        {
-            if (isLocalPlayer)
-            {
-                GUI.TextArea(new Rect(0, 100, 400, 20), "Opus sent: " + _sent);
-                GUI.TextArea(new Rect(0, 120, 400, 20), "Opus recv: " + _recv);
-            }
-            else
-            {
-                GUI.TextArea(new Rect(0, 180, 400, 20), "Other opus sent: " + _sent);
-                GUI.TextArea(new Rect(0, 200, 400, 20), "Other opus recv: " + _recv);
-            }
         }
     }
 }

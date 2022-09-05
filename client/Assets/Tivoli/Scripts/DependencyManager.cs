@@ -12,13 +12,15 @@ namespace Tivoli.Scripts
         {
             if (Instance != null && Instance != this)
             {
-                Destroy(this);
+                Destroy(gameObject);
                 return;
             }
 
             Instance = this;
 
             windowManager = new WindowManager();
+            
+            DontDestroyOnLoad(gameObject);
         }
     }
 }

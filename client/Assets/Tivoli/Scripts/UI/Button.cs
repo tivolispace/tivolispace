@@ -9,6 +9,7 @@ using UnityEngine.Serialization;
 public class Button : MonoBehaviour
 {
     public TextMeshProUGUI text;
+    public MeshRenderer button;
 
     private readonly TweenManager _tweenManager = new();
 
@@ -22,10 +23,13 @@ public class Button : MonoBehaviour
 
     private void Awake()
     {
-        _initialCubeWidth = transform.localScale.x;
+        _initialCubeWidth = button.material.GetFloat("_Width");
         _cubeWidth =
             _tweenManager.NewTweener(
-                width => { transform.localScale = new Vector3(width, transform.localScale.y, transform.localScale.z); },
+                width =>
+                {
+                    button.material.SetFloat("_Width", width);
+                },
                 _initialCubeWidth
             );
 

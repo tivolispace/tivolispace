@@ -57,6 +57,8 @@ namespace Tivoli.Scripts.Player
 
         public override void OnStopLocalPlayer()
         {
+            _inputActions.Dispose();
+            
             // detach main camera
             Camera.main.transform.parent = null;
         }
