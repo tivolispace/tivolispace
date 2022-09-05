@@ -17,6 +17,11 @@ namespace Tivoli.Scripts.Player
         private TweenManager _tweenManager = new();
         private TweenManager.Tweener _cameraBoomTweener;
 
+        private const float CameraBoomInitial = 2f;
+        private const float CameraBoomMinimumDistance = 1f;
+        
+        private bool _firstPerson = false;
+
         private bool _mouseLocked;
 
         public void Awake()
@@ -36,13 +41,18 @@ namespace Tivoli.Scripts.Player
 
             // attach main camera
             Camera.main.transform.parent = cameraBoom;
+            Camera.main.transform.eulerAngles = Vector3.zero;
 
-            _cameraBoomTweener = _tweenManager.NewTweener(
-                length => { Camera.main.transform.localPosition = new Vector3(0f, 0f, -length); }, 2f
-            );
+            _cameraBoomTweener = _tweenManager.NewTweener(SetCameraBoomLength, CameraBoomInitial);
 
             // rotate down a little
             cameraBoom.transform.eulerAngles = new Vector3(10f, 0f, 0f);
+        }
+
+        private void SetCameraBoomLength(float length)
+        {
+            if (!isLocalPlayer) return;
+            Camera.main.transform.localPosition = new Vector3(0f, 0f, _firstPerson ? 0 : -length);
         }
 
         public override void OnStopLocalPlayer()
@@ -115,24 +125,36 @@ namespace Tivoli.Scripts.Player
 
             cameraBoom.localEulerAngles = newCameraBoom;
         }
-
+        
         private void OnBoomLength(InputAction.CallbackContext context)
         {
             if (!isLocalPlayer) return;
 
             var delta = _inputActions.Player.BoomLength.ReadValue<float>();
+            var zoomOut = delta < 0;
 
-            var lengthDelta = (delta < 0 ? 1f : -1f) * 0.4f;
-            var to = _cameraBoomTweener.To + lengthDelta;
-
-            switch (to)
+            if (_firstPerson && zoomOut)
             {
-                case < 1f:
-                case > 6f:
-                    return;
-                default:
-                    _cameraBoomTweener.Tween(to, 100, EasingFunctions.Easing.Out);
-                    break;
+                _firstPerson = false;
+                SetCameraBoomLength(CameraBoomMinimumDistance);
+            }
+            else
+            {
+                var lengthDelta = (zoomOut ? 1f : -1f) * 0.4f;
+                var to = _cameraBoomTweener.To + lengthDelta;
+
+                switch (to)
+                {
+                    case < CameraBoomMinimumDistance:
+                        _firstPerson = true;
+                        SetCameraBoomLength(0f);
+                        return;
+                    case > 6f:
+                        return;
+                    default:
+                        _cameraBoomTweener.Tween(to, 100, EasingFunctions.Easing.OutQuart);
+                        break;
+                }
             }
         }
     }
