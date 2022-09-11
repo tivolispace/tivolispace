@@ -18,7 +18,7 @@ namespace Tivoli.Scripts
         
         public void UpdateWindowTitle()
         {
-            var windowTitle = "Maki @ Squirrel Nut Cafe (Not Connected) v0.1 - Tivoli Cloud VR";
+            var windowTitle = "Maki @ Squirrel Nut Cafe (Not Connected) v0.1 - Tivoli Space";
             
             #if UNITY_STANDALONE_WIN
             SetWindowText(windowPtr, windowTitle);
@@ -28,7 +28,7 @@ namespace Tivoli.Scripts
         public WindowManager()
         {
             #if UNITY_STANDALONE_WIN
-            windowPtr = FindWindow(null, "Tivoli Cloud VR");
+            windowPtr = FindWindow(null, "Tivoli Space");
             #endif
             
             // TODO: use xdotool for linux support
