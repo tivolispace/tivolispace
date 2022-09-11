@@ -22,7 +22,7 @@ jobs:
                     # - targetPlatform: Android
                     #   platformName: Quest
         env:
-            outputFilename: Tivoli Cloud dev - ${{ matrix.platformName }}
+            outputFilename: Tivoli Space dev - ${{ matrix.platformName }}
         steps:
             - name: Checkout repo
               uses: actions/checkout@v2
@@ -45,8 +45,9 @@ jobs:
                   UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
               with:
                   projectPath: client/
-                  buildName: Tivoli Cloud
+                  buildName: Tivoli Space
                   targetPlatform: ${{ matrix.targetPlatform }}
+                  allowDirtyBuild: true
 
             - name: Make .tar.gz for macOS
               if: ${{ matrix.targetPlatform == 'StandaloneOSX' }}
