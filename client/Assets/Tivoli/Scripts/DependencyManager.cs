@@ -7,6 +7,7 @@ namespace Tivoli.Scripts
         public static DependencyManager Instance;
 
         public WindowManager windowManager;
+        public AccountManager accountManager;
 
         private void Awake()
         {
@@ -19,6 +20,7 @@ namespace Tivoli.Scripts
             Instance = this;
 
             windowManager = new WindowManager();
+            accountManager = new AccountManager();
             
             DontDestroyOnLoad(gameObject);
         }

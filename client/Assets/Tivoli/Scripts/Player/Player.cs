@@ -14,7 +14,7 @@ namespace Tivoli.Scripts.Player
 
         public override void OnStartLocalPlayer()
         {
-            CmdSetupPlayer(SystemInfo.deviceName + new Random().Next(0, 999));
+            CmdSetupPlayer(DependencyManager.Instance.accountManager.GetUsername());
         }
 
         public override void OnStopLocalPlayer()
@@ -30,7 +30,7 @@ namespace Tivoli.Scripts.Player
         private void OnUsernameChanged(string @old, string @new)
         {
             if (isLocalPlayer) return;
-            nametagTransform.GetComponentInChildren<TextMeshPro>().text = $"<lowercase>{@new}</lowercase>";
+            nametagTransform.GetComponentInChildren<TextMeshPro>().text = @new;
         }
     
         private void Update()
