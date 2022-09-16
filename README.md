@@ -4,4 +4,6 @@
 
 The new Tivoli made by cute fairies
 
+Download the [itch.io app](https://itch.io/app) and search for [Tivoli Space](https://makifoxgirl.itch.io/tivolispace) to get automatic updates 
+
 See our [Trello page](https://trello.com/b/za4VZKkl/tivoli-space)!
