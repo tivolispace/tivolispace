@@ -1,0 +1,29 @@
+{
+	"name": "tivoli-space",
+	"version": "0.0.0",
+	"main": "main.js",
+	"description": "Open source virtual worlds",
+	"homepage": "https://tivoli.space",
+	"license": "MIT",
+	"author": {
+		"name": "Tivoli Space",
+		"email": "mxmcube@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/tivolispace/tivolispace.git"
+	},
+	"scripts": {
+		"start": "cross-env NODE_ENV=development electron .",
+		"build": "rimraf dist && electron-builder --config electron-builder.json"
+	},
+	"devDependencies": {
+		"cross-env": "^7.0.3",
+		"electron": "^20.1.3",
+		"electron-builder": "^23.3.3",
+		"rimraf": "^3.0.2"
+	},
+	"dependencies": {
+		"electron-updater": "^5.2.1"
+	}
+}

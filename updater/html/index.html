@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Tivoli Space Updater</title>
+		<script type="module" src="./main.js" defer></script>
+		<!-- <link rel="stylesheet" href="./fonts/inter.css" /> -->
+		<style>
+			body {
+				/* font-family: "Inter", sans-serif; */
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+				overflow: hidden;
+				background-color: transparent;
+				margin: 0;
+			}
+
+			.outer-container {
+				background-color: #1d1f21;
+				/* border-radius: 12px; */
+				width: 100vw;
+				height: 100vh;
+			}
+
+			.container {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				padding: 32px;
+				width: calc(100% - 64px);
+				height: calc(100% - 64px);
+			}
+
+			.logo {
+				height: 72px;
+				margin-bottom: 12px;
+				position: relative;
+			}
+
+			.progress-bar-container {
+				background-color: rgba(255, 255, 255, 0.1);
+				border-radius: 999px;
+				height: 12px;
+				width: 100%;
+				overflow: hidden;
+				margin-bottom: 9px;
+			}
+
+			@keyframes progress-bar {
+				0% {
+					background-position: 0px 0px;
+				}
+				100% {
+					background-position: 50px 0px;
+				}
+			}
+
+			.progress-bar {
+				width: 0%;
+				height: 100%;
+				border-radius: 999px;
+				background-color: #fff;
+				background-image: linear-gradient(
+					-45deg,
+					#e91e63 0%,
+					#e91e63 25%,
+					rgba(233, 30, 99, 0.75) 25%,
+					rgba(233, 30, 99, 0.75) 50%,
+					#e91e63 50%,
+					#e91e63 75%,
+					rgba(233, 30, 99, 0.75) 75%,
+					rgba(233, 30, 99, 0.75) 100%
+				);
+				background-size: 50px 50px;
+				background-repeat: repeat;
+				animation-name: progress-bar;
+				animation-duration: 1s;
+				animation-iteration-count: infinite;
+				animation-timing-function: linear;
+				transition: width 100ms ease;
+			}
+
+			.progress-text {
+				width: 100%;
+				text-align: center;
+				color: #fff;
+				font-weight: 500;
+				letter-spacing: -1px;
+				margin-top: 4px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="outer-container">
+			<div class="container">
+				<lottie-player
+					src="./lottie/tivoli-loading.json"
+					background="transparent"
+					speed="1"
+					class="logo"
+					renderer="svg"
+					loop
+					autoplay
+				></lottie-player>
+				<div class="progress-bar-container">
+					<div class="progress-bar"></div>
+				</div>
+				<div class="progress-text"></div>
+			</div>
+		</div>
+		<script src="./scripts/lottie-player.js" defer></script>
+	</body>
+</html>

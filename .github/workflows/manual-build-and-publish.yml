@@ -1,0 +1,142 @@
+# https://game.ci/docs/github/builder#complete-example
+
+name: Manual build and publish
+# on: [push]
+on:
+    workflow_dispatch:
+        inputs:
+            version:
+                type: string
+                required: true
+                description: "Semantic version: x.x.x"
+jobs:
+    build-client:
+        name: Build client ${{ github.event.inputs.version }} for ${{ matrix.targetPlatform }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - targetPlatform: StandaloneWindows64
+                      # not doing arm64 for now because of steam audio
+                    - targetPlatform: StandaloneOSX
+                      buildMethod: Tivoli.Editor.MacIntelBuildScript.Build
+                    # - targetPlatform: StandaloneLinux64
+                    # - targetPlatform: Android
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v2
+              with:
+                  # fetch-depth: 0
+                  lfs: true
+
+            - name: Fetch cache
+              uses: actions/cache@v2
+              with:
+                  path: client/Library
+                  key: Library-${{ matrix.targetPlatform }}
+                  restore-keys: Library-
+
+            - name: Build client
+              uses: game-ci/unity-builder@v2
+              env:
+                  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+                  UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+                  UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+              with:
+                  projectPath: client/
+                  buildName: Tivoli Space
+                  targetPlatform: ${{ matrix.targetPlatform }}
+                  buildMethod: ${{ matrix.buildMethod }}
+                  versioning: Custom
+                  version: ${{ github.event.inputs.version }}
+
+            # permissions are lost when we dont tar.gz it first
+            # https://github.com/actions/upload-artifact/#maintaining-file-permissions-and-case-sensitive-files
+            - name: Tar.gz build
+              run: |
+                  tar -czf '${{ matrix.targetPlatform }}.tar.gz' 'build/${{ matrix.targetPlatform }}'
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v3
+              with:
+                  name: Client-${{ matrix.targetPlatform }}-${{ github.event.inputs.version }}
+                  path: ${{ matrix.targetPlatform }}.tar.gz
+
+    build-updater:
+        name: Build updater ${{ github.event.inputs.version }} for ${{ matrix.targetPlatform }}
+        needs: build-client
+        runs-on: ${{ matrix.runsOn }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - runsOn: windows-latest
+                      targetPlatform: StandaloneWindows64
+                    - runsOn: macos-latest
+                      targetPlatform: StandaloneOSX
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v2
+              with:
+                  # fetch-depth: 0
+                  lfs: true
+
+            - name: Download client artifact
+              uses: actions/download-artifact@v3
+              with:
+                  name: Client-${{ matrix.targetPlatform }}-${{ github.event.inputs.version }}
+
+            # ./updater/StandaloneOSX/Tivoli Space.app
+            # ./updater/StandaloneWindows64/Tivoli Space.exe
+            - name: Untar.gz build
+              run: |
+                  tar -xf '${{ matrix.targetPlatform }}.tar.gz'
+                  mv 'build/${{ matrix.targetPlatform }}' 'updater/'
+
+            - name: Build updater
+              working-directory: updater
+              run: |
+                  node set-version.js ${{ github.event.inputs.version }}
+                  yarn install
+                  yarn build
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v3
+              with:
+                  name: Updater-${{ matrix.targetPlatform }}-${{ github.event.inputs.version }}
+                  path: |
+                      updater/dist/latest*.yml
+                      updater/dist/*.exe
+                      updater/dist/*.exe.blockmap
+                      updater/dist/*.dmg
+                      updater/dist/*.dmg.blockmap
+                      updater/dist/*.zip
+                      updater/dist/*.zip.blockmap
+
+    upload-updater:
+        name: Upload updater ${{ github.event.inputs.version }} for all
+        needs: build-updater
+        runs-on: ubuntu-latest
+        steps:
+            - name: Download updater artifact for StandaloneWindows64
+              uses: actions/download-artifact@v3
+              with:
+                  name: Updater-StandaloneWindows64-${{ github.event.inputs.version }}
+
+            - name: Download updater artifact for StandaloneOSX
+              uses: actions/download-artifact@v3
+              with:
+                  name: Updater-StandaloneOSX-${{ github.event.inputs.version }}
+
+            - name: Upload to S3
+              uses: jakejarvis/s3-sync-action@master
+              with:
+                  args: --acl public-read --follow-symlinks # --delete will remove everything
+              env:
+                  AWS_S3_BUCKET: tivolispace-cdn
+                  AWS_S3_ENDPOINT: https://s3.us-west-000.backblazeb2.com
+                  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  SOURCE_DIR: ./
+                  DEST_DIR: releases/

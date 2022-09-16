@@ -1,0 +1,58 @@
+{
+	"appId": "space.tivoli.tivolispace",
+	"productName": "Tivoli Space",
+	"asar": false,
+	"protocols": {
+		"name": "Tivoli Space",
+		"schemes": ["tivoli"],
+		"role": "Viewer"
+	},
+	"publish": [
+		{
+			"provider": "generic",
+			"url": "https://cdn.tivoli.space/releases",
+			"useMultipleRangeRequest": false
+		}
+	],
+	"win": {
+		"artifactName": "Tivoli-Space-${version}.${ext}",
+		"target": "nsis",
+		"icon": "assets/icon.ico"
+	},
+	"nsis": {
+		"oneClick": true,
+		"perMachine": false
+	},
+	"mac": {
+		"artifactName": "Tivoli Space ${version}.${ext}",
+		"target": {
+			"target": "default",
+			"arch": ["x64"]
+		},
+		"icon": "assets/icon.icns",
+		"category": "public.app-category.games"
+	},
+	"dmg": {
+		"background": "assets/dmg.tiff",
+		"title": "Tivoli Space",
+		"contents": [
+			{
+				"x": 170,
+				"y": 210
+			},
+			{
+				"x": 370,
+				"y": 210,
+				"type": "link",
+				"path": "/Applications"
+			}
+		]
+	},
+	"files": [
+		"main.js",
+		"html",
+		"StandaloneWindows64",
+		"StandaloneOSX",
+		"StandaloneLinux64"
+	]
+}
