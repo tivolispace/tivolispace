@@ -7,7 +7,7 @@ namespace Tivoli.Scripts.UI
     {
         private void Start()
         {
-            GetComponent<TextMeshProUGUI>().text = DependencyManager.Instance.accountManager.GetUsername();
+            GetComponent<TextMeshProUGUI>().text = DependencyManager.Instance.accountManager.GetMyUsername();
         }
     }
 }

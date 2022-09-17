@@ -9,12 +9,14 @@ namespace Tivoli.Scripts.Player
     {
         [SyncVar(hook = nameof(OnUsernameChanged))]
         public string username;
-    
+
         public Transform nametagTransform;
+        public Nametag nametag;
 
         public override void OnStartLocalPlayer()
         {
-            CmdSetupPlayer(DependencyManager.Instance.accountManager.GetUsername());
+            CmdSetupPlayer(DependencyManager.Instance.accountManager.GetMyUsername());
+            nametag.gameObject.SetActive(false);
         }
 
         public override void OnStopLocalPlayer()
@@ -26,18 +28,20 @@ namespace Tivoli.Scripts.Player
         {
             username = newUsername;
         }
-    
+        
         private void OnUsernameChanged(string @old, string @new)
         {
             if (isLocalPlayer) return;
-            nametagTransform.GetComponentInChildren<TextMeshPro>().text = @new;
+            
+            nametag.gameObject.SetActive(true);
+            nametag.SetUsername(@new);
         }
     
         private void Update()
         {
             if (!isLocalPlayer)
             {
-                nametagTransform.transform.LookAt(Camera.main.transform);
+                nametagTransform.LookAt(Camera.main.transform);
             }
         }
     }
