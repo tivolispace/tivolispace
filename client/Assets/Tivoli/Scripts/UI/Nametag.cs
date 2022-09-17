@@ -1,29 +1,78 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Networking;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class Nametag : MonoBehaviour
 {
-    public Image _profilePicture;
-    public Image _textBackground;
-
+    public Image profilePicture;
+    public Image textBackground;
+    public TextMeshProUGUI nameText;
+    private RectTransform _rectTransform;
+    
     private void Awake()
     {
-        StartCoroutine(LoadImage());
+        _rectTransform = GetComponent<RectTransform>();
+        StartCoroutine(SetImageUrl("https://cdn.discordapp.com/avatars/72139729285427200/030849ff09ed741ce2d3c7ac8b3cb426.png?size=512"));
+        SetName("Maki");
     }
 
-    private static Texture2D FastGaussianBlur(Texture2D input)
+    private void SetName(string name)
     {
+        var size = nameText.GetPreferredValues(name);
+        
+        // update name tag width
+        const float imageWidth = 5f;
+        const float padding = 5f;
+        
+        var textWidth = size.x + padding;
+        if (textWidth < 15) textWidth = 15;
+        
+        _rectTransform.sizeDelta = new Vector2(textWidth + imageWidth, _rectTransform.sizeDelta.y);
+        
+        // set image height to width so background covers
+        textBackground.rectTransform.sizeDelta = new Vector2(0, textWidth);
+
+        // set text
+        nameText.text = name;
+    }
+
+    private static Texture2D GpuScale(Texture2D src, int width, int height, FilterMode filterMode)
+    {
+        var texture = new Texture2D(src.width, src.height);
+        texture.SetPixels(src.GetPixels());
+        texture.filterMode = filterMode;
+        texture.Apply(true);
+        
+        var rtt = new RenderTexture(width, height, 32);
+        Graphics.SetRenderTarget(rtt);
+        GL.LoadPixelMatrix(0, 1, 1, 0);
+        GL.Clear(true, true, new Color(0, 0, 0, 0));
+
+        Graphics.DrawTexture(new Rect(0, 0, 1, 1), texture);
+        
+        texture.Reinitialize(width, height);
+        texture.ReadPixels(new Rect(0,0,width,height), 0, 0, true);
+        texture.Apply(true);
+
+        return texture;
+    }
+    
+    private static Texture2D BlurProfilePicture(Texture2D src)
+    {
+        var input = GpuScale(src, 128, 128, FilterMode.Bilinear);
+        
         const float tau = Mathf.PI * 2f;
 
         const float directions = 16f;
         const float quality = 8f; // default is 3f
-        const float size = 8f;
+        const float size = 16f;
 
         var radiusX = size / input.width;
         var radiusY = size / input.height;
@@ -84,11 +133,8 @@ public class Nametag : MonoBehaviour
         return output;
     }
 
-    private IEnumerator LoadImage()
+    private IEnumerator SetImageUrl(string imageUrl)
     {
-        const string imageUrl =
-            "https://cdn.discordapp.com/avatars/72139729285427200/030849ff09ed741ce2d3c7ac8b3cb426.png?size=128";
-
         var req = UnityWebRequestTexture.GetTexture(imageUrl);
         yield return req.SendWebRequest();
 
@@ -101,12 +147,12 @@ public class Nametag : MonoBehaviour
         {
             var texture = ((DownloadHandlerTexture) req.downloadHandler).texture;
             var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-            _profilePicture.sprite = sprite;
+            profilePicture.sprite = sprite;
 
-            var blurredTexture = FastGaussianBlur(texture);
+            var blurredTexture = BlurProfilePicture(texture);
             var blurredSprite = Sprite.Create(blurredTexture,
                 new Rect(0, 0, blurredTexture.width, blurredTexture.height), new Vector2(0.5f, 0.5f));
-            _textBackground.sprite = blurredSprite;
+            textBackground.sprite = blurredSprite;
         }
     }
 }
