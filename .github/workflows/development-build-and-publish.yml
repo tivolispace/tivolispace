@@ -1,0 +1,122 @@
+# https://game.ci/docs/github/builder#complete-example
+
+name: Development build and publish
+on:
+    workflow_dispatch:
+jobs:
+    version:
+        name: Set version
+        runs-on: ubuntu-latest
+        outputs:
+            version: ${{ steps.version.outputs.version }}
+        steps:
+            - name: Set version
+              id: version
+              run: echo "::set-output name=version::$(date --utc +%Y.%m%d.%H%M%S)"
+
+    build-client:
+        name: Build ${{ matrix.targetPlatform }} and upload to Itch.io
+        runs-on: ubuntu-latest
+        needs:
+            - version
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - targetPlatform: StandaloneWindows64
+                      itchioChannel: windows
+                    - targetPlatform: StandaloneOSX
+                      # not doing arm64 for now because of steam audio
+                      buildMethod: Tivoli.Editor.MacIntelBuildScript.Build
+                      itchioChannel: osx
+                    # - targetPlatform: StandaloneLinux64
+                    # - targetPlatform: Android
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v2
+              with:
+                  # fetch-depth: 0
+                  lfs: true
+
+            - name: Fetch cache
+              uses: actions/cache@v2
+              with:
+                  path: client/Library
+                  key: Library-${{ matrix.targetPlatform }}
+                  restore-keys: Library-
+
+            - name: Build client
+              uses: game-ci/unity-builder@v2
+              env:
+                  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+                  UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+                  UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+              with:
+                  projectPath: client/
+                  buildName: Tivoli Space
+                  targetPlatform: ${{ matrix.targetPlatform }}
+                  buildMethod: ${{ matrix.buildMethod }}
+                  versioning: Custom
+                  version: ${{ needs.version.outputs.version }}
+
+            # permissions are lost when we dont tar.gz it first
+            # https://github.com/actions/upload-artifact/#maintaining-file-permissions-and-case-sensitive-files
+            - name: Tar.gz build
+              run: |
+                  tar -czf '${{ matrix.targetPlatform }}.tar.gz' 'build/${{ matrix.targetPlatform }}'
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v3
+              with:
+                  name: Client-${{ matrix.targetPlatform }}-${{ needs.version.outputs.version }}
+                  path: ${{ matrix.targetPlatform }}.tar.gz
+
+            - name: Upload to Itch.io
+              uses: robpc/itchio-upload-action@v1
+              with:
+                  path: build/${{ matrix.targetPlatform }}
+                  project: makifoxgirl/tivolispace
+                  channel: ${{ matrix.itchioChannel }}
+                  api-key: ${{ secrets.BUTLER_CREDENTIALS }}
+                  version: ${{ needs.version.outputs.version }}
+
+    upload-to-steam:
+        name: Upload to Steam
+        runs-on: ubuntu-latest
+        needs:
+            - version
+            - build-client
+        steps:
+            - name: Download client artifact for StandaloneWindows64
+              uses: actions/download-artifact@v3
+              with:
+                  name: Client-StandaloneWindows64-${{ needs.version.outputs.version }}
+
+            - name: Download client artifact for StandaloneOSX
+              uses: actions/download-artifact@v3
+              with:
+                  name: Client-StandaloneOSX-${{ needs.version.outputs.version }}
+
+            - name: Untar.gz build
+              run: |
+                  tar -xf 'StandaloneWindows64.tar.gz'
+                  tar -xf 'StandaloneOSX.tar.gz'
+
+            - name: List files
+              run: |
+                  ls -R
+
+            - name: Upload to Steam
+              uses: game-ci/steam-deploy@v1
+              with:
+                  username: ${{ secrets.STEAM_USERNAME }}
+                  password: ${{ secrets.STEAM_PASSWORD }}
+                  configVdf: ${{ secrets.STEAM_CONFIG_VDF}}
+                  ssfnFileName: ${{ secrets.STEAM_SSFN_FILE_NAME }}
+                  ssfnFileContents: ${{ secrets.STEAM_SSFN_FILE_CONTENTS }}
+                  appId: 2161040
+                  buildDescription: ${{ needs.version.outputs.version }}
+                  rootPath: build
+                  depot1Path: StandaloneWindows64
+                  depot2Path: StandaloneOSX
+                  releaseBranch: development
