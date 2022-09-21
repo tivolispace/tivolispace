@@ -89,13 +89,15 @@ Shader "Maki/Login Background"
             
             fixed4 frag (v2f i) : SV_Target
             {
+                // https://www.shadertoy.com/view/Xt3yDS
+                
                 float2 uv = (i.texcoord.xy);
                 uv.x *= _ScreenParams.x / _ScreenParams.y;
                 uv.x -= 0.5;
                 uv *= 2.0;
 
                 float repeatSize = 4.;
-                float speed = 0.02;
+                float speed = 0.03;
                 float x = uv.x - mod(_Time.y * speed, repeatSize / 2.0);
                 float y = uv.y;
                 
@@ -157,6 +159,9 @@ Shader "Maki/Login Background"
 
                 // Double to occupy two pixels and appear smoother
                 lines /= 2.;
+
+                // make lines thicker
+                lines -= 0.1;
                 
                 float3 color = lerp(
                     HSVtoRGB(float3(TIVOLI_PINK_H, TIVOLI_PINK_S - 0.4, TIVOLI_PINK_V)),
