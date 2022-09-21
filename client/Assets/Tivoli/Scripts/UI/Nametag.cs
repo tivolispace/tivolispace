@@ -12,40 +12,38 @@ public class Nametag : MonoBehaviour
     public Image textBackground;
     public TextMeshProUGUI nameText;
 
-    public void SetSteamId(CSteamID steamId)
+    public async void SetSteamId(SteamId steamId)
     {
-        DependencyManager.Instance.steamManager.GetNameAndAvatar(steamId, (name, avatar) =>
+        var (name, avatar) = await DependencyManager.Instance.steamManager.GetNameAndAvatar(steamId);
+        
+        var size = nameText.GetPreferredValues(name);
+        
+        // update name tag width
+        const float imageWidth = 5f;
+        const float padding = 5f;
+        
+        var textWidth = size.x + padding;
+        if (textWidth < 15) textWidth = 15;
+        
+        var rectTransform = GetComponent<RectTransform>();
+        rectTransform.sizeDelta = new Vector2(textWidth + imageWidth, rectTransform.sizeDelta.y);
+        
+        // set image height to width so background covers
+        textBackground.rectTransform.sizeDelta = new Vector2(0, textWidth);
+        
+        // set text
+        nameText.text = name;
+        
+        // update profile picture
+        // StartCoroutine(SetImageUrl("url"));
+        if (avatar == null)
         {
-            var size = nameText.GetPreferredValues(name);
-            
-            // update name tag width
-            const float imageWidth = 5f;
-            const float padding = 5f;
-            
-            var textWidth = size.x + padding;
-            if (textWidth < 15) textWidth = 15;
-            
-            var rectTransform = GetComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(textWidth + imageWidth, rectTransform.sizeDelta.y);
-            
-            // set image height to width so background covers
-            textBackground.rectTransform.sizeDelta = new Vector2(0, textWidth);
-            
-            // set text
-            nameText.text = name;
-            
-            // update profile picture
-            // StartCoroutine(SetImageUrl("url"));
-            if (avatar == null)
-            {
-                Debug.LogWarning($"Failed to get avatar for {name}");
-            }
-            else
-            {
-                SetImage(avatar);
-            }
-           
-        });
+            Debug.LogWarning($"Failed to get avatar for {name}");
+        }
+        else
+        {
+            SetImage(avatar);
+        }
     }
 
     private static Texture2D GpuScale(Texture2D src, int width, int height, FilterMode filterMode)

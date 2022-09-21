@@ -9,14 +9,14 @@ namespace Tivoli.Scripts.Player
     public class Player : NetworkBehaviour
     {
         [SyncVar(hook = nameof(OnUsernameChanged))]
-        public CSteamID steamId;
+        public SteamId steamId;
 
         public Transform nametagTransform;
         public Nametag nametag;
 
         public override void OnStartLocalPlayer()
         {
-            CmdSetupPlayer(DependencyManager.Instance.steamManager.GetMySteamID().m_SteamID);
+            CmdSetupPlayer(DependencyManager.Instance.steamManager.GetMySteamID().Value);
             nametag.gameObject.SetActive(false);
         }
 
@@ -27,10 +27,10 @@ namespace Tivoli.Scripts.Player
         [Command]
         private void CmdSetupPlayer(ulong steamIdUlong)
         {
-            steamId = new CSteamID(steamIdUlong);
+            steamId = steamIdUlong;
         }
         
-        private void OnUsernameChanged(CSteamID @old, CSteamID @new)
+        private void OnUsernameChanged(SteamId @old, SteamId @new)
         {
             if (isLocalPlayer) return;
             
