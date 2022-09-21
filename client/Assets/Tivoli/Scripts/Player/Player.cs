@@ -1,4 +1,5 @@
 ﻿using Mirror;
+using Steamworks;
 using TMPro;
 using UnityEngine;
 using Random = System.Random;
@@ -8,14 +9,14 @@ namespace Tivoli.Scripts.Player
     public class Player : NetworkBehaviour
     {
         [SyncVar(hook = nameof(OnUsernameChanged))]
-        public string username;
+        public CSteamID steamId;
 
         public Transform nametagTransform;
         public Nametag nametag;
 
         public override void OnStartLocalPlayer()
         {
-            CmdSetupPlayer(DependencyManager.Instance.accountManager.GetMyUsername());
+            CmdSetupPlayer(DependencyManager.Instance.steamManager.GetMySteamID().m_SteamID);
             nametag.gameObject.SetActive(false);
         }
 
@@ -24,17 +25,17 @@ namespace Tivoli.Scripts.Player
         }
 
         [Command]
-        private void CmdSetupPlayer(string newUsername)
+        private void CmdSetupPlayer(ulong steamIdUlong)
         {
-            username = newUsername;
+            steamId = new CSteamID(steamIdUlong);
         }
         
-        private void OnUsernameChanged(string @old, string @new)
+        private void OnUsernameChanged(CSteamID @old, CSteamID @new)
         {
             if (isLocalPlayer) return;
             
             nametag.gameObject.SetActive(true);
-            nametag.SetUsername(@new);
+            nametag.SetSteamId(@new);
         }
     
         private void Update()

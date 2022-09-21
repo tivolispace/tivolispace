@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Tivoli.Scripts
@@ -7,7 +8,10 @@ namespace Tivoli.Scripts
         public static DependencyManager Instance;
 
         public WindowManager windowManager;
-        public AccountManager accountManager;
+        // public AccountManager accountManager;
+        public SteamManager steamManager;
+
+        private bool _initialized;
 
         private void Awake()
         {
@@ -18,11 +22,28 @@ namespace Tivoli.Scripts
             }
 
             Instance = this;
+            DontDestroyOnLoad(gameObject);
 
             windowManager = new WindowManager();
-            accountManager = new AccountManager();
+            // accountManager = new AccountManager();
+            steamManager = new SteamManager();
             
-            DontDestroyOnLoad(gameObject);
+            _initialized = true;
+        }
+
+        public void Update()
+        {
+            if (!_initialized) return;
+            
+            steamManager.Update();
+        }
+
+        public void OnDestroy()
+        {
+            if (!_initialized) return;
+            
+            steamManager.OnDestroy();
         }
     }
+    
 }

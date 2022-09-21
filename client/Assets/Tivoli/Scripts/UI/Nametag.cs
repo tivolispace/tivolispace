@@ -1,4 +1,5 @@
 using System.Collections;
+using Steamworks;
 using Tivoli.Scripts;
 using TMPro;
 using UnityEngine;
@@ -11,28 +12,40 @@ public class Nametag : MonoBehaviour
     public Image textBackground;
     public TextMeshProUGUI nameText;
 
-    public void SetUsername(string username)
+    public void SetSteamId(CSteamID steamId)
     {
-        var size = nameText.GetPreferredValues(username);
-
-        // update name tag width
-        const float imageWidth = 5f;
-        const float padding = 5f;
-
-        var textWidth = size.x + padding;
-        if (textWidth < 15) textWidth = 15;
-
-        var rectTransform = GetComponent<RectTransform>();
-        rectTransform.sizeDelta = new Vector2(textWidth + imageWidth, rectTransform.sizeDelta.y);
-
-        // set image height to width so background covers
-        textBackground.rectTransform.sizeDelta = new Vector2(0, textWidth);
-
-        // set text
-        nameText.text = username;
-
-        // update profile picture
-        StartCoroutine(SetImageUrl(DependencyManager.Instance.accountManager.GetProfilePictureUrl(username)));
+        DependencyManager.Instance.steamManager.GetNameAndAvatar(steamId, (name, avatar) =>
+        {
+            var size = nameText.GetPreferredValues(name);
+            
+            // update name tag width
+            const float imageWidth = 5f;
+            const float padding = 5f;
+            
+            var textWidth = size.x + padding;
+            if (textWidth < 15) textWidth = 15;
+            
+            var rectTransform = GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(textWidth + imageWidth, rectTransform.sizeDelta.y);
+            
+            // set image height to width so background covers
+            textBackground.rectTransform.sizeDelta = new Vector2(0, textWidth);
+            
+            // set text
+            nameText.text = name;
+            
+            // update profile picture
+            // StartCoroutine(SetImageUrl("url"));
+            if (avatar == null)
+            {
+                Debug.LogWarning($"Failed to get avatar for {name}");
+            }
+            else
+            {
+                SetImage(avatar);
+            }
+           
+        });
     }
 
     private static Texture2D GpuScale(Texture2D src, int width, int height, FilterMode filterMode)
@@ -125,26 +138,31 @@ public class Nametag : MonoBehaviour
         return output;
     }
 
-    private IEnumerator SetImageUrl(string imageUrl)
+    private void SetImage(Texture2D texture)
     {
-        var req = UnityWebRequestTexture.GetTexture(imageUrl);
-        yield return req.SendWebRequest();
+        var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+        profilePicture.sprite = sprite;
 
-        if (req.result != UnityWebRequest.Result.Success)
-        {
-            Debug.Log(req.error);
-            Debug.Log(req.downloadHandler.error);
-        }
-        else
-        {
-            var texture = ((DownloadHandlerTexture) req.downloadHandler).texture;
-            var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-            profilePicture.sprite = sprite;
-
-            var blurredTexture = BlurProfilePicture(texture);
-            var blurredSprite = Sprite.Create(blurredTexture,
-                new Rect(0, 0, blurredTexture.width, blurredTexture.height), new Vector2(0.5f, 0.5f));
-            textBackground.sprite = blurredSprite;
-        }
+        var blurredTexture = BlurProfilePicture(texture);
+        var blurredSprite = Sprite.Create(blurredTexture,
+            new Rect(0, 0, blurredTexture.width, blurredTexture.height), new Vector2(0.5f, 0.5f));
+        textBackground.sprite = blurredSprite;
     }
+
+    // private IEnumerator SetImageUrl(string imageUrl)
+    // {
+    //     var req = UnityWebRequestTexture.GetTexture(imageUrl);
+    //     yield return req.SendWebRequest();
+    //
+    //     if (req.result != UnityWebRequest.Result.Success)
+    //     {
+    //         Debug.Log(req.error);
+    //         Debug.Log(req.downloadHandler.error);
+    //     }
+    //     else
+    //     {
+    //         var texture = ((DownloadHandlerTexture) req.downloadHandler).texture;
+    //         SetImage(texture);
+    //     }
+    // }
 }
