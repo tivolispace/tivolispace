@@ -1,3 +1,4 @@
+import { Box } from "@chakra-ui/react";
 import torus32Info from "./torus-bold-32.json";
 import torus32Atlas from "./torus-bold-32.png";
 import torus64Info from "./torus-bold-64.json";
@@ -8,7 +9,7 @@ import torus128Atlas from "./torus-bold-128.png";
 export default function Torus(props: {
 	size?: 16 | 32 | 64;
 	white?: boolean;
-	center?: boolean;
+	// center?: boolean;
 	children: any;
 }) {
 	const text =
@@ -20,7 +21,7 @@ export default function Torus(props: {
 
 	let fontSize = props.size ?? 16;
 	const white = props.white ?? false;
-	const center = props.center ?? false;
+	// const center = props.center ?? false;
 	let letterSpacing = -0.02;
 
 	// https://evanw.github.io/font-texture-generator/
@@ -50,49 +51,68 @@ export default function Torus(props: {
 	atlasFontSize *= size;
 	letterSpacing *= atlasFontSize;
 
+	const words = text.split(" ");
+
 	return (
-		<div
-			style={{
-				display: "flex",
-				flexDirection: "row",
-				filter: white ? "invert(1)" : null,
-				justifyContent: center ? "center" : "flex-start",
-			}}
-		>
-			{text.split("").map((char, i) => {
-				let { x, y, width, height, originX, originY, advance } =
-					info.characters[char];
-
-				const scaledWidth = width * size;
-				const scaledHeight = height * size;
-				const scaledOriginX = originX * size;
-				const scaledOriginY = originY * size;
-				const scaledAdvance = advance * size;
-
+		<Box filter={white ? "invert(1)" : null}>
+			{words.map((word, wordIndex) => {
+				const lastWord = wordIndex == words.length - 1;
 				return (
-					<div
-						key={i}
-						style={{
-							width: scaledWidth + "px",
-							height: scaledHeight + "px",
-							display: "inline-block",
-							backgroundImage: `url(${atlas.src})`,
-							marginLeft:
-								-scaledOriginX +
-								(scaledAdvance - scaledWidth) +
-								letterSpacing +
-								"px",
-							marginTop: atlasFontSize - scaledOriginY + "px",
-							backgroundSize: `${(100 * atlasWidth) / width}% ${
-								(100 * atlasHeight) / height
-							}%`,
-							backgroundPosition: `${
-								(100 * x) / (-width + atlasWidth)
-							}% ${(100 * y) / (-height + atlasHeight)}%`,
-						}}
-					></div>
+					<Box
+						key={wordIndex}
+						display="inline-flex"
+						flexDir="row"
+						verticalAlign="top"
+					>
+						{[...word.split(""), ...(lastWord ? [] : [" "])].map(
+							(char, charIndex) => {
+								let {
+									x,
+									y,
+									width,
+									height,
+									originX,
+									originY,
+									advance,
+								} = info.characters[char];
+
+								const scaledWidth = width * size;
+								const scaledHeight = height * size;
+								const scaledOriginX = originX * size;
+								const scaledOriginY = originY * size;
+								const scaledAdvance = advance * size;
+
+								return (
+									<Box
+										key={charIndex}
+										width={scaledWidth + "px"}
+										height={scaledHeight + "px"}
+										display="inline-block"
+										backgroundImage={atlas.src}
+										marginLeft={
+											-scaledOriginX +
+											(scaledAdvance - scaledWidth) +
+											letterSpacing +
+											"px"
+										}
+										marginTop={
+											atlasFontSize - scaledOriginY + "px"
+										}
+										backgroundSize={`${
+											(100 * atlasWidth) / width
+										}% ${(100 * atlasHeight) / height}%`}
+										backgroundPosition={`${
+											(100 * x) / (-width + atlasWidth)
+										}% ${
+											(100 * y) / (-height + atlasHeight)
+										}%`}
+									></Box>
+								);
+							},
+						)}
+					</Box>
 				);
 			})}
-		</div>
+		</Box>
 	);
 }
