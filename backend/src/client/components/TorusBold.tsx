@@ -85,27 +85,33 @@ export default function Torus(props: {
 								return (
 									<Box
 										key={charIndex}
-										width={scaledWidth + "px"}
-										height={scaledHeight + "px"}
 										display="inline-block"
 										backgroundImage={atlas.src}
-										marginLeft={
-											-scaledOriginX +
-											(scaledAdvance - scaledWidth) +
-											letterSpacing +
-											"px"
-										}
-										marginTop={
-											atlasFontSize - scaledOriginY + "px"
-										}
-										backgroundSize={`${
-											(100 * atlasWidth) / width
-										}% ${(100 * atlasHeight) / height}%`}
-										backgroundPosition={`${
-											(100 * x) / (-width + atlasWidth)
-										}% ${
-											(100 * y) / (-height + atlasHeight)
-										}%`}
+										style={{
+											width: scaledWidth + "px",
+											height: scaledHeight + "px",
+											marginLeft:
+												-scaledOriginX +
+												(scaledAdvance - scaledWidth) +
+												letterSpacing +
+												"px",
+											marginTop:
+												atlasFontSize -
+												scaledOriginY +
+												"px",
+											backgroundSize: `${
+												(100 * atlasWidth) / width
+											}% ${
+												(100 * atlasHeight) / height
+											}%`,
+											backgroundPosition: `${
+												(100 * x) /
+												(-width + atlasWidth)
+											}% ${
+												(100 * y) /
+												(-height + atlasHeight)
+											}%`,
+										}}
 									></Box>
 								);
 							},

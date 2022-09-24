@@ -3,8 +3,8 @@
 	"private": true,
 	"license": "MIT",
 	"scripts": {
-		"start": "nest start --watch",
-		"build": "rimraf dist && nest build",
+		"start": "NODE_ENV=development nest start --watch",
+		"build": "rimraf dist .next && nest build && next build src/client",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
 	},
 	"dependencies": {
