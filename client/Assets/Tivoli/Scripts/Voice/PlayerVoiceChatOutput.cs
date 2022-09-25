@@ -28,22 +28,6 @@ namespace Tivoli.Scripts.Voice
             _audioSource.Play();
         }
 
-        // private static float[] SamplesToFloat(ushort[] compressed)
-        // {
-        //     var samples = new float[compressed.Length];
-        //     for (var i = 0; i < samples.Length; i++)
-        //     {
-        //         samples[i] = (float) compressed[i] / ushort.MaxValue * 2f - 1f;
-        //     }
-        //
-        //     return samples;
-        // }
-        //
-        // public void AddUshortSamples(ushort[] compressed)
-        // {
-        //     _playbackBuffer.AddPcmBuffer(SamplesToFloat(compressed));
-        // }
-
         public void AddPcmSamples(float[] pcmSamples)
         {
             _playbackBuffer.AddPcmBuffer(pcmSamples);
