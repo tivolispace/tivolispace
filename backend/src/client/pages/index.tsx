@@ -9,6 +9,7 @@ import {
 	VStack,
 } from "@chakra-ui/react";
 import { NextPage } from "next";
+import Head from "next/head";
 import { useEffect, useRef } from "react";
 import introBackground from "../assets/intro-background.png";
 import logoLight from "../assets/logo-light.png";
