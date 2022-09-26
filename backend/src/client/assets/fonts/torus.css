@@ -1,0 +1,47 @@
+@font-face {
+	font-family: "Torus";
+	src: url("torus-thin.woff2") format("woff2"),
+		url("torus-thin.woff") format("woff");
+	font-weight: 100;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Torus";
+	src: url("torus-light.woff2") format("woff2"),
+		url("torus-light.woff") format("woff");
+	font-weight: 300;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Torus";
+	src: url("torus-regular.woff2") format("woff2"),
+		url("torus-regular.woff") format("woff");
+	font-weight: 400;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Torus";
+	src: url("torus-semi-bold.woff2") format("woff2"),
+		url("torus-semi-bold.woff") format("woff");
+	font-weight: 600;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Torus";
+	src: url("torus-bold.woff2") format("woff2"),
+		url("torus-bold.woff") format("woff");
+	font-weight: 700;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Torus";
+	src: url("torus-heavy.woff2") format("woff2"),
+		url("torus-heavy.woff") format("woff");
+	font-weight: 900;
+	font-style: normal;
+}

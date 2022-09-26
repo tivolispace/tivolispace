@@ -3,14 +3,15 @@ import {
 	Box,
 	Button,
 	Center,
+	chakra,
 	Flex,
+	Heading,
 	HStack,
 	Image,
 	Text,
 } from "@chakra-ui/react";
 import { MdBookmarks, MdPeopleAlt } from "react-icons/md";
 import logoLightNoPink from "../assets/logo-light-no-pink.png";
-import TorusBold from "./TorusBold";
 
 export default function Header(props: { onTop?: boolean }) {
 	const onTop = props.onTop;
@@ -47,10 +48,9 @@ export default function Header(props: { onTop?: boolean }) {
 						fontWeight={600}
 						as="a"
 					>
-						{/* {name} */}
-						<TorusBold white size={18} marginTop={-1}>
+						<Heading size={"sm"} fontWeight={600}>
 							{name}
-						</TorusBold>
+						</Heading>
 					</Button>
 				))}
 			</HStack>
@@ -79,19 +79,20 @@ export default function Header(props: { onTop?: boolean }) {
 							fontWeight={600}
 							mr={1}
 							mt={"3px"}
-						>
-							Signed in as
-						</Text>
-						<TorusBold size={18} marginTop={0} white>
+						></Text>
+						<Heading size={"sm"} color="white">
+							<chakra.span fontWeight={600} fontSize={14}>
+								Signed in as
+							</chakra.span>{" "}
 							Maki
-						</TorusBold>
+						</Heading>
 					</Box>
 					<Text
 						color="white"
 						fontSize={12}
 						fontWeight={400}
 						opacity={0.8}
-						mt={-1.5}
+						mt={-0.5}
 					>
 						email@example.com
 					</Text>

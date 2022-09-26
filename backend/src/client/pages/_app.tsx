@@ -9,6 +9,7 @@ import "@fontsource/inter/600.css";
 import "@fontsource/inter/700.css";
 import "@fontsource/inter/800.css";
 import "@fontsource/inter/900.css";
+import "../assets/fonts/torus.css";
 import Head from "next/head";
 
 const theme = extendTheme({
@@ -32,7 +33,7 @@ const theme = extendTheme({
 		},
 	},
 	fonts: {
-		heading: `'Inter', sans-serif`,
+		heading: `'Torus', sans-serif`,
 		body: `'Inter', sans-serif`,
 	},
 });

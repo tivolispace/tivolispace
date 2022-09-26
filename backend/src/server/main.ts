@@ -63,6 +63,7 @@ async function bootstrap() {
 
 	// redirects
 	const redirects = {
+		"/steam": "https://store.steampowered.com/app/2161040",
 		"/github": "https://github.com/tivolispace",
 	};
 
