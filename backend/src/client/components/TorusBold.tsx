@@ -7,9 +7,10 @@ import torus128Info from "./torus-bold-128.json";
 import torus128Atlas from "./torus-bold-128.png";
 
 export default function Torus(props: {
-	size?: 16 | 32 | 64;
+	size?: 8 | 12 | 16 | 18 | 20 | 24 | 32 | 36 | 48 | 64;
 	white?: boolean;
 	// center?: boolean;
+	marginTop?: number;
 	children: any;
 }) {
 	const text =
@@ -29,14 +30,21 @@ export default function Torus(props: {
 	let atlas: any = null;
 	let info: any = null;
 	switch (fontSize) {
+		case 8:
+		case 12:
 		case 16:
 			atlas = torus32Atlas;
 			info = torus32Info;
 			break;
+		case 18:
+		case 20:
+		case 24:
 		case 32:
 			atlas = torus64Atlas;
 			info = torus64Info;
 			break;
+		case 36:
+		case 48:
 		case 64:
 			atlas = torus128Atlas;
 			info = torus128Info;
@@ -54,7 +62,7 @@ export default function Torus(props: {
 	const words = text.split(" ");
 
 	return (
-		<Box filter={white ? "invert(1)" : null}>
+		<Box filter={white ? "invert(1)" : null} marginTop={props.marginTop}>
 			{words.map((word, wordIndex) => {
 				const lastWord = wordIndex == words.length - 1;
 				return (
