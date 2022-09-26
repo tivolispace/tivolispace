@@ -5,6 +5,10 @@ using System.Threading;
 
 namespace Tivoli.Scripts.Voice
 {
+    // should this be replaced with a ring buffer?
+    // is this a ring buffer?
+    // does it need a better name?
+    
     public class PlaybackBuffer
     {
         private struct PcmBuffer

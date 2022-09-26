@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// #define SELF_TEST_VOICE
+
 using Mirror;
 using UnityEngine;
 
@@ -27,20 +28,25 @@ namespace Tivoli.Scripts.Voice
 
         public override void OnStartClient()
         {
+#if !SELF_TEST_VOICE
             // make encoder and decoder sample rates and channel count the same
             if (isLocalPlayer)
             {
+#endif
                 _opusEncoderThreaded = new OpusEncoderThreaded(TargetSampleRate, 1);
                 _opusEncoderThreaded.OnEncoded += OnMicrophoneEncoded;
 
                 _microphone = new Microphone
                 {
-                    OnPcmSamples = OnMicrophonePcmSamples
+                    OnPcmSamples = OnMicrophonePcmSamples,
+                    OnInputLevelAndTalking = OnMicrophoneLevelAndTalking,
                 };
                 _microphone.StartMicrophone();
+#if !SELF_TEST_VOICE
             }
             else
             {
+#endif
                 _opusDecoderThreaded = new OpusDecoderThreaded(TargetSampleRate, 1);
                 _opusDecoderThreaded.OnDecoded += OnVoiceDecoded;
                 
@@ -62,7 +68,9 @@ namespace Tivoli.Scripts.Voice
                 _resamplingRequired = true;
                 _resamplerThreaded = new SpeexMonoResamplerThreaded(TargetSampleRate, outputSampleRate);
                 _resamplerThreaded.OnResampled += OnResampled;
+#if !SELF_TEST_VOICE
             }
+#endif
         }
 
         public override void OnStopClient()
@@ -80,12 +88,24 @@ namespace Tivoli.Scripts.Voice
 
         // pipeline starts here and goes down fn by fn
 
+        private float micLevel;
+        private bool micTalking;
+        private bool micNeedsResetAfterTalking; 
+
+        private void OnMicrophoneLevelAndTalking(float level, bool talking)
+        {
+            if (talking == false && micNeedsResetAfterTalking)
+            {
+                micNeedsResetAfterTalking = false;
+                _opusEncoderThreaded.ResetState();
+                CmdResetState(); // send as packet to decoders
+            }
+            micLevel = level;
+            micTalking = talking;
+        }
+        
         private void OnMicrophonePcmSamples(float[] pcmSamples)
         {
-            // var ushortSamples = SamplesToUshort(pcmSamples);
-            // CmdSendVoice(ushortSamples);
-            // Transport.activeTransport.GetMaxPacketSize(Channels.Unreliable);
-
             if (_opusEncoderThreaded == null)
             {
                 Debug.LogError("Failed to encode voice because encoder isn't available");
@@ -97,6 +117,7 @@ namespace Tivoli.Scripts.Voice
 
             // Debug.Log("adding samples: "+pcmSamples.Length);
             _opusEncoderThreaded.AddToEncodeQueue(pcmSamples);
+            micNeedsResetAfterTalking = true;
         }
 
         private void OnMicrophoneEncoded(byte[] opusData)
@@ -114,8 +135,19 @@ namespace Tivoli.Scripts.Voice
         {
             RpcReceiveVoice(opusData);
         }
+        
+                
+        [Command(channel = Channels.Unreliable, requiresAuthority = true)]
+        private void CmdResetState()
+        {
+            RpcResetState();
+        }
 
+#if SELF_TEST_VOICE
+        [ClientRpc(channel = Channels.Unreliable, includeOwner = true)]
+#else
         [ClientRpc(channel = Channels.Unreliable, includeOwner = false)]
+#endif
         private void RpcReceiveVoice(byte[] opusData)
         {
             if (_opusDecoderThreaded == null)
@@ -125,6 +157,16 @@ namespace Tivoli.Scripts.Voice
             }
 
             _opusDecoderThreaded.AddToDecodeQueue(opusData);
+        }
+
+#if SELF_TEST_VOICE
+        [ClientRpc(channel = Channels.Unreliable, includeOwner = true)]
+#else
+        [ClientRpc(channel = Channels.Unreliable, includeOwner = false)]
+#endif
+        private void RpcResetState()
+        {
+            _opusDecoderThreaded?.ResetState();
         }
 
         private void OnVoiceDecoded(float[] pcmSamples)
@@ -150,6 +192,12 @@ namespace Tivoli.Scripts.Voice
             _opusEncoderThreaded?.Update();
             _opusDecoderThreaded?.Update();
             _resamplerThreaded?.Update();
+        }
+
+        public void OnGUI()
+        {
+            GUI.HorizontalSlider(new Rect(100, 600, 200, 24), micLevel, 0f, 1f);
+            GUI.TextArea(new Rect(100, 624, 100, 24), micTalking ? "talking!": "");
         }
     }
 }

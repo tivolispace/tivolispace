@@ -32,16 +32,6 @@ namespace Tivoli.Scripts.Voice
         {
             _playbackBuffer.AddPcmBuffer(pcmSamples);
         }
-        
-        // TODO: there has got to be a way to optimize this
-        private static void MonoToStereo(IReadOnlyList<float> mono, float[] stereo)
-        {
-            for (var i = 0; i < mono.Count; i++)
-            {
-                stereo[i * 2] = mono[i];
-                stereo[i * 2 + 1] = mono[i];
-            }
-        }
 
         private void OnAudioFilterRead(float[] output, int channels)
         {
@@ -58,7 +48,7 @@ namespace Tivoli.Scripts.Voice
             {
                 var mono = new float[output.Length / channels];
                 _playbackBuffer.Read(mono, 0, mono.Length);
-                MonoToStereo(mono, output);
+                AudioUtils.MonoToStereo(mono, output);
             }
         }
 

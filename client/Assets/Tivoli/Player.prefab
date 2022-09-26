@@ -345,7 +345,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  username: 
   nametagTransform: {fileID: 5762042729076230666}
   nametag: {fileID: 3517345941057091282}
 --- !u!114 &4509788145668699905

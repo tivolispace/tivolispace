@@ -1,8 +1,6 @@
 ﻿// #define USE_TEST_CLIP
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Tivoli.Scripts.Voice
@@ -13,7 +11,7 @@ namespace Tivoli.Scripts.Voice
         private AudioClip _microphone;
 
         public Action<float[]> OnPcmSamples;
-        public Action<float, bool> OnInputLevelAndClipping;
+        public Action<float, bool> OnInputLevelAndTalking;
 
         // the whole program should revolve around this sample rate
         public const int MicrophoneSampleRate = 48000;
@@ -28,22 +26,23 @@ namespace Tivoli.Scripts.Voice
         public const int NumFramesPerOutgoingPacket = 2;
         public const int NumSamplesPerOutgoingPacket = NumFramesPerOutgoingPacket * MicrophoneSampleRate / 100;
 
-        private SpeexMonoPreprocessor _preprocessor;
+        // private SpeexMonoPreprocessor _preprocessor;
+        private RnnoiseThreaded _rnnoiseThreaded;
 
         public void StartMicrophone(bool force = false)
         {
             if (!force && _microphone != null) return;
 
-            #if USE_TEST_CLIP
+#if USE_TEST_CLIP
             Debug.Log("Starting microphone with test clip");
             // clip is 2 channels on purpose but same sample rate at 48000
             // actually its forced to mono for now because stereo to mono isn't working
             // TODO: make sure stereo to mono is working
             _microphone = Resources.Load<AudioClip>("dankpods-testing-microphones");
-            #else
+#else
             Debug.Log("Starting microphone");
             _microphone = UnityEngine.Microphone.Start(_microphoneDeviceName, true, MicrophoneRecordLength, MicrophoneSampleRate);
-            #endif
+#endif
 
             // usually doesn't happen. even on mac with airpods max where the mic is 24000,
             // the audio clip will output 48000. hooray lol no manual resampling
@@ -59,41 +58,47 @@ namespace Tivoli.Scripts.Voice
                 StopMicrophone(true);
             }
 
-            if (_preprocessor == null)
-            {
-                // https://github.com/mumble-voip/mumble/blob/master/src/mumble/AudioInput.cpp#L743
-                
-                _preprocessor = new SpeexMonoPreprocessor(NumSamplesPerOutgoingPacket, MicrophoneSampleRate);
+            // if (_preprocessor == null)
+            // {
+            //     // https://github.com/mumble-voip/mumble/blob/master/src/mumble/AudioInput.cpp#L743
+            //     
+            //     _preprocessor = new SpeexMonoPreprocessor(NumSamplesPerOutgoingPacket, MicrophoneSampleRate);
+            //
+            //     _preprocessor.SetBool(SpeexNative.SpeexPreprocessRequest.SetAgc, true);
+            //     _preprocessor.SetFloat(SpeexNative.SpeexPreprocessRequest.SetAgcLevel, MicrophoneSampleRate);
+            //     // AgcLevel default is float 8000
+            //     // AgcIncrement default is int 12 dB/s
+            //     // AgcDecrement default is int -40 dB/s
+            //     // AgcMaxGain default is int 30
+            //     
+            //     _preprocessor.SetBool(SpeexNative.SpeexPreprocessRequest.SetDenoise, true);
+            //     // NoiseSuppress default is
+            //     
+            //     _preprocessor.SetBool(SpeexNative.SpeexPreprocessRequest.SetDereverb, true);
+            //     // no settings
+            //     
+            //     // _preprocessor.SetBool(SpeexNative.SpeexPreprocessRequest.SetEchoSuppressActive, true);
+            //     // need a speex_echo_state
+            //     // EchoSuppress default is
+            //     // EchoSuppressState ??
+            // }
 
-                _preprocessor.SetBool(SpeexNative.SpeexPreprocessRequest.SetAgc, true);
-                _preprocessor.SetFloat(SpeexNative.SpeexPreprocessRequest.SetAgcLevel, MicrophoneSampleRate);
-                // AgcLevel default is float 8000
-                // AgcIncrement default is int 12 dB/s
-                // AgcDecrement default is int -40 dB/s
-                // AgcMaxGain default is int 30
-                
-                _preprocessor.SetBool(SpeexNative.SpeexPreprocessRequest.SetDenoise, true);
-                // NoiseSuppress default is
-                
-                _preprocessor.SetBool(SpeexNative.SpeexPreprocessRequest.SetDereverb, true);
-                // no settings
-                
-                // _preprocessor.SetBool(SpeexNative.SpeexPreprocessRequest.SetEchoSuppressActive, true);
-                // need a speex_echo_state
-                // EchoSuppress default is
-                // EchoSuppressState ??
+            if (_rnnoiseThreaded == null)
+            {
+                _rnnoiseThreaded = new RnnoiseThreaded(NumSamplesPerOutgoingPacket);
+                _rnnoiseThreaded.OnDenoise += OnDenoise;
             }
         }
 
         public void StopMicrophone(bool force = false)
         {
             if (!force && _microphone == null) return;
-            #if USE_TEST_CLIP
+#if USE_TEST_CLIP
             Debug.Log("Stopping microphone with test clip");
-            #else
+#else
             Debug.Log("Stopping microphone");
             UnityEngine.Microphone.End(_microphoneDeviceName);
-            #endif
+#endif
             _microphone = null;
         }
 
@@ -114,79 +119,24 @@ namespace Tivoli.Scripts.Voice
             return UnityEngine.Microphone.devices;
         }
 
-        private static float[] StereoToMono(IReadOnlyList<float> samples)
-        {
-            var monoSamples = new float[samples.Count / 2];
-            for (var i = 0; i < monoSamples.Length; i++)
-            {
-                var left = samples[i * 2];
-                var right = samples[i * 2 + 1];
-                monoSamples[i] = (left + right) / 2f;
-            }
-            
-            return monoSamples;
-        }
-
-        private const float VadMin = 0.80f;
-        private const float VadMax = 0.96f;
-        private const int VoiceHold = 20;
-                    
-        private bool _previousVoice;
-        private int _holdFrames;
-        
-        private void FromUpdateOnPcmSamples(float[] monoSamples)
-        {
-            if (_preprocessor == null) return;
-            
-            var processedSamples = _preprocessor.Preprocess(monoSamples);
-
-            // https://github.com/mumble-voip/mumble/blob/master/src/mumble/AudioInput.cpp#L955
-            
-            var prob = _preprocessor.GetInt(SpeexNative.SpeexPreprocessRequest.GetProb);
-            var level = prob / 100f;
-
-            var talking = level > VadMax || (level > VadMin && _previousVoice);
-
-            if (!talking)
-            {
-                _holdFrames++;
-                if (_holdFrames < VoiceHold)
-                {
-                    talking = true;
-                }
-            }
-            else
-            {
-                _holdFrames = 0;
-            }
-
-            _previousVoice = talking;
-
-            if (talking)
-            {
-                OnPcmSamples(processedSamples);
-                Debug.Log("TALKING");
-            }
-        }
-
         public void Update()
         {
             // microphone sometimes turns off when people join
-            #if !USE_TEST_CLIP
+#if !USE_TEST_CLIP
             var isRecording = UnityEngine.Microphone.IsRecording(_microphoneDeviceName);
             if (!isRecording && _microphone != null) {
                 Debug.Log("Microphone turned off for no reason, restarting...");
                 StartMicrophone(true);
             }
-            #endif
+#endif
 
             if (_microphone == null) return;
             
-            #if USE_TEST_CLIP
+#if USE_TEST_CLIP
             var currentPosition = (int) (Time.time * _microphone.frequency) % _microphone.samples;
-            #else
+#else
             var currentPosition = UnityEngine.Microphone.GetPosition(_microphoneDeviceName);
-            #endif
+#endif
 
             if (currentPosition < _previousPosition)
             {
@@ -205,14 +155,66 @@ namespace Tivoli.Scripts.Voice
                 switch (_microphone.channels)
                 {
                     case 1:
-                        FromUpdateOnPcmSamples(samples);
+                        InternalOnPcmSamples(samples);
                         break;
                     case 2:
                         // will divide length by 2 again since we're doing * channels above
-                        FromUpdateOnPcmSamples(StereoToMono(samples));
+                        InternalOnPcmSamples(AudioUtils.StereoToMono(samples));
                         break;
                 }
             }
+
+            if (_rnnoiseThreaded != null)
+            {
+                _rnnoiseThreaded.Update();
+            }
+        }
+        
+        private const int VoiceHold = 20;
+        // private const float VadMin = 0.80f;
+        // private const float VadMax = 0.96f;
+        private const float VadMin = 0.40f; // stops when under
+        private const float VadMax = 0.48f; // starts when over
+                    
+        private bool _previousVoice;
+        private int _holdFrames;
+        
+        private void InternalOnPcmSamples(float[] monoSamples)
+        {
+            _rnnoiseThreaded?.AddToDenoiseQueue(monoSamples);
+        }
+
+        private void OnDenoise(float[] denoisedSamples, float vadProb)
+        {
+            // https://github.com/mumble-voip/mumble/blob/master/src/mumble/AudioInput.cpp#L955
+            
+            // var prob = _preprocessor.GetInt(SpeexNative.SpeexPreprocessRequest.GetProb);
+            // var level = prob / 100f;
+            
+            var talking = vadProb > VadMax || (vadProb > VadMin && _previousVoice);
+            
+            if (!talking)
+            {
+                _holdFrames++;
+                if (_holdFrames < VoiceHold)
+                {
+                    talking = true;
+                }
+            }
+            else
+            {
+                _holdFrames = 0;
+            }
+            
+            _previousVoice = talking;
+
+
+            if (talking)
+            {
+                OnPcmSamples(denoisedSamples);
+            }
+            
+            OnInputLevelAndTalking(talking ? AudioUtils.Amplitude(denoisedSamples) * 4f : 0f, talking);
         }
     }
 }

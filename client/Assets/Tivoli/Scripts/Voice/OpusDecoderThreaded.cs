@@ -30,7 +30,12 @@ namespace Tivoli.Scripts.Voice
             _decodeThread = new Thread(DecodeThread);
             _decodeThread.Start();
         }
-
+        
+        public void ResetState()
+        {
+            _opusDecoder.ResetState();
+        }
+        
         ~OpusDecoderThreaded()
         {
             _isRunning = false;

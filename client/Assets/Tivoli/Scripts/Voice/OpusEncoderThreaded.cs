@@ -26,6 +26,11 @@ namespace Tivoli.Scripts.Voice
             _encodeThread.Start();
         }
 
+        public void ResetState()
+        {
+            _opusEncoder.ResetState();
+        }
+
         ~OpusEncoderThreaded()
         {
             _isRunning = false;
