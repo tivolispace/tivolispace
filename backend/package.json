@@ -3,7 +3,7 @@
 	"private": true,
 	"license": "MIT",
 	"scripts": {
-		"start": "NODE_ENV=development nest start --watch",
+		"start": "DEV=1 nest start --watch",
 		"build": "rimraf dist .next && nest build && next build src/client",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
 	},
@@ -13,10 +13,11 @@
 		"@emotion/styled": "^11",
 		"@fontsource/inter": "^4.5.12",
 		"@nestjs/common": "^8.0.0",
-		"@nestjs/config": "^2.2.0",
 		"@nestjs/core": "^8.0.0",
 		"@nestjs/platform-express": "^9.1.2",
 		"@nestjs/typeorm": "^9.0.1",
+		"class-transformer": "^0.5.1",
+		"class-validator": "^0.13.2",
 		"framer-motion": "^6",
 		"next": "^12.3.1",
 		"pg": "^8.8.0",

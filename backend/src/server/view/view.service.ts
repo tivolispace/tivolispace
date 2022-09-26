@@ -1,19 +1,18 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import createServer from "next";
 import { NextServer } from "next/dist/server/next";
+import { DEV } from "../environment";
 
 @Injectable()
 export class ViewService implements OnModuleInit {
 	private server: NextServer;
 
-	constructor(private configService: ConfigService) {}
+	constructor() {}
 
 	async onModuleInit() {
 		try {
 			this.server = createServer({
-				dev:
-					this.configService.get<string>("NODE_ENV") == "development",
+				dev: !!DEV,
 				dir: "./src/client",
 			});
 			await this.server.prepare();
