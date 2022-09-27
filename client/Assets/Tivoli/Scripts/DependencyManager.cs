@@ -8,8 +8,8 @@ namespace Tivoli.Scripts
         public static DependencyManager Instance;
 
         public WindowManager windowManager;
-        // public AccountManager accountManager;
         public SteamManager steamManager;
+        public AccountManager accountManager;
 
         private bool _initialized;
 
@@ -25,8 +25,8 @@ namespace Tivoli.Scripts
             DontDestroyOnLoad(gameObject);
 
             windowManager = new WindowManager();
-            // accountManager = new AccountManager();
             steamManager = new SteamManager();
+            accountManager = new AccountManager();
             
             _initialized = true;
         }

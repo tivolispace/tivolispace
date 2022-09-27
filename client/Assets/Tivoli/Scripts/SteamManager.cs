@@ -10,7 +10,9 @@ namespace Tivoli.Scripts
     public class SteamManager
     {
         private readonly uint _appId = 2161040;
-        private readonly bool _initialized;
+        
+        public readonly bool Initialized;
+        public Action OnInitialized = () => { };
 
         public SteamManager()
         {
@@ -23,27 +25,26 @@ namespace Tivoli.Scripts
                 }
 
                 SteamClient.Init(_appId);
+
+                Initialized = true;
+                OnInitialized.Invoke();
             }
             catch (Exception e)
             {
                 Debug.LogError("Failed to load Steam API\n" + e);
                 Application.Quit();
             }
-
-            var authTicketResponse = SteamUser.GetAuthSessionTicket();
-            var authTicket = BitConverter.ToString(authTicketResponse.Data).Replace("-", "");
-            Debug.Log(authTicket);
         }
 
         public void Update()
         {
-            if (!_initialized) return;
+            if (!Initialized) return;
             SteamClient.RunCallbacks();
         }
 
         public void OnDestroy()
         {
-            if (!_initialized) return;
+            if (!Initialized) return;
             SteamClient.Shutdown();
         }
 
@@ -70,7 +71,6 @@ namespace Tivoli.Scripts
             {
                 return cachedTexture;
             }
-
 
             var image = (await SteamFriends.GetLargeAvatarAsync(steamId)).GetValueOrDefault();
 
