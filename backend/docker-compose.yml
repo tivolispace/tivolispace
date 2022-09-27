@@ -1,0 +1,41 @@
+version: "3.8"
+networks:
+    traefik:
+        external:
+            name: traefik
+services:
+    db:
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: tivolispace
+        volumes:
+            - ./db:/var/lib/postgresql/data
+    tivolispace:
+        build: .
+        restart: always
+        # see all in src/environment.ts
+        environment:
+            JWT_SECRET: changeMe!
+
+            STEAM_APP_ID: 2161040
+            STEAM_DEV_API_KEY: ""
+            STEAM_WEB_API_KEY: ""
+
+            DB_HOST: db
+            DB_USERNAME: postgres
+            DB_PASSWORD: postgres
+            DB_NAME: tivolispace
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.tivolispace.rule=Host("tivoli.space")
+            - traefik.http.routers.tivolispace.entrypoints=websecure
+            - traefik.http.routers.tivolispace.service=tivolispace
+            - traefik.http.routers.tivolispace.tls=true
+            - traefik.http.services.tivolispace.loadbalancer.server.port=3000
+            - traefik.docker.network=traefik
+        networks:
+            - default
+            - traefik
