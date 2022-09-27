@@ -8,6 +8,8 @@ import {
 	DB_USERNAME,
 } from "./environment";
 import { ViewModule } from "./view/view.module";
+import { AuthModule } from "./auth/auth.module";
+import { UserModule } from "./user/user.module";
 
 @Module({
 	imports: [
@@ -21,6 +23,8 @@ import { ViewModule } from "./view/view.module";
 			// synchronize: true, // dont use in production
 			entities: [],
 		}),
+		AuthModule,
+		UserModule,
 		// import view module last because it uses *
 		ViewModule,
 	],

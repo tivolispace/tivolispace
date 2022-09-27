@@ -1,7 +1,9 @@
 import { Controller, Get, Req, Res } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 import { Request, Response } from "express";
 import { ViewService } from "./view.service";
 
+@ApiTags("view")
 @Controller("/")
 export class ViewController {
 	constructor(private readonly viewService: ViewService) {}

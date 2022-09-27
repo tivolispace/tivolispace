@@ -1,6 +1,7 @@
 import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { Request, Response } from "express";
 import { AppModule } from "./app.module";
 import { DEV, PORT } from "./environment";
@@ -19,6 +20,20 @@ function initDebugLogs(app: NestExpressApplication, logger: Logger) {
 		// 	});
 		// });
 	});
+}
+
+function initSwagger(app: NestExpressApplication) {
+	const config = new DocumentBuilder()
+		.setTitle("Tivoli Space")
+		// .setDescription("The cats API description")
+		// .setVersion("0.1")
+		// .addTag("cats")
+		.addBearerAuth()
+		.build();
+
+	const document = SwaggerModule.createDocument(app, config);
+
+	SwaggerModule.setup("api", app, document);
 }
 
 async function bootstrap() {
@@ -58,7 +73,7 @@ async function bootstrap() {
 
 	if (DEV) {
 		initDebugLogs(app, logger);
-		// initSwagger(app);
+		initSwagger(app);
 	}
 
 	// redirects

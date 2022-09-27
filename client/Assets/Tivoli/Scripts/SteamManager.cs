@@ -29,6 +29,10 @@ namespace Tivoli.Scripts
                 Debug.LogError("Failed to load Steam API\n" + e);
                 Application.Quit();
             }
+
+            var authTicketResponse = SteamUser.GetAuthSessionTicket();
+            var authTicket = BitConverter.ToString(authTicketResponse.Data).Replace("-", "");
+            Debug.Log(authTicket);
         }
 
         public void Update()
