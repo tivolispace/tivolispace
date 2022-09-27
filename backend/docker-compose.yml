@@ -5,7 +5,7 @@ networks:
             name: traefik
 services:
     db:
-        image: postgres
+        image: postgres:14
         restart: always
         environment:
             POSTGRES_USER: postgres
@@ -16,6 +16,8 @@ services:
     tivolispace:
         build: .
         restart: always
+        depends_on:
+            - db
         # see all in src/environment.ts
         environment:
             JWT_SECRET: changeMe!
@@ -30,7 +32,7 @@ services:
             DB_NAME: tivolispace
         labels:
             - traefik.enable=true
-            - traefik.http.routers.tivolispace.rule=Host("tivoli.space")
+            - traefik.http.routers.tivolispace.rule=Host("tivoli.space") || Host("www.tivoli.space")
             - traefik.http.routers.tivolispace.entrypoints=websecure
             - traefik.http.routers.tivolispace.service=tivolispace
             - traefik.http.routers.tivolispace.tls=true
