@@ -8,7 +8,8 @@ namespace Tivoli.Scripts
 {
     public class AccountManager
     {
-        private const string ApiUrl = "http://127.0.0.1:3000";
+        // private const string ApiUrl = "http://127.0.0.1:3000";
+        private const string ApiUrl = "https://tivoli.space";
 
         private string _accessToken;
 
