@@ -28,7 +28,8 @@ services:
             STEAM_DEV_API_KEY: ""
             STEAM_WEB_API_KEY: ""
 
-            DB_URI: mongodb://tivoli:changeme@mongo:27017/tivolispace
+            DB_URI: mongodb://tivoli:changeme@mongo:27017
+            DB_NAME: tivolispace
         labels:
             - traefik.enable=true
             - traefik.http.routers.tivolispace.rule=Host("tivoli.space") || Host("www.tivoli.space")
