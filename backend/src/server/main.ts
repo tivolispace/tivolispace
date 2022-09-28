@@ -2,6 +2,7 @@ import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import * as cookieParser from "cookie-parser";
 import { Request, Response } from "express";
 import { AppModule } from "./app.module";
 import { DEV, PORT } from "./environment";
@@ -54,13 +55,13 @@ async function bootstrap() {
 	// 	],
 	// });
 
-	// app.use(
-	// 	helmet({
-	// 		contentSecurityPolicy: false,
-	// 	}),
-	// 	// compression(),
-	// 	cookieParser(),
-	// );
+	app.use(
+		// 	helmet({
+		// 		contentSecurityPolicy: false,
+		// 	}),
+		// 	// compression(),
+		cookieParser(),
+	);
 
 	app.useGlobalPipes(
 		new ValidationPipe({

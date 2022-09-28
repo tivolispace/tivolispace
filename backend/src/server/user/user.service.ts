@@ -6,13 +6,11 @@ import { User, UserDocument } from "./user.schema";
 @Injectable()
 export class UserService {
 	constructor(
-		@InjectModel(User.name) private userModel: Model<UserDocument>,
+		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
 	) {}
 
 	async findById(id: string): Promise<User> {
-		const user = await this.userModel.findById(id);
-		console.log(user);
-		return user;
+		return this.userModel.findById(id);
 	}
 
 	async findBySteamId(steamId: string): Promise<User> {

@@ -30,11 +30,4 @@ export class AuthController {
 	async steamTicket(@Body() steamTicketDto: SteamTicketDto) {
 		return this.authService.loginSteamTicket(steamTicketDto.ticket);
 	}
-
-	@ApiBearerAuth()
-	@Get("test")
-	@UseGuards(TivoliAuthGuard)
-	async test(@CurrentUser() user) {
-		return { user };
-	}
 }
