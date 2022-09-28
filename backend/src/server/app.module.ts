@@ -4,14 +4,17 @@ import { AuthModule } from "./auth/auth.module";
 import { DB_NAME, DB_URI } from "./environment";
 import { UserModule } from "./user/user.module";
 import { ViewModule } from "./view/view.module";
+import { StatsModule } from "./stats/stats.module";
 
 @Module({
 	imports: [
 		MongooseModule.forRoot(DB_URI, {
 			dbName: DB_NAME,
 		}),
+		// api modules
 		AuthModule,
 		UserModule,
+		StatsModule,
 		// import view module last because it uses *
 		ViewModule,
 	],

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, ObjectId } from "mongoose";
 import {
 	HeartbeatTimeMs,
 	UserSession,
@@ -30,5 +30,15 @@ export class UserSessionService {
 	async isOnline(user: User) {
 		const session = await this.userSessionModel.findOne({ user });
 		return session != null && session.expiresAt > new Date();
+	}
+
+	async onlineCount() {
+		return await this.userSessionModel.countDocuments();
+	}
+
+	async onlineUserIds() {
+		var sessions = await this.userSessionModel.find({});
+		var userIds = sessions.map(session => session.user as any as string);
+		return userIds;
 	}
 }
