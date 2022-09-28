@@ -11,7 +11,7 @@ export class User {
 	steamId: string;
 
 	@Prop({ default: () => new Date() })
-	created: Date;
+	createdAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
