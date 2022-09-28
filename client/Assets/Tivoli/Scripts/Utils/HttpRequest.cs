@@ -35,7 +35,9 @@ namespace Tivoli.Scripts.Utils
                     : new Dictionary<string, string>();
 
                 cs.SetResult((req, result));
+                req.Dispose();
             };
+            
 
             return cs.Task;
         }

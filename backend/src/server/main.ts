@@ -1,6 +1,7 @@
 import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
+import { WsAdapter } from "@nestjs/platform-ws";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as cookieParser from "cookie-parser";
 import { Request, Response } from "express";
@@ -63,6 +64,8 @@ async function bootstrap() {
 		cookieParser(),
 	);
 
+	app.useWebSocketAdapter(new WsAdapter(app));
+
 	app.useGlobalPipes(
 		new ValidationPipe({
 			// disableErrorMessages: true,
@@ -74,8 +77,8 @@ async function bootstrap() {
 
 	if (DEV) {
 		initDebugLogs(app, logger);
-		initSwagger(app);
 	}
+	initSwagger(app);
 
 	// redirects
 	const redirects = {
