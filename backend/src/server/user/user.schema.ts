@@ -3,7 +3,7 @@ import { Document } from "mongoose";
 
 export type UserDocument = User & Document;
 
-@Schema({ collection: "user" })
+@Schema({ collection: "users" })
 export class User {
 	id: string;
 

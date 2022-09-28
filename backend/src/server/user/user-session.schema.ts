@@ -5,7 +5,7 @@ import { User } from "./user.schema";
 
 export type UserSessionDocument = UserSession & Document;
 
-@Schema({ collection: "user.session" })
+@Schema({ collection: "users.sessions" })
 export class UserSession {
 	id: string;
 
