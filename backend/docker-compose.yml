@@ -17,11 +17,11 @@ services:
         build: .
         restart: always
         depends_on:
-            - db
+            - mongo
         # see all in src/environment.ts
         environment:
             URL: http://127.0.0.1:3000
-        
+
             JWT_SECRET: changeMe!
 
             STEAM_APP_ID: 2161040
