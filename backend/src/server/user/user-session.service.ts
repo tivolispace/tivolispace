@@ -27,19 +27,20 @@ export class UserSessionService {
 		return { id: session.id };
 	}
 
+	async disconnectUser(user: User) {
+		await this.userSessionModel.deleteOne({ user }).catch(() => {});
+		return {};
+	}
+
 	async isOnline(user: User) {
 		const session = await this.userSessionModel.findOne({ user });
 		return session != null && session.expiresAt > new Date();
 	}
 
-	async onlineCount() {
-		return await this.userSessionModel.countDocuments();
-	}
-
 	async onlineUserIds() {
-		// TODO: doesnt check expiresAt
-		var sessions = await this.userSessionModel.find({});
-		var userIds = sessions.map(session => session.user as any as string);
-		return userIds;
+		const sessions = await this.userSessionModel.find({
+			expiresAt: { $gte: Date.now() },
+		});
+		return sessions.map(session => session.user as any as string);
 	}
 }
