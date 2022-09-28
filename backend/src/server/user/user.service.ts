@@ -27,12 +27,7 @@ export class UserService {
 		return user;
 	}
 
-	// TODO: need to cache this because we cant be requesting too much data from steam all the time
-
-	async getProfileById(userId: string) {
-		const user = await this.findById(userId);
-		if (user == null) throw new NotFoundException("User ID not found");
-
+	async updateUserProfile(user: User) {
 		const profileRes = await axios(
 			"http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002",
 			{
@@ -71,10 +66,21 @@ export class UserService {
 
 		const player = profile.response.players[0];
 
+		await this.userModel.findByIdAndUpdate(user.id, {
+			displayName: player.personaname,
+			profilePictureUrl: player.avatarfull,
+		});
+	}
+
+	async getUserProfileById(userId: string) {
+		const user = await this.findById(userId);
+		if (user == null) throw new NotFoundException("User not found");
+
 		return {
-			id: userId,
-			name: player.personaname,
-			avatar: player.avatarfull,
+			id: user.id,
+			steamId: user.steamId,
+			displayName: user.displayName,
+			profilePictureUrl: user.profilePictureUrl,
 		};
 	}
 }

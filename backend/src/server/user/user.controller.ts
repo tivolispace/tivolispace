@@ -22,6 +22,6 @@ export class UserController {
 
 	@Get("profile/:id")
 	profile(@Param("id") id: string) {
-		return this.userService.getProfileById(id);
+		return this.userService.getUserProfileById(id);
 	}
 }

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import axios from "axios";
 import { JWT_SECRET, STEAM_APP_ID, STEAM_WEB_API_KEY } from "../environment";
@@ -31,6 +31,9 @@ export class AuthService {
 		if (user == null) {
 			user = await this.userService.createUser(steamId);
 		}
+
+		// updates display name and profile picture
+		await this.userService.updateUserProfile(user);
 
 		return this.generateAccessToken(user);
 	}

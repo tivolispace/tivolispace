@@ -12,6 +12,12 @@ export class User {
 
 	@Prop({ default: () => new Date() })
 	createdAt: Date;
+
+	@Prop()
+	displayName: string;
+
+	@Prop()
+	profilePictureUrl: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

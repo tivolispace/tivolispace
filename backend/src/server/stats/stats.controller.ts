@@ -19,7 +19,7 @@ export class StatsController {
 		const userIds = await this.userSessionService.onlineUserIds();
 
 		const users = await Promise.all(
-			userIds.map(userId => this.userService.getProfileById(userId)),
+			userIds.map(userId => this.userService.getUserProfileById(userId)),
 		);
 
 		return {
