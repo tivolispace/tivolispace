@@ -1,4 +1,5 @@
 ﻿using Mirror;
+using Tivoli.Scripts.UI;
 using UnityEngine;
 
 namespace Tivoli.Scripts.Player
@@ -15,6 +16,7 @@ namespace Tivoli.Scripts.Player
         {
             await DependencyManager.Instance.accountManager.WhenLoggedIn();
             nametag.gameObject.SetActive(false);
+            CmdSetupPlayer(DependencyManager.Instance.accountManager.Profile.Id);
         }
 
         public override void OnStopLocalPlayer()
@@ -30,9 +32,9 @@ namespace Tivoli.Scripts.Player
         private void OnUserIdChanged(string @old, string @new)
         {
             if (isLocalPlayer) return;
-            
+
             nametag.gameObject.SetActive(true);
-            nametag.SetUserId(@new);
+            nametag.GetComponent<Nametag>().UserId = @new;
         }
     
         private void Update()

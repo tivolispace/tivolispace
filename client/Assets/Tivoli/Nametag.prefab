@@ -219,7 +219,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Maki
+  m_text: Name
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8cffbd81839b9104fbbd3b278392cfaf, type: 2}
   m_sharedMaterial: {fileID: 6992982586305455405, guid: 8cffbd81839b9104fbbd3b278392cfaf, type: 2}
@@ -541,7 +541,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &7129076982255451807
 MonoBehaviour:
   m_ObjectHideFlags: 0
