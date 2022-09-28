@@ -14,7 +14,9 @@ public class Nametag : MonoBehaviour
 
     public async void SetSteamId(SteamId steamId)
     {
-        var (name, avatar) = await DependencyManager.Instance.steamManager.GetNameAndAvatar(steamId);
+        // var (name, avatar) = await DependencyManager.Instance.steamManager.GetNameAndAvatar(steamId);
+        var name = "";
+        Texture2D avatar = null;
         
         var size = nameText.GetPreferredValues(name);
         
@@ -146,21 +148,4 @@ public class Nametag : MonoBehaviour
             new Rect(0, 0, blurredTexture.width, blurredTexture.height), new Vector2(0.5f, 0.5f));
         textBackground.sprite = blurredSprite;
     }
-
-    // private IEnumerator SetImageUrl(string imageUrl)
-    // {
-    //     var req = UnityWebRequestTexture.GetTexture(imageUrl);
-    //     yield return req.SendWebRequest();
-    //
-    //     if (req.result != UnityWebRequest.Result.Success)
-    //     {
-    //         Debug.Log(req.error);
-    //         Debug.Log(req.downloadHandler.error);
-    //     }
-    //     else
-    //     {
-    //         var texture = ((DownloadHandlerTexture) req.downloadHandler).texture;
-    //         SetImage(texture);
-    //     }
-    // }
 }

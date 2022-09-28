@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 using NativeWebSocket;
-using System.Threading;
-using Newtonsoft.Json;
 using Steamworks;
 using Tivoli.Scripts.Utils;
 using UnityEngine;
@@ -11,12 +9,22 @@ using UnityEngine.Networking;
 
 namespace Tivoli.Scripts
 {
+    public class UserProfile
+    {
+        public string Id;
+        public string SteamId;
+        public string DisplayName;
+        public Texture2D ProfilePicture;
+    }
+
     public class AccountManager
     {
         private const string ApiUrl = "http://127.0.0.1:3000";
         // private const string ApiUrl = "https://tivoli.space";
 
         private string _accessToken;
+
+        public UserProfile Profile;
 
         public bool LoggedIn;
         public Action OnLoggedIn = () => { };
@@ -57,21 +65,24 @@ namespace Tivoli.Scripts
                 }
             );
 
-            if (res.TryGetValue("accessToken", out var accessToken))
-            {
-                Debug.Log("Access token! " + accessToken);
-                _accessToken = accessToken;
-
-                LoggedIn = true;
-                OnLoggedIn();
-
-                // ConnectToWs();
-                Heartbeat();
-            }
-            else
+            var success = res.TryGetValue("accessToken", out var accessToken);
+            if (success == false)
             {
                 Debug.Log(req.error);
+                return;
             }
+
+            Debug.Log("Logged in!");
+            _accessToken = accessToken;
+
+            // ConnectToWs();
+            Heartbeat();
+
+            // get own profile
+            Profile = await GetProfile(null);
+
+            LoggedIn = true;
+            OnLoggedIn();
         }
 
         private async void Heartbeat()
@@ -83,7 +94,63 @@ namespace Tivoli.Scripts
                 {"auth", _accessToken}
             });
         }
-        
+
+        private readonly Dictionary<string, Texture2D> _profilePictureCachedTextures = new();
+
+        public async Task<UserProfile> GetProfile(string userId)
+        {
+            var (req, res) = await HttpRequest.Simple(new Dictionary<string, string>()
+            {
+                {"method", "GET"},
+                {"url", ApiUrl + (userId == null ? "/api/user/profile" : "/api/user/profile/" + userId)},
+                {"auth", _accessToken}
+            });
+
+            if (req.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("Failed to get profile with user ID: " + userId + "\n" + req.error);
+                return null;
+            }
+
+            var profilePictureUrl = res.GetValueOrDefault("profilePictureUrl", "");
+            if (!_profilePictureCachedTextures.TryGetValue(profilePictureUrl, out var profilePicture))
+            {
+                profilePicture = await HttpRequest.Texture(profilePictureUrl);
+                _profilePictureCachedTextures[profilePictureUrl] = profilePicture;
+            }
+
+            var userProfile = new UserProfile
+            {
+                Id = res.GetValueOrDefault("id", ""),
+                SteamId = res.GetValueOrDefault("steamId", ""),
+                DisplayName = res.GetValueOrDefault("displayName", ""),
+                ProfilePicture = profilePicture
+            };
+
+            return userProfile;
+        }
+
+        [Serializable]
+        public class AllOnlineUsers
+        {
+            public int count;
+            public string[] userIds;
+        }
+
+        public async Task<AllOnlineUsers> GetAllOnlineUsers()
+        {
+            var (req, _) = await HttpRequest.Simple(new Dictionary<string, string>()
+            {
+                {"method", "GET"},
+                {"url", ApiUrl + "/api/stats/online"},
+                {"auth", _accessToken}
+            }, new Dictionary<string, string>(), false);
+
+            var json = req.downloadHandler.text;
+            
+            return JsonUtility.FromJson<AllOnlineUsers>(json);
+        }
+
         public void Update()
         {
             if (LoggedIn)
