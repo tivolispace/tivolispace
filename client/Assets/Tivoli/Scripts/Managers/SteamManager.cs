@@ -16,11 +16,12 @@ namespace Tivoli.Scripts
         {
             try
             {
-                if (SteamClient.RestartAppIfNecessary(AppId))
-                {
-                    Application.Quit();
-                    return;
-                }
+                // will restart from steam
+                // if (SteamClient.RestartAppIfNecessary(AppId))
+                // {
+                //     Application.Quit();
+                //     return;
+                // }
 
                 SteamClient.Init(AppId);
 
