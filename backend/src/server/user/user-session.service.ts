@@ -37,6 +37,7 @@ export class UserSessionService {
 	}
 
 	async onlineUserIds() {
+		// TODO: doesnt check expiresAt
 		var sessions = await this.userSessionModel.find({});
 		var userIds = sessions.map(session => session.user as any as string);
 		return userIds;
