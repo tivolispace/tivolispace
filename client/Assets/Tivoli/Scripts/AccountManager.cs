@@ -26,9 +26,8 @@ namespace Tivoli.Scripts
 
         public UserProfile Profile;
 
-        // TODO: is there a function that makes this easier??
-        public bool LoggedIn;
-        public Action OnLoggedIn = () => { };
+        private bool _loggedIn;
+        private Action OnLoggedIn = () => { };
 
         private WebSocket _socket;
 
@@ -82,8 +81,25 @@ namespace Tivoli.Scripts
             // get own profile
             Profile = await GetProfile(null);
 
-            LoggedIn = true;
+            _loggedIn = true;
             OnLoggedIn();
+        }
+
+        public Task WhenLoggedIn()
+        {
+            var cs = new TaskCompletionSource<object>();
+            if (_loggedIn)
+            {
+                cs.SetResult(null);
+            }
+            else
+            {
+                OnLoggedIn += () =>
+                {
+                    cs.SetResult(null);
+                };
+            }
+            return cs.Task;
         }
 
         private async void Heartbeat()
@@ -154,7 +170,7 @@ namespace Tivoli.Scripts
 
         public void Update()
         {
-            if (LoggedIn)
+            if (_loggedIn)
             {
                 _heartbeatTimer += Time.deltaTime;
                 if (_heartbeatTimer > HeartbeatTime)

@@ -31,27 +31,15 @@ namespace Tivoli.Scripts.UI
 
         private bool _ready;
 
-        private void Start()
+        private async void Start()
         {
-            var accountManager = DependencyManager.Instance.accountManager;
-
-            if (accountManager.LoggedIn)
-            {
-                _ready = true;
-                UpdateInfo();
-            }
-            else
-            {
-                accountManager.OnLoggedIn += () =>
-                {
-                    _ready = true;
-                    UpdateInfo();
-                };
-            }
+            UpdateInfo();
         }
 
         private async void UpdateInfo()
         {
+            await DependencyManager.Instance.accountManager.WhenLoggedIn();
+            
             if (!getSelf && userId == "") return;
                 
             var profile = getSelf

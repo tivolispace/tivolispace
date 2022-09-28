@@ -11,20 +11,11 @@ public class GetAllOnlineUserProfiles : MonoBehaviour
 
     private List<GameObject> _userGameObjects = new();
     
-    void Start()
+    async void Start()
     {
         userGameObject.SetActive(false);
-        
-        var accountManager = DependencyManager.Instance.accountManager;
-
-        if (accountManager.LoggedIn)
-        {
-            RefreshUsers();
-        }
-        else
-        {
-            accountManager.OnLoggedIn += RefreshUsers;
-        }
+        await DependencyManager.Instance.accountManager.WhenLoggedIn();
+        RefreshUsers();
     }
 
     public async void RefreshUsers()

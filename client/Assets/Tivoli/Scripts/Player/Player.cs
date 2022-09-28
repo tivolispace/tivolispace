@@ -11,19 +11,9 @@ namespace Tivoli.Scripts.Player
         public Transform nametagTransform;
         public Nametag nametag;
 
-        public override void OnStartLocalPlayer()
+        public override async void OnStartLocalPlayer()
         {
-            if (DependencyManager.Instance.accountManager.LoggedIn)
-            {
-                CmdSetupPlayer(DependencyManager.Instance.accountManager.Profile.Id);
-            }
-            else
-            {
-                DependencyManager.Instance.accountManager.OnLoggedIn += () =>
-                {
-                    CmdSetupPlayer(DependencyManager.Instance.accountManager.Profile.Id);
-                };
-            }
+            await DependencyManager.Instance.accountManager.WhenLoggedIn();
             nametag.gameObject.SetActive(false);
         }
 
