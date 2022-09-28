@@ -1,17 +1,14 @@
-#if UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_STANDALONE_OSX || STEAMWORKS_WIN || STEAMWORKS_LIN_OSX
-using Steamworks;
-#endif
-
 using System;
 using System.Threading.Tasks;
+using Steamworks;
 using UnityEngine;
 
 namespace Tivoli.Scripts
 {
     public class SteamManager
     {
-        private readonly uint _appId = 2161040;
-        
+        private const uint AppId = 2161040;
+
         public readonly bool Initialized;
         public Action OnInitialized = () => { };
 
@@ -19,13 +16,13 @@ namespace Tivoli.Scripts
         {
             try
             {
-                if (SteamClient.RestartAppIfNecessary(_appId))
+                if (SteamClient.RestartAppIfNecessary(AppId))
                 {
                     Application.Quit();
                     return;
                 }
 
-                SteamClient.Init(_appId);
+                SteamClient.Init(AppId);
 
                 Initialized = true;
                 OnInitialized.Invoke();

@@ -31,7 +31,7 @@ namespace Tivoli.Scripts.UI
 
         private bool _ready;
 
-        private async void Start()
+        private void Start()
         {
             UpdateInfo();
         }
