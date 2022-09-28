@@ -5,14 +5,14 @@ import { User } from "./user.schema";
 
 export type UserSessionDocument = UserSession & Document;
 
-@Schema()
+@Schema({ collection: "user.session" })
 export class UserSession {
 	id: string;
 
 	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User" })
 	user: User;
 
-	@Prop({ default: () => Date.now() + 60, expires: 60 })
+	@Prop({ default: () => Date.now() + 60, expires: 0 })
 	expiresAt: Date;
 }
 
