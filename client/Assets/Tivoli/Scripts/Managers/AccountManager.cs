@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NativeWebSocket;
-using Steamworks;
 using Tivoli.Scripts.Utils;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -50,8 +49,7 @@ namespace Tivoli.Scripts
 
         private async void Login()
         {
-            var authTicket = await SteamUser.GetAuthSessionTicketAsync();
-            var authTicketHex = BitConverter.ToString(authTicket.Data).Replace("-", "");
+            var authTicket = await DependencyManager.Instance.steamManager.GetAuthSessionTicket();
 
             var (req, res) = await HttpRequest.Simple(
                 new Dictionary<string, string>
@@ -61,7 +59,7 @@ namespace Tivoli.Scripts
                 },
                 new Dictionary<string, string>
                 {
-                    {"ticket", authTicketHex}
+                    {"ticket", authTicket}
                 }
             );
 

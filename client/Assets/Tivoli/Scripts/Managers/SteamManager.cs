@@ -1,8 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+#if UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_STANDALONE_OSX || STEAMWORKS_WIN || STEAMWORKS_LIN_OSX
 using Steamworks;
+#endif
+
+using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Tivoli.Scripts
@@ -51,6 +52,13 @@ namespace Tivoli.Scripts
         public SteamId GetMySteamID()
         {
             return SteamClient.SteamId;
+        }
+
+        public async Task<string> GetAuthSessionTicket()
+        {
+            var authTicket = await SteamUser.GetAuthSessionTicketAsync();
+            var authTicketHex = BitConverter.ToString(authTicket.Data).Replace("-", "");
+            return authTicketHex;
         }
     }
 }
