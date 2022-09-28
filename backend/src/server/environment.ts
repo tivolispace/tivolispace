@@ -16,9 +16,6 @@ export const {
 	// select everyone group and generate web api key
 	STEAM_WEB_API_KEY = "",
 
-	DB_HOST = "127.0.0.1",
-	DB_PORT = "5432",
-	DB_USERNAME = "postgres",
-	DB_PASSWORD = "postgres",
-	DB_NAME = "tivolispace",
+	DB_URI = "mongodb://localhost:27017/tivolispace",
+	// DB_URI = "mongodb://tivoli:changeme@localhost:27017/tivolispace",
 } = process.env;

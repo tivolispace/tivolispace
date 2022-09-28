@@ -1,28 +1,29 @@
 import { Injectable } from "@nestjs/common";
-
-export interface User {
-	id: string;
-	steamId: string;
-}
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { User, UserDocument } from "./user.schema";
 
 @Injectable()
 export class UserService {
-	private users: User[] = [];
+	constructor(
+		@InjectModel(User.name) private userModel: Model<UserDocument>,
+	) {}
 
 	async findById(id: string): Promise<User> {
-		return this.users.find(user => user.id == id);
+		const user = await this.userModel.findById(id);
+		console.log(user);
+		return user;
 	}
 
 	async findBySteamId(steamId: string): Promise<User> {
-		return this.users.find(user => user.steamId == steamId);
+		return this.userModel.findOne({ steamId });
 	}
 
 	async createUser(steamId: string) {
-		const user = {
-			id: String(this.users.length),
+		const user = new this.userModel({
 			steamId,
-		};
-		this.users.push(user);
+		});
+		await user.save();
 		return user;
 	}
 }

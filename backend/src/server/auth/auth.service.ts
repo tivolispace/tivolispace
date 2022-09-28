@@ -2,7 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import axios from "axios";
 import { JWT_SECRET, STEAM_APP_ID, STEAM_WEB_API_KEY } from "../environment";
-import { User, UserService } from "../user/user.service";
+import { User } from "../user/user.schema";
+import { UserService } from "../user/user.service";
 import { JwtPayload } from "./jwt.strategy";
 
 @Injectable()

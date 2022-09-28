@@ -4,15 +4,15 @@ networks:
         external:
             name: traefik
 services:
-    db:
-        image: postgres:14
+    mongo:
+        image: mongo:6
         restart: always
         environment:
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: postgres
-            POSTGRES_DB: tivolispace
+            MONGO_INITDB_ROOT_USERNAME: tivoli
+            MONGO_INITDB_ROOT_PASSWORD: changeme
+            MONGO_INITDB_DATABASE: tivolispace
         volumes:
-            - ./db:/var/lib/postgresql/data
+            - ./db:/data/db
     tivolispace:
         build: .
         restart: always
@@ -28,10 +28,7 @@ services:
             STEAM_DEV_API_KEY: ""
             STEAM_WEB_API_KEY: ""
 
-            DB_HOST: db
-            DB_USERNAME: postgres
-            DB_PASSWORD: postgres
-            DB_NAME: tivolispace
+            DB_URI: mongodb://tivoli:changeme@mongo:27017/tivolispace
         labels:
             - traefik.enable=true
             - traefik.http.routers.tivolispace.rule=Host("tivoli.space") || Host("www.tivoli.space")
