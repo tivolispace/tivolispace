@@ -27,7 +27,7 @@ namespace Tivoli.Scripts
         public UserProfile Profile;
 
         private bool _loggedIn;
-        private Action OnLoggedIn = () => { };
+        private Action _onLoggedIn = () => { };
 
         private WebSocket _socket;
 
@@ -82,7 +82,7 @@ namespace Tivoli.Scripts
             Profile = await GetProfile(null);
 
             _loggedIn = true;
-            OnLoggedIn();
+            _onLoggedIn();
         }
 
         public Task WhenLoggedIn()
@@ -94,7 +94,7 @@ namespace Tivoli.Scripts
             }
             else
             {
-                OnLoggedIn += () =>
+                _onLoggedIn += () =>
                 {
                     cs.SetResult(null);
                 };
