@@ -26,6 +26,7 @@ namespace Tivoli.Scripts
 
         public UserProfile Profile;
 
+        // TODO: is there a function that makes this easier??
         public bool LoggedIn;
         public Action OnLoggedIn = () => { };
 

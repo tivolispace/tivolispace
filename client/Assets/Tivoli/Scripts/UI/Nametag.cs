@@ -1,9 +1,6 @@
-using System.Collections;
-using Steamworks;
 using Tivoli.Scripts;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class Nametag : MonoBehaviour
@@ -12,40 +9,31 @@ public class Nametag : MonoBehaviour
     public Image textBackground;
     public TextMeshProUGUI nameText;
 
-    public async void SetSteamId(SteamId steamId)
+    public async void SetUserId(string userId)
     {
-        // var (name, avatar) = await DependencyManager.Instance.steamManager.GetNameAndAvatar(steamId);
-        var name = "";
-        Texture2D avatar = null;
-        
-        var size = nameText.GetPreferredValues(name);
-        
+        var profile = await DependencyManager.Instance.accountManager.GetProfile(userId);
+        var displayName = profile.DisplayName;
+
+        var size = nameText.GetPreferredValues(displayName);
+
         // update name tag width
         const float imageWidth = 5f;
         const float padding = 5f;
-        
+
         var textWidth = size.x + padding;
         if (textWidth < 15) textWidth = 15;
-        
+
         var rectTransform = GetComponent<RectTransform>();
         rectTransform.sizeDelta = new Vector2(textWidth + imageWidth, rectTransform.sizeDelta.y);
-        
+
         // set image height to width so background covers
         textBackground.rectTransform.sizeDelta = new Vector2(0, textWidth);
-        
+
         // set text
-        nameText.text = name;
-        
+        nameText.text = displayName;
+
         // update profile picture
-        // StartCoroutine(SetImageUrl("url"));
-        if (avatar == null)
-        {
-            Debug.LogWarning($"Failed to get avatar for {name}");
-        }
-        else
-        {
-            SetImage(avatar);
-        }
+        SetImage(profile.ProfilePicture);
     }
 
     private static Texture2D GpuScale(Texture2D src, int width, int height, FilterMode filterMode)
