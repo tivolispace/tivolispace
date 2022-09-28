@@ -23,6 +23,9 @@ namespace Tivoli.Scripts
 
         private WebSocket _socket;
 
+        private float _heartbeatTimer;
+        private const float HeartbeatTime = 10; // seconds
+
         public AccountManager()
         {
             var steamManager = DependencyManager.Instance.steamManager;
@@ -63,10 +66,34 @@ namespace Tivoli.Scripts
                 OnLoggedIn();
 
                 // ConnectToWs();
+                Heartbeat();
             }
             else
             {
                 Debug.Log(req.error);
+            }
+        }
+
+        private async void Heartbeat()
+        {
+            var (req, res) = await HttpRequest.Simple(new Dictionary<string, string>()
+            {
+                {"method", "PUT"},
+                {"url", ApiUrl + "/api/user/heartbeat"},
+                {"auth", _accessToken}
+            });
+        }
+        
+        public void Update()
+        {
+            if (LoggedIn)
+            {
+                _heartbeatTimer += Time.deltaTime;
+                if (_heartbeatTimer > HeartbeatTime)
+                {
+                    _heartbeatTimer = 0f;
+                    Heartbeat();
+                }
             }
         }
 

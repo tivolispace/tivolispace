@@ -36,7 +36,7 @@ namespace Tivoli.Scripts
             if (!_initialized) return;
             
             steamManager.Update();
-            // accountManager.Update();
+            accountManager.Update();
         }
 
         public void OnDestroy()

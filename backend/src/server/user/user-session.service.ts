@@ -1,7 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { UserSession, UserSessionDocument } from "./user-session.schema";
+import {
+	HeartbeatTimeMs,
+	UserSession,
+	UserSessionDocument,
+} from "./user-session.schema";
 import { User } from "./user.schema";
 
 @Injectable()
@@ -17,10 +21,10 @@ export class UserSessionService {
 			session = new this.userSessionModel({ user });
 		}
 
-		session.expiresAt = new Date(Date.now() + 60);
+		session.expiresAt = new Date(Date.now() + HeartbeatTimeMs);
 		await session.save();
 
-		return session;
+		return { id: session.id };
 	}
 
 	async isOnline(user: User) {

@@ -9,6 +9,8 @@ namespace Tivoli.Scripts.Utils
 {
     public static class HttpRequest
     {
+        // TODO: currying!!!!!!!!
+        
         public static Task<(UnityWebRequest, Dictionary<string, string>)> Simple(Dictionary<string, string> reqData,
             Dictionary<string, string> data = null)
         {
@@ -17,8 +19,14 @@ namespace Tivoli.Scripts.Utils
             var req = new UnityWebRequest();
             req.method = reqData.GetValueOrDefault("method", "GET");
             req.url = reqData.GetValueOrDefault("url", "");
+
             req.SetRequestHeader("User-Agent", "TivoliSpace/" + Application.version);
             req.downloadHandler = new DownloadHandlerBuffer();
+            
+            if (reqData.TryGetValue("auth", out var bearer))
+            {
+                req.SetRequestHeader("Authorization", "Bearer " + bearer);
+            }
 
             if (data != null)
             {
@@ -37,7 +45,6 @@ namespace Tivoli.Scripts.Utils
                 cs.SetResult((req, result));
                 req.Dispose();
             };
-            
 
             return cs.Task;
         }

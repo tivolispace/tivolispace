@@ -5,6 +5,8 @@ import { User } from "./user.schema";
 
 export type UserSessionDocument = UserSession & Document;
 
+export const HeartbeatTimeMs = 60 * 1000; // 1 minute
+
 @Schema({ collection: "users.sessions" })
 export class UserSession {
 	id: string;
@@ -12,7 +14,7 @@ export class UserSession {
 	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User" })
 	user: User;
 
-	@Prop({ default: () => Date.now() + 60, expires: 0 })
+	@Prop({ default: () => Date.now() + HeartbeatTimeMs, expires: 0 })
 	expiresAt: Date;
 }
 
