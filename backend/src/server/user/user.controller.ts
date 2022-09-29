@@ -32,13 +32,6 @@ export class UserController {
 
 	@ApiBearerAuth()
 	@UseGuards(TivoliAuthGuard)
-	@Post("disconnect")
-	disconnect(@CurrentUser() user) {
-		return this.userSessionService.disconnectUser(user);
-	}
-
-	@ApiBearerAuth()
-	@UseGuards(TivoliAuthGuard)
 	@Get("profile")
 	profile(@CurrentUser() user) {
 		return this.userService.getUserProfile(user);

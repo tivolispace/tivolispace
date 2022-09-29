@@ -19,8 +19,9 @@ namespace Tivoli.Scripts.Managers
 
     public class AccountManager
     {
-        // private const string ApiUrl = "http://127.0.0.1:3000";
-        private const string ApiUrl = "https://tivoli.space";
+        // TODO: made this an editor setting or something, also maki go through your fucking todos LIKE THE HTTP REQUEST ONE ass
+        private const string ApiUrl = "http://127.0.0.1:3000";
+        // private const string ApiUrl = "https://tivoli.space";
 
         private string _accessToken;
 
@@ -33,6 +34,7 @@ namespace Tivoli.Scripts.Managers
 
         private float _heartbeatTimer;
         private const float HeartbeatTime = 10; // seconds
+        private bool _heartbeatClosingGame = false;
 
         public AccountManager()
         {
@@ -95,21 +97,29 @@ namespace Tivoli.Scripts.Managers
         private class HeartbeatDto
         {
             public bool hosting;
+            public bool closingGame;
 
-            public HeartbeatDto(bool hosting)
+            public HeartbeatDto(bool hosting, bool closingGame)
             {
                 this.hosting = hosting;
+                this.closingGame = closingGame;
             }
         }
 
         private async void Heartbeat()
         {
+            // TODO: WHEN HTTP REQUEST SIMPLE GETS CURRYING WE CAN JUST NOT SEND HOSTING OR CLOSING GAME EVERY REQUEST!!!!!!!!!!!!!!!!!!
             await HttpRequest.Simple(new Dictionary<string, string>()
             {
                 {"method", "PUT"},
                 {"url", ApiUrl + "/api/user/heartbeat"},
                 {"auth", _accessToken}
-            }, JsonUtility.ToJson(new HeartbeatDto(DependencyManager.Instance.connectionManager.Hosting)));
+            }, JsonUtility.ToJson(
+                new HeartbeatDto(
+                    DependencyManager.Instance.connectionManager.Hosting,
+                    _heartbeatClosingGame
+                )
+            ));
         }
 
         private readonly Dictionary<string, Texture2D> _profilePictureCachedTextures = new();
@@ -183,7 +193,14 @@ namespace Tivoli.Scripts.Managers
 
         public void HeartbeatNow()
         {
-            _heartbeatTimer = HeartbeatTime + 1;
+            _heartbeatTimer = 0f;
+            Heartbeat();
+        }
+
+        public void OnDestroy()
+        {
+            _heartbeatClosingGame = true;
+            HeartbeatNow();
         }
 
         /*

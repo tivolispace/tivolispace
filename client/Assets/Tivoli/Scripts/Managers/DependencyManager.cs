@@ -45,6 +45,7 @@ namespace Tivoli.Scripts.Managers
             if (!_initialized) return;
             
             steamManager.OnDestroy();
+            accountManager.OnDestroy();
         }
     }
     

@@ -17,6 +17,11 @@ export class UserSessionService {
 	) {}
 
 	async heartbeatUser(user: User, heartbeatDto: HeartbeatDto) {
+		if (heartbeatDto.closingGame) {
+			await this.userSessionModel.deleteOne({ user }).catch(() => {});
+			return { id: null };
+		}
+
 		let session = await this.userSessionModel.findOne({ user });
 		if (session == null) {
 			session = new this.userSessionModel({ user });
@@ -29,11 +34,6 @@ export class UserSessionService {
 		await session.save();
 
 		return { id: session.id };
-	}
-
-	async disconnectUser(user: User) {
-		await this.userSessionModel.deleteOne({ user }).catch(() => {});
-		return {};
 	}
 
 	async isOnline(user: User) {
