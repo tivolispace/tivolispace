@@ -196,8 +196,8 @@ namespace Tivoli.Scripts.Voice
 
         public void OnGUI()
         {
-            GUI.HorizontalSlider(new Rect(100, 600, 200, 24), micLevel, 0f, 1f);
-            GUI.TextArea(new Rect(100, 624, 100, 24), micTalking ? "talking!": "");
+            GUI.HorizontalSlider(new Rect(8, 8, 200, 24), micLevel, 0f, 1f);
+            GUI.TextArea(new Rect(8, 24, 200, 24), micTalking ? "talking!": "");
         }
     }
 }

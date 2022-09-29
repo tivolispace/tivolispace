@@ -1,15 +1,17 @@
 import {
+	Body,
 	Controller,
 	Get,
+	NotFoundException,
 	Param,
+	Post,
 	Put,
 	UseGuards,
-	NotFoundException,
-	Post,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { TivoliAuthGuard } from "../auth/auth.guard";
 import { CurrentUser } from "../auth/user.decorator";
+import { HeartbeatDto } from "./heartbeat.dto";
 import { UserSessionService } from "./user-session.service";
 import { UserService } from "./user.service";
 
@@ -24,8 +26,8 @@ export class UserController {
 	@ApiBearerAuth()
 	@UseGuards(TivoliAuthGuard)
 	@Put("heartbeat")
-	heartbeat(@CurrentUser() user) {
-		return this.userSessionService.heartbeatUser(user);
+	heartbeat(@CurrentUser() user, @Body() heartbeatDto: HeartbeatDto) {
+		return this.userSessionService.heartbeatUser(user, heartbeatDto);
 	}
 
 	@ApiBearerAuth()

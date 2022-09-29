@@ -10,9 +10,10 @@ namespace Tivoli.Scripts.Utils
     public static class HttpRequest
     {
         // TODO: currying!!!!!!!!
-        
+        // TODO: OMG SERIOUSLY THIS NEEDS TO BE BETTER
+
         public static Task<(UnityWebRequest, Dictionary<string, string>)> Simple(Dictionary<string, string> reqData,
-            Dictionary<string, string> data = null, bool jsonSerialize = true)
+            string jsonString = null, bool jsonSerialize = true)
         {
             var cs = new TaskCompletionSource<(UnityWebRequest, Dictionary<string, string>)>();
 
@@ -22,16 +23,15 @@ namespace Tivoli.Scripts.Utils
 
             req.SetRequestHeader("User-Agent", "TivoliSpace/" + Application.version);
             req.downloadHandler = new DownloadHandlerBuffer();
-            
+
             if (reqData.TryGetValue("auth", out var bearer) && bearer != "")
             {
                 req.SetRequestHeader("Authorization", "Bearer " + bearer);
             }
 
-            if (data != null)
+            if (jsonString != null)
             {
-                var json = JsonConvert.SerializeObject(data);
-                req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
+                req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(jsonString));
                 req.uploadHandler.contentType = "application/json";
             }
 
@@ -50,7 +50,7 @@ namespace Tivoli.Scripts.Utils
 
             return cs.Task;
         }
-        
+
         public static Task<Texture2D> Texture(string url)
         {
             var cs = new TaskCompletionSource<Texture2D>();
@@ -60,7 +60,7 @@ namespace Tivoli.Scripts.Utils
             req.url = url;
 
             req.SetRequestHeader("User-Agent", "TivoliSpace/" + Application.version);
-            
+
             var downloadHandler = new DownloadHandlerTexture();
             req.downloadHandler = downloadHandler;
 

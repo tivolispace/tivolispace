@@ -1,12 +1,13 @@
 using System;
 using Mirror;
+using Tivoli.Scripts.Managers;
 
 /*
 	Documentation: https://mirror-networking.gitbook.io/docs/components/network-manager
 	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkManager.html
 */
 
-namespace Tivoli.Scripts
+namespace Tivoli.Scripts.Networking
 {
     public class TivoliNetworkManager : NetworkManager
     {
@@ -217,13 +218,19 @@ namespace Tivoli.Scripts
         /// This is invoked when a host is started.
         /// <para>StartHost has multiple signatures, but they all cause this hook to be called.</para>
         /// </summary>
-        public override void OnStartHost() { }
+        public override void OnStartHost()
+        {
+            DependencyManager.Instance.connectionManager.Hosting = true;
+        }
 
         /// <summary>
         /// This is invoked when a server is started - including when a host is started.
         /// <para>StartServer has multiple signatures, but they all cause this hook to be called.</para>
         /// </summary>
-        public override void OnStartServer() { }
+        public override void OnStartServer()
+        {
+            DependencyManager.Instance.connectionManager.Hosting = false;
+        }
 
         /// <summary>
         /// This is invoked when the client is started.

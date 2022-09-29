@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NativeWebSocket;
+using Newtonsoft.Json;
 using Tivoli.Scripts.Utils;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Tivoli.Scripts
+namespace Tivoli.Scripts.Managers
 {
     public class UserProfile
     {
@@ -35,20 +36,13 @@ namespace Tivoli.Scripts
 
         public AccountManager()
         {
-            var steamManager = DependencyManager.Instance.steamManager;
-
-            if (steamManager.Initialized)
-            {
-                Login();
-            }
-            else
-            {
-                steamManager.OnInitialized += Login;
-            }
+            Login();
         }
 
         private async void Login()
         {
+            await DependencyManager.Instance.steamManager.WhenInitialized();
+
             var authTicket = await DependencyManager.Instance.steamManager.GetAuthSessionTicket();
 
             var (req, res) = await HttpRequest.Simple(
@@ -57,10 +51,10 @@ namespace Tivoli.Scripts
                     {"method", "POST"},
                     {"url", ApiUrl + "/api/auth/steam-ticket"},
                 },
-                new Dictionary<string, string>
+                JsonConvert.SerializeObject(new Dictionary<string, string>
                 {
                     {"ticket", authTicket}
-                }
+                })
             );
 
             var success = res.TryGetValue("accessToken", out var accessToken);
@@ -92,22 +86,30 @@ namespace Tivoli.Scripts
             }
             else
             {
-                _onLoggedIn += () =>
-                {
-                    cs.SetResult(null);
-                };
+                _onLoggedIn += () => { cs.SetResult(null); };
             }
+
             return cs.Task;
+        }
+
+        private class HeartbeatDto
+        {
+            public bool hosting;
+
+            public HeartbeatDto(bool hosting)
+            {
+                this.hosting = hosting;
+            }
         }
 
         private async void Heartbeat()
         {
-            var (req, res) = await HttpRequest.Simple(new Dictionary<string, string>()
+            await HttpRequest.Simple(new Dictionary<string, string>()
             {
                 {"method", "PUT"},
                 {"url", ApiUrl + "/api/user/heartbeat"},
                 {"auth", _accessToken}
-            });
+            }, JsonUtility.ToJson(new HeartbeatDto(DependencyManager.Instance.connectionManager.Hosting)));
         }
 
         private readonly Dictionary<string, Texture2D> _profilePictureCachedTextures = new();
@@ -159,10 +161,10 @@ namespace Tivoli.Scripts
                 {"method", "GET"},
                 {"url", ApiUrl + "/api/stats/online"},
                 {"auth", _accessToken}
-            }, new Dictionary<string, string>(), false);
+            }, null, false);
 
             var json = req.downloadHandler.text;
-            
+
             return JsonUtility.FromJson<AllOnlineUsers>(json);
         }
 
@@ -177,6 +179,11 @@ namespace Tivoli.Scripts
                     Heartbeat();
                 }
             }
+        }
+
+        public void HeartbeatNow()
+        {
+            _heartbeatTimer = HeartbeatTime + 1;
         }
 
         /*

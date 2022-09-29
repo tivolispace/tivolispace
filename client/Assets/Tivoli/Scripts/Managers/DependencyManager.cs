@@ -1,7 +1,6 @@
-using System;
 using UnityEngine;
 
-namespace Tivoli.Scripts
+namespace Tivoli.Scripts.Managers
 {
     public class DependencyManager : MonoBehaviour
     {
@@ -10,6 +9,7 @@ namespace Tivoli.Scripts
         public WindowManager windowManager;
         public SteamManager steamManager;
         public AccountManager accountManager;
+        public ConnectionManager connectionManager;
 
         private bool _initialized;
 
@@ -27,6 +27,7 @@ namespace Tivoli.Scripts
             windowManager = new WindowManager();
             steamManager = new SteamManager();
             accountManager = new AccountManager();
+            connectionManager = new ConnectionManager();
             
             _initialized = true;
         }

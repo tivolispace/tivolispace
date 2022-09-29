@@ -3,14 +3,14 @@ using System.Threading.Tasks;
 using Steamworks;
 using UnityEngine;
 
-namespace Tivoli.Scripts
+namespace Tivoli.Scripts.Managers
 {
     public class SteamManager
     {
-        private const uint AppId = 2161040;
+        public const uint AppId = 2161040;
 
-        public readonly bool Initialized;
-        public Action OnInitialized = () => { };
+        private readonly bool _initialized;
+        private Action _onInitialized = () => { };
 
         public SteamManager()
         {
@@ -25,8 +25,8 @@ namespace Tivoli.Scripts
 
                 SteamClient.Init(AppId);
 
-                Initialized = true;
-                OnInitialized.Invoke();
+                _initialized = true;
+                _onInitialized.Invoke();
             }
             catch (Exception e)
             {
@@ -34,16 +34,33 @@ namespace Tivoli.Scripts
                 Application.Quit();
             }
         }
+        
+        public Task WhenInitialized()
+        {
+            var cs = new TaskCompletionSource<object>();
+            if (_initialized)
+            {
+                cs.SetResult(null);
+            }
+            else
+            {
+                _onInitialized += () =>
+                {
+                    cs.SetResult(null);
+                };
+            }
+            return cs.Task;
+        }
 
         public void Update()
         {
-            if (!Initialized) return;
+            if (!_initialized) return;
             SteamClient.RunCallbacks();
         }
 
         public void OnDestroy()
         {
-            if (!Initialized) return;
+            if (!_initialized) return;
             SteamClient.Shutdown();
         }
 
