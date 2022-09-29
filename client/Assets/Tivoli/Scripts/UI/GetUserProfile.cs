@@ -47,10 +47,10 @@ namespace Tivoli.Scripts.UI
                 ? DependencyManager.Instance.accountManager.Profile
                 : await DependencyManager.Instance.accountManager.GetProfile(userId);
 
-            var sprite = Sprite.Create(profile.ProfilePicture,
-                new Rect(0, 0, profile.ProfilePicture.width, profile.ProfilePicture.height), new Vector2(0.5f, 0.5f));
+            var sprite = Sprite.Create(profile.profilePicture,
+                new Rect(0, 0, profile.profilePicture.width, profile.profilePicture.height), new Vector2(0.5f, 0.5f));
 
-            displayName.text = profile.DisplayName;
+            displayName.text = profile.displayName;
             profilePicture.sprite = sprite;
         }
     }

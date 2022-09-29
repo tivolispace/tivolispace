@@ -5,21 +5,21 @@ using NativeWebSocket;
 using Newtonsoft.Json;
 using Tivoli.Scripts.Utils;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace Tivoli.Scripts.Managers
 {
     public class UserProfile
     {
-        public string Id;
-        public string SteamId;
-        public string DisplayName;
-        public Texture2D ProfilePicture;
+        public string id;
+        public string steamId;
+        public string displayName;
+        public string profilePictureUrl;
+        public Texture2D profilePicture;
     }
 
     public class AccountManager
     {
-        // TODO: made this an editor setting or something, also maki go through your fucking todos LIKE THE HTTP REQUEST ONE ass
+        // TODO: made this an editor setting or something
         private const string ApiUrl = "http://127.0.0.1:3000";
         // private const string ApiUrl = "https://tivoli.space";
 
@@ -47,27 +47,18 @@ namespace Tivoli.Scripts.Managers
 
             var authTicket = await DependencyManager.Instance.steamManager.GetAuthSessionTicket();
 
-            var (req, res) = await HttpRequest.Simple(
-                new Dictionary<string, string>
-                {
-                    {"method", "POST"},
-                    {"url", ApiUrl + "/api/auth/steam-ticket"},
-                },
-                JsonConvert.SerializeObject(new Dictionary<string, string>
-                {
-                    {"ticket", authTicket}
-                })
-            );
+            var (res, error) = await new HttpFox(ApiUrl + "/api/auth/steam-ticket", "POST")
+                .WithJson(new {ticket = authTicket})
+                .ReceiveJson(new {accessToken = ""});
 
-            var success = res.TryGetValue("accessToken", out var accessToken);
-            if (success == false)
+            if (error != null)
             {
-                Debug.Log(req.error);
+                Debug.Log("Failed to login!\n" + error);
                 return;
             }
 
             Debug.Log("Logged in!");
-            _accessToken = accessToken;
+            _accessToken = res.accessToken;
 
             // ConnectToWs();
             Heartbeat();
@@ -108,51 +99,55 @@ namespace Tivoli.Scripts.Managers
 
         private async void Heartbeat()
         {
-            // TODO: WHEN HTTP REQUEST SIMPLE GETS CURRYING WE CAN JUST NOT SEND HOSTING OR CLOSING GAME EVERY REQUEST!!!!!!!!!!!!!!!!!!
-            await HttpRequest.Simple(new Dictionary<string, string>()
+            if (_heartbeatClosingGame)
             {
-                {"method", "PUT"},
-                {"url", ApiUrl + "/api/user/heartbeat"},
-                {"auth", _accessToken}
-            }, JsonUtility.ToJson(
-                new HeartbeatDto(
-                    DependencyManager.Instance.connectionManager.Hosting,
-                    _heartbeatClosingGame
-                )
-            ));
+                Debug.Log("Sending \"closingGame\" heartbeat");
+            }
+
+            // TODO: dont send hosting and closingGame every heartbeat
+
+            await new HttpFox(ApiUrl + "/api/user/heartbeat", "PUT")
+                .WithBearerAuth(_accessToken)
+                .WithJson(new
+                {
+                    hosting = DependencyManager.Instance.connectionManager.Hosting,
+                    closingGame = _heartbeatClosingGame
+                })
+                .ReceiveNothing();
         }
 
         private readonly Dictionary<string, Texture2D> _profilePictureCachedTextures = new();
 
         public async Task<UserProfile> GetProfile(string userId)
         {
-            var (req, res) = await HttpRequest.Simple(new Dictionary<string, string>()
-            {
-                {"method", "GET"},
-                {"url", ApiUrl + (userId == null ? "/api/user/profile" : "/api/user/profile/" + userId)},
-                {"auth", _accessToken}
-            });
+            var (userProfile, error) =
+                await new HttpFox(ApiUrl + (userId == null ? "/api/user/profile" : "/api/user/profile/" + userId))
+                    .WithBearerAuth(_accessToken)
+                    .ReceiveJson<UserProfile>();
 
-            if (req.result != UnityWebRequest.Result.Success)
+            if (error != null)
             {
-                Debug.LogError("Failed to get profile with user ID: " + userId + "\n" + req.error);
+                Debug.LogError("Failed to get profile from user ID: " + userId + "\n" + error);
                 return null;
             }
 
-            var profilePictureUrl = res.GetValueOrDefault("profilePictureUrl", "");
+            var profilePictureUrl = userProfile.profilePictureUrl;
             if (!_profilePictureCachedTextures.TryGetValue(profilePictureUrl, out var profilePicture))
             {
-                profilePicture = await HttpRequest.Texture(profilePictureUrl);
+                (profilePicture, error) = await new HttpFox(profilePictureUrl).ReceiveTexture();
+                if (error != null)
+                {
+                    Debug.LogError(
+                        "Failed to get profile picture from user ID: " + userId +
+                        "(will use default)\n" + error
+                    );
+                    // TODO: go set to use default lol
+                }
+
                 _profilePictureCachedTextures[profilePictureUrl] = profilePicture;
             }
 
-            var userProfile = new UserProfile
-            {
-                Id = res.GetValueOrDefault("id", ""),
-                SteamId = res.GetValueOrDefault("steamId", ""),
-                DisplayName = res.GetValueOrDefault("displayName", ""),
-                ProfilePicture = profilePicture
-            };
+            userProfile.profilePicture = profilePicture;
 
             return userProfile;
         }
@@ -166,16 +161,11 @@ namespace Tivoli.Scripts.Managers
 
         public async Task<AllOnlineUsers> GetAllOnlineUsers()
         {
-            var (req, _) = await HttpRequest.Simple(new Dictionary<string, string>()
-            {
-                {"method", "GET"},
-                {"url", ApiUrl + "/api/stats/online"},
-                {"auth", _accessToken}
-            }, null, false);
+            var (allOnlineUsers, _) = await new HttpFox(ApiUrl + "/api/stats/online")
+                .WithBearerAuth(_accessToken)
+                .ReceiveJson<AllOnlineUsers>();
 
-            var json = req.downloadHandler.text;
-
-            return JsonUtility.FromJson<AllOnlineUsers>(json);
+            return allOnlineUsers;
         }
 
         public void Update()

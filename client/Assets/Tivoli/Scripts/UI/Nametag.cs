@@ -25,7 +25,7 @@ namespace Tivoli.Scripts.UI
         private async void Refresh()
         {
             var profile = await DependencyManager.Instance.accountManager.GetProfile(_userId);
-            var displayName = profile.DisplayName;
+            var displayName = profile.displayName;
 
             var size = nameText.GetPreferredValues(displayName);
 
@@ -46,7 +46,7 @@ namespace Tivoli.Scripts.UI
             nameText.text = displayName;
 
             // update profile picture
-            SetImage(profile.ProfilePicture);
+            SetImage(profile.profilePicture);
         }
 
         private static Texture2D GpuScale(Texture2D src, int width, int height, FilterMode filterMode)

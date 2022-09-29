@@ -17,7 +17,7 @@ namespace Tivoli.Scripts.Player
         {
             await DependencyManager.Instance.accountManager.WhenLoggedIn();
             nametag.gameObject.SetActive(false);
-            CmdSetupPlayer(DependencyManager.Instance.accountManager.Profile.Id);
+            CmdSetupPlayer(DependencyManager.Instance.accountManager.Profile.id);
         }
 
         public override void OnStopLocalPlayer() { }
