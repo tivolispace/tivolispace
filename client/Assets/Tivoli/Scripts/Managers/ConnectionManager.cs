@@ -33,6 +33,7 @@ namespace Tivoli.Scripts.Managers
 
         public void Host()
         {
+            Debug.Log("Hosting started...");
             _networkManager.StartHost();
             Hosting = true; // above should set this but lets do it here in case
             DependencyManager.Instance.accountManager.HeartbeatNow();
