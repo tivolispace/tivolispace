@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NativeWebSocket;
-using Newtonsoft.Json;
 using Tivoli.Scripts.Utils;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Tivoli.Scripts.Managers
 {
@@ -19,9 +21,11 @@ namespace Tivoli.Scripts.Managers
 
     public class AccountManager
     {
-        // TODO: made this an editor setting or something
-        private const string ApiUrl = "http://127.0.0.1:3000";
-        // private const string ApiUrl = "https://tivoli.space";
+#if UNITY_EDITOR
+        private static readonly string ApiUrl = EditorPrefs.GetString(TivoliEditorPrefs.OverrideApiUrl);
+#else
+        private const string ApiUrl = "https://tivoli.space";
+#endif
 
         private string _accessToken;
 
@@ -57,7 +61,7 @@ namespace Tivoli.Scripts.Managers
                 return;
             }
 
-            Debug.Log("Logged in!");
+            Debug.Log("Logged in to: " + ApiUrl);
             _accessToken = res.accessToken;
 
             // ConnectToWs();
