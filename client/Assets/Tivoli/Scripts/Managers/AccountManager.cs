@@ -101,7 +101,7 @@ namespace Tivoli.Scripts.Managers
         {
             if (_heartbeatClosingGame)
             {
-                Debug.Log("Sending \"closingGame\" heartbeat");
+                Debug.Log("Sending heartbeat with close game");
             }
 
             // TODO: dont send hosting and closingGame every heartbeat
