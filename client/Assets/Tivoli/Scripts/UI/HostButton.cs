@@ -10,7 +10,7 @@ namespace Tivoli.Scripts.UI
         {
             GetComponent<Button>().onClick.AddListener(() =>
             {
-                DependencyManager.Instance.connectionManager.Host();
+                DependencyManager.Instance.connectionManager.StartHosting();
             });
         }
     }

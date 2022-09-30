@@ -7,15 +7,15 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
-public class ButtonHoverTransition : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class ButtonHoverTransition : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     private RectTransform _rectTransform;
     private TextMeshProUGUI _text;
-    
+
     private readonly TweenManager _tweenManager = new();
 
-    private float _initialButtonWidth;
-    private TweenManager.Tweener _buttonWidth;
+    private float _initialButtonScale;
+    private TweenManager.Tweener _buttonScale;
 
     private float _initialCharacterSpacing;
     private TweenManager.Tweener _characterSpacing;
@@ -23,16 +23,23 @@ public class ButtonHoverTransition : MonoBehaviour, IPointerEnterHandler, IPoint
     private const float HoverDuration = 250; // ms
     private const EasingFunctions.Easing Easing = EasingFunctions.Easing.OutQuint;
 
+    public bool scaleVertically;
+
     private void Awake()
     {
         _rectTransform = GetComponent<RectTransform>();
         _text = GetComponentInChildren<TextMeshProUGUI>();
 
-        _initialButtonWidth = _rectTransform.sizeDelta.x;
-        _buttonWidth =
+        _initialButtonScale = scaleVertically ? _rectTransform.sizeDelta.y : _rectTransform.sizeDelta.x;
+        _buttonScale =
             _tweenManager.NewTweener(
-                width => { _rectTransform.sizeDelta = new Vector2(width, _rectTransform.sizeDelta.y); },
-                _initialButtonWidth
+                scale =>
+                {
+                    _rectTransform.sizeDelta = scaleVertically
+                        ? new Vector2(_rectTransform.sizeDelta.x, scale)
+                        : new Vector2(scale, _rectTransform.sizeDelta.y);
+                },
+                _initialButtonScale
             );
 
         _initialCharacterSpacing = _text.characterSpacing;
@@ -47,13 +54,19 @@ public class ButtonHoverTransition : MonoBehaviour, IPointerEnterHandler, IPoint
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        _buttonWidth.Tween(_initialButtonWidth + 24f, HoverDuration, Easing);
+        _buttonScale.Tween(_initialButtonScale * 1.2f, HoverDuration, Easing);
         _characterSpacing.Tween(4f, HoverDuration, Easing);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        _buttonWidth.Tween(_initialButtonWidth, HoverDuration, Easing);
+        _buttonScale.Tween(_initialButtonScale, HoverDuration, Easing);
         _characterSpacing.Tween(_initialCharacterSpacing, HoverDuration, Easing);
+    }
+    
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        _buttonScale.Tween(_initialButtonScale * 0.9f, HoverDuration, Easing);
+        _characterSpacing.Tween(_initialCharacterSpacing - 2f, HoverDuration, Easing);
     }
 }

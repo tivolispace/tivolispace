@@ -221,6 +221,7 @@ namespace Tivoli.Scripts.Networking
         public override void OnStartHost()
         {
             DependencyManager.Instance.connectionManager.Hosting = true;
+            DependencyManager.Instance.connectionManager.InWorld = true;
         }
 
         /// <summary>
@@ -229,18 +230,24 @@ namespace Tivoli.Scripts.Networking
         /// </summary>
         public override void OnStartServer()
         {
-            DependencyManager.Instance.connectionManager.Hosting = false;
         }
 
         /// <summary>
         /// This is invoked when the client is started.
         /// </summary>
-        public override void OnStartClient() { }
+        public override void OnStartClient()
+        {
+            DependencyManager.Instance.connectionManager.InWorld = true;
+        }
 
         /// <summary>
         /// This is called when a host is stopped.
         /// </summary>
-        public override void OnStopHost() { }
+        public override void OnStopHost()
+        {
+            DependencyManager.Instance.connectionManager.Hosting = false;
+            DependencyManager.Instance.connectionManager.InWorld = false;
+        }
 
         /// <summary>
         /// This is called when a server is stopped - including when a host is stopped.
@@ -250,7 +257,10 @@ namespace Tivoli.Scripts.Networking
         /// <summary>
         /// This is called when a client is stopped.
         /// </summary>
-        public override void OnStopClient() { }
+        public override void OnStopClient()
+        {
+            DependencyManager.Instance.connectionManager.InWorld = false;
+        }
 
         #endregion
     }

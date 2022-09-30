@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Tivoli.Scripts.Managers
@@ -46,6 +47,13 @@ namespace Tivoli.Scripts.Managers
             
             steamManager.OnDestroy();
             accountManager.OnDestroy();
+        }
+
+        public void OnGUI()
+        {
+            if (!_initialized) return;
+            
+            connectionManager.OnGUI();
         }
     }
     

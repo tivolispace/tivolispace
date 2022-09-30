@@ -34,7 +34,7 @@ public class IconButtonHoverTransition : MonoBehaviour, IPointerEnterHandler, IP
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        _buttonSize.Tween(_initialButtonSize * 1.1f, HoverDuration, Easing);
+        _buttonSize.Tween(_initialButtonSize * 1.2f, HoverDuration, Easing);
     }
 
     public void OnPointerExit(PointerEventData eventData)

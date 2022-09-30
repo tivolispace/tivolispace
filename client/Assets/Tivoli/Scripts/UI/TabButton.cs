@@ -36,7 +36,7 @@ public class TabButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         var text = GetComponentInChildren<TextMeshProUGUI>();
 
         _closedWidth = rectTransform.sizeDelta.x;
-        _openWidth = rectTransform.sizeDelta.x + 10f;
+        _openWidth = rectTransform.sizeDelta.x + 12f;
 
         _closedFontSpacing = text.characterSpacing;
         _openFontSpacing = 0f;

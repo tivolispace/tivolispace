@@ -40,6 +40,8 @@ namespace Tivoli.Scripts.Managers
         private const float HeartbeatTime = 10; // seconds
         private bool _heartbeatClosingGame = false;
 
+        private readonly Dictionary<string, Texture2D> _cachedUrlTextures = new();
+        
         public AccountManager()
         {
             Login();
@@ -120,8 +122,6 @@ namespace Tivoli.Scripts.Managers
                 .ReceiveNothing();
         }
 
-        private readonly Dictionary<string, Texture2D> _profilePictureCachedTextures = new();
-
         public async Task<UserProfile> GetProfile(string userId)
         {
             var (userProfile, error) =
@@ -136,7 +136,7 @@ namespace Tivoli.Scripts.Managers
             }
 
             var profilePictureUrl = userProfile.profilePictureUrl;
-            if (!_profilePictureCachedTextures.TryGetValue(profilePictureUrl, out var profilePicture))
+            if (!_cachedUrlTextures.TryGetValue(profilePictureUrl, out var profilePicture))
             {
                 (profilePicture, error) = await new HttpFox(profilePictureUrl).ReceiveTexture();
                 if (error != null)
@@ -148,7 +148,7 @@ namespace Tivoli.Scripts.Managers
                     // TODO: go set to use default lol
                 }
 
-                _profilePictureCachedTextures[profilePictureUrl] = profilePicture;
+                _cachedUrlTextures[profilePictureUrl] = profilePicture;
             }
 
             userProfile.profilePicture = profilePicture;
@@ -170,6 +170,35 @@ namespace Tivoli.Scripts.Managers
                 .ReceiveJson<AllOnlineUsers>();
 
             return allOnlineUsers;
+        }
+
+        [Serializable]
+        public class Instance
+        {
+            public string name;
+            public string imageUrl;
+            public string steamId;
+        }
+        
+        [Serializable]
+        public class AllInstances
+        {
+            public Instance[] instances;
+        }
+
+        public async Task<Instance[]> GetAllInstances()
+        {
+            var (res, error) = await new HttpFox(ApiUrl + "/api/instance/all")
+                .WithBearerAuth(_accessToken)
+                .ReceiveJson<AllInstances>();
+
+            if (error != null)
+            {
+                Debug.LogError("Failed to get all instances");
+                return new Instance[] {};
+            }
+
+            return res.instances;
         }
 
         public void Update()

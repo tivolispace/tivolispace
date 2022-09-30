@@ -11,8 +11,8 @@ public class GetAllOnlineUserProfiles : MonoBehaviour
     public GameObject userGameObject;
 
     private List<GameObject> _userGameObjects = new();
-    
-    async void Start()
+
+    private async void Start()
     {
         userGameObject.SetActive(false);
         await DependencyManager.Instance.accountManager.WhenLoggedIn();

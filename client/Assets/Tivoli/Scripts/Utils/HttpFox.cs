@@ -98,7 +98,8 @@ namespace Tivoli.Scripts.Utils
         public async Task<(T, string)> ReceiveJson<T>()
         {
             var (jsonString, error) = await ReceiveString();
-            return (JsonUtility.FromJson<T>(jsonString), error);
+            // return (JsonUtility.FromJson<T>(jsonString), error);
+            return (JsonConvert.DeserializeObject<T>(jsonString), error);
         }
         
         // will populate anonymously, optionally pass a class

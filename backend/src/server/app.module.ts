@@ -5,6 +5,7 @@ import { DB_NAME, DB_URI } from "./environment";
 import { UserModule } from "./user/user.module";
 import { ViewModule } from "./view/view.module";
 import { StatsModule } from "./stats/stats.module";
+import { InstanceModule } from "./instance/instance.module";
 
 @Module({
 	imports: [
@@ -15,6 +16,7 @@ import { StatsModule } from "./stats/stats.module";
 		AuthModule,
 		UserModule,
 		StatsModule,
+		InstanceModule,
 		// import view module last because it uses *
 		ViewModule,
 	],

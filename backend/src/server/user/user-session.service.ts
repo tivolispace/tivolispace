@@ -47,4 +47,12 @@ export class UserSessionService {
 		});
 		return sessions.map(session => session.user as any as string);
 	}
+
+	async getHostingUsers() {
+		const sessions = await this.userSessionModel
+			.find({ hosting: true })
+			.populate("user");
+
+		return sessions.map(session => session.user);
+	}
 }
