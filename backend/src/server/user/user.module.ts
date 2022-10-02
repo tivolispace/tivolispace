@@ -1,5 +1,6 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
+import { InstanceModule } from "../instance/instance.module";
 import { UserSession, UserSessionSchema } from "./user-session.schema";
 import { UserSessionService } from "./user-session.service";
 import { UserController } from "./user.controller";
@@ -13,6 +14,7 @@ import { UserService } from "./user.service";
 			{ name: User.name, schema: UserSchema },
 			{ name: UserSession.name, schema: UserSessionSchema },
 		]),
+		forwardRef(() => InstanceModule),
 	],
 	providers: [UserService, UserSessionService, UserGateway],
 	exports: [UserService, UserSessionService],

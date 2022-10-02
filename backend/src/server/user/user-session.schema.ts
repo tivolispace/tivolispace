@@ -14,9 +14,6 @@ export class UserSession {
 	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User" })
 	user: User;
 
-	@Prop({ default: false })
-	hosting: boolean;
-
 	@Prop({ default: () => Date.now() + HeartbeatTimeMs, expires: 0 })
 	expiresAt: Date;
 }

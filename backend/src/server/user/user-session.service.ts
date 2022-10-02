@@ -1,6 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
+import { InstanceService } from "../instance/instance.service";
 import { HeartbeatDto } from "./heartbeat.dto";
 import {
 	HeartbeatTimeMs,
@@ -14,6 +15,8 @@ export class UserSessionService {
 	constructor(
 		@InjectModel(UserSession.name)
 		private readonly userSessionModel: Model<UserSessionDocument>,
+		@Inject(forwardRef(() => InstanceService))
+		private readonly instanceService: InstanceService,
 	) {}
 
 	async heartbeatUser(user: User, heartbeatDto: HeartbeatDto) {
@@ -29,9 +32,16 @@ export class UserSessionService {
 
 		session.expiresAt = new Date(Date.now() + HeartbeatTimeMs);
 
-		session.hosting = heartbeatDto.hosting;
-
 		await session.save();
+
+		if (
+			heartbeatDto.hostingInstanceId != null &&
+			heartbeatDto.hostingInstanceId != ""
+		) {
+			this.instanceService
+				.heartbeatInstance(user, heartbeatDto.hostingInstanceId)
+				.catch(() => {});
+		}
 
 		return { id: session.id };
 	}
@@ -46,13 +56,5 @@ export class UserSessionService {
 			expiresAt: { $gte: Date.now() },
 		});
 		return sessions.map(session => session.user as any as string);
-	}
-
-	async getHostingUsers() {
-		const sessions = await this.userSessionModel
-			.find({ hosting: true })
-			.populate("user");
-
-		return sessions.map(session => session.user);
 	}
 }

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Tivoli.Scripts.Managers;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,7 +18,7 @@ namespace Tivoli.Scripts.UI
             await DependencyManager.Instance.accountManager.WhenLoggedIn();
             RefreshInstances();
         }
-        
+
         public async void RefreshInstances()
         {
             var allInstanaces = await DependencyManager.Instance.accountManager.GetAllInstances();
@@ -28,9 +27,9 @@ namespace Tivoli.Scripts.UI
             {
                 Destroy(currentInstanceGameObject);
             }
-        
+
             _instanceGameObjects.Clear();
-        
+
             foreach (var instance in allInstanaces)
             {
                 var currentInstanceGameObject = Instantiate(instanceGameObject, transform, true);
@@ -38,14 +37,14 @@ namespace Tivoli.Scripts.UI
                 _instanceGameObjects.Add(currentInstanceGameObject);
 
                 var getUserProfile = currentInstanceGameObject.GetComponentInChildren<TextMeshProUGUI>();
-                getUserProfile.text = instance.name;
+                getUserProfile.text = instance.owner.displayName + "'s Instance";
 
                 var button = currentInstanceGameObject.GetComponent<Button>();
                 button.onClick.AddListener(() =>
                 {
-                    DependencyManager.Instance.connectionManager.Join(instance.steamId);
+                    DependencyManager.Instance.connectionManager.Join(instance.connectionUri);
                 });
-                
+
                 currentInstanceGameObject.SetActive(true);
             }
         }

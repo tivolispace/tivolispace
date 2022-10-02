@@ -24,7 +24,8 @@ namespace Tivoli.Scripts.Managers
 #if UNITY_EDITOR
         private static readonly string ApiUrl = EditorPrefs.GetString(TivoliEditorPrefs.OverrideApiUrl);
 #else
-        private const string ApiUrl = "https://tivoli.space";
+        private static readonly string ApiUrl =
+            Environment.GetEnvironmentVariable("OVERRIDE_API_URL") ?? "https://tivoli.space";
 #endif
 
         private string _accessToken;
@@ -41,7 +42,7 @@ namespace Tivoli.Scripts.Managers
         private bool _heartbeatClosingGame = false;
 
         private readonly Dictionary<string, Texture2D> _cachedUrlTextures = new();
-        
+
         public AccountManager()
         {
             Login();
@@ -116,7 +117,7 @@ namespace Tivoli.Scripts.Managers
                 .WithBearerAuth(_accessToken)
                 .WithJson(new
                 {
-                    hosting = DependencyManager.Instance.connectionManager.Hosting,
+                    hostingInstanceId = DependencyManager.Instance.connectionManager.HostingInstanceId,
                     closingGame = _heartbeatClosingGame
                 })
                 .ReceiveNothing();
@@ -173,13 +174,22 @@ namespace Tivoli.Scripts.Managers
         }
 
         [Serializable]
-        public class Instance
+        public class InstanceOwner
         {
-            public string name;
-            public string imageUrl;
-            public string steamId;
+            public string id;
+            public string displayName;
+            public string profilePictureUrl;
         }
         
+        [Serializable]
+        public class Instance
+        {
+            public string id;
+            public InstanceOwner owner;
+            public string transport;
+            public string connectionUri;
+        }
+
         [Serializable]
         public class AllInstances
         {
@@ -192,14 +202,52 @@ namespace Tivoli.Scripts.Managers
                 .WithBearerAuth(_accessToken)
                 .ReceiveJson<AllInstances>();
 
+            
             if (error != null)
             {
                 Debug.LogError("Failed to get all instances");
-                return new Instance[] {};
+                return new Instance[] { };
             }
 
             return res.instances;
         }
+
+        public async Task<string> StartInstance(string connectionUri)
+        {
+            Debug.Log("Starting instance...");
+
+            var (res, error) = await new HttpFox(ApiUrl + "/api/instance/start", "POST")
+                .WithBearerAuth(_accessToken)
+                .WithJson(new
+                {
+                    connectionUri,
+                })
+                .ReceiveJson(new {id = ""});
+
+            if (error != null)
+            {
+                Debug.LogError("Failed to start instances");
+                return null;
+            }
+
+            return res.id;
+        }
+
+        public async Task CloseInstance(string instanceId)
+        {
+            Debug.Log("Closing instance...");
+
+            await new HttpFox(ApiUrl + "/api/instance/close/" + instanceId, "POST")
+                .WithBearerAuth(_accessToken)
+                .ReceiveNothing();
+        }
+
+        public void HeartbeatNow()
+        {
+            _heartbeatTimer = 0f;
+            Heartbeat();
+        }
+
 
         public void Update()
         {
@@ -212,12 +260,6 @@ namespace Tivoli.Scripts.Managers
                     Heartbeat();
                 }
             }
-        }
-
-        public void HeartbeatNow()
-        {
-            _heartbeatTimer = 0f;
-            Heartbeat();
         }
 
         public void OnDestroy()

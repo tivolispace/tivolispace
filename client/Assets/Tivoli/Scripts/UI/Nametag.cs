@@ -26,6 +26,7 @@ namespace Tivoli.Scripts.UI
         {
             var profile = await DependencyManager.Instance.accountManager.GetProfile(_userId);
             var displayName = profile.displayName;
+            if (displayName == null) return;
 
             var size = nameText.GetPreferredValues(displayName);
 
