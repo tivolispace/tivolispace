@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Net;
-using System.Net.Sockets;
+using kcp2k;
 using Mirror.FizzySteam;
 using Tivoli.Scripts.Networking;
 using UnityEngine;
@@ -11,7 +10,9 @@ namespace Tivoli.Scripts.Managers
     public class ConnectionManager
     {
         private TivoliNetworkManager _networkManager;
-        private FizzyFacepunch _fizzyFacepunch;
+
+        // private FizzyFacepunch _fizzyFacepunch;
+        private KcpTransport _kcpTransport;
 
         // TivoliNetworkManager sets these values
         public bool Hosting;
@@ -24,6 +25,10 @@ namespace Tivoli.Scripts.Managers
             Init();
         }
 
+        ~ConnectionManager()
+        {
+            StopHosting();
+        }
 
         private async void Init()
         {
@@ -36,33 +41,45 @@ namespace Tivoli.Scripts.Managers
             // _fizzyFacepunch.SteamAppID = SteamManager.AppId;
             // _fizzyFacepunch.SteamUserID = steamManager.GetMySteamID();
             // _fizzyFacepunch.Init();
+
+            _kcpTransport = _networkManager.GetComponent<KcpTransport>();
         }
 
-        private static string GetLocalIPAddress()
-        {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
-            {
-                if (ip.AddressFamily != AddressFamily.InterNetwork) continue;
-                var ipStr = ip.ToString();
-                if (ipStr.StartsWith("192.168.1."))
-                {
-                    return ipStr;
-                }
-            }
+        // private static string GetLocalIPAddress()
+        // {
+        //     var host = Dns.GetHostEntry(Dns.GetHostName());
+        //     foreach (var ip in host.AddressList)
+        //     {
+        //         if (ip.AddressFamily != AddressFamily.InterNetwork) continue;
+        //         var ipStr = ip.ToString();
+        //         if (ipStr.StartsWith("192.168.1."))
+        //         {
+        //             return ipStr;
+        //         }
+        //     }
+        //
+        //     throw new Exception("No network adapters with an IPv4 address in the system!");
+        // }
 
-            throw new Exception("No network adapters with an IPv4 address in the system!");
-        }
+        private TivoliHolepunch _holepunch;
 
         public async void StartHosting()
         {
+            if (Hosting) return;
+
             var accountManager = DependencyManager.Instance.accountManager;
 
-            // var instanceId =
-            //     await accountManager.StartInstance("steam://" + DependencyManager.Instance.steamManager.GetMySteamID());
+            if (_holepunch == null)
+            {
+                _holepunch = new TivoliHolepunch();
+            }
+
+            var ip = await _holepunch.GetMyIpAndPort();
+
+            _kcpTransport.Port = (ushort) ip.Port;
 
             var instanceId =
-                await accountManager.StartInstance("kcp://" + GetLocalIPAddress() + ":7777");
+                await accountManager.StartInstance("kcp://" + ip.Address + ":" + ip.Port);
 
             Debug.Log("Hosting started...");
             _networkManager.StartHost();
@@ -75,6 +92,8 @@ namespace Tivoli.Scripts.Managers
 
         public async void StopHosting()
         {
+            if (!Hosting) return;
+
             await DependencyManager.Instance.accountManager.CloseInstance(HostingInstanceId);
 
             Debug.Log("Hosting stopped...");

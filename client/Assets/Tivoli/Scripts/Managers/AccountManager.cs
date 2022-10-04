@@ -180,7 +180,7 @@ namespace Tivoli.Scripts.Managers
             public string displayName;
             public string profilePictureUrl;
         }
-        
+
         [Serializable]
         public class Instance
         {
@@ -202,7 +202,7 @@ namespace Tivoli.Scripts.Managers
                 .WithBearerAuth(_accessToken)
                 .ReceiveJson<AllInstances>();
 
-            
+
             if (error != null)
             {
                 Debug.LogError("Failed to get all instances");
@@ -226,7 +226,7 @@ namespace Tivoli.Scripts.Managers
 
             if (error != null)
             {
-                Debug.LogError("Failed to start instances");
+                Debug.LogError("Failed to start instance\n" + error);
                 return null;
             }
 
