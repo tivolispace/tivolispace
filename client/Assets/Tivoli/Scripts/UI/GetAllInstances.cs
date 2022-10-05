@@ -42,8 +42,7 @@ namespace Tivoli.Scripts.UI
                 var button = currentInstanceGameObject.GetComponent<Button>();
                 button.onClick.AddListener(() =>
                 {
-                    // DependencyManager.Instance.connectionManager.Join(instance.connectionUri);
-                    DependencyManager.Instance.connectionManager.Join(instance.id);
+                    DependencyManager.Instance.connectionManager.Join(instance.connectionUri);
                 });
 
                 currentInstanceGameObject.SetActive(true);

@@ -1,5 +1,5 @@
 ﻿using System;
-using kcp2k;
+using Mirror.FizzySteam;
 using Tivoli.Scripts.Networking;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -9,11 +9,7 @@ namespace Tivoli.Scripts.Managers
     public class ConnectionManager
     {
         private TivoliNetworkManager _networkManager;
-
-        // private FizzyFacepunch _fizzyFacepunch;
-        private KcpTransport _kcpTransport;
-
-        private TivoliHolepunch _holepunch;
+        private FizzyFacepunch _fizzyFacepunch;
 
         // TivoliNetworkManager sets these values
         public bool Hosting;
@@ -25,7 +21,7 @@ namespace Tivoli.Scripts.Managers
         {
             Init();
         }
-        
+
         private async void Init()
         {
             var steamManager = DependencyManager.Instance.steamManager;
@@ -33,14 +29,10 @@ namespace Tivoli.Scripts.Managers
 
             _networkManager = Object.FindObjectOfType<TivoliNetworkManager>();
 
-            // _fizzyFacepunch = _networkManager.GetComponent<FizzyFacepunch>();
-            // _fizzyFacepunch.SteamAppID = SteamManager.AppId;
-            // _fizzyFacepunch.SteamUserID = steamManager.GetMySteamID();
-            // _fizzyFacepunch.Init();
-
-            _kcpTransport = _networkManager.GetComponent<KcpTransport>();
-
-            _holepunch = new TivoliHolepunch();
+            _fizzyFacepunch = _networkManager.GetComponent<FizzyFacepunch>();
+            _fizzyFacepunch.SteamAppID = SteamManager.AppId;
+            _fizzyFacepunch.SteamUserID = steamManager.GetMySteamID();
+            _fizzyFacepunch.Init();
         }
 
         public async void StartHosting()
@@ -49,10 +41,8 @@ namespace Tivoli.Scripts.Managers
 
             var accountManager = DependencyManager.Instance.accountManager;
 
-            var instanceId = await accountManager.StartInstance("there is none");
-
-            var myEndpoint = await _holepunch.StartHost(instanceId);
-            _kcpTransport.Port = (ushort) myEndpoint.Port;
+            var instanceId =
+                await accountManager.StartInstance("steam://" + DependencyManager.Instance.steamManager.GetMySteamID());
 
             Debug.Log("Hosting started...");
             _networkManager.StartHost();
@@ -67,8 +57,6 @@ namespace Tivoli.Scripts.Managers
         {
             if (!Hosting) return;
 
-            _holepunch.StopHost();
-
             await DependencyManager.Instance.accountManager.CloseInstance(HostingInstanceId);
 
             Debug.Log("Hosting stopped...");
@@ -80,29 +68,21 @@ namespace Tivoli.Scripts.Managers
             DependencyManager.Instance.accountManager.HeartbeatNow();
         }
 
-        public async void Join(string instanceId)
+        public async void Join(string connectionUri)
         {
-            Debug.Log("UDP hole punching instance... " + instanceId);
-
-            var (myEndpoint, hostEndpoint) = await _holepunch.StartClient(instanceId);
-            _kcpTransport.BindPort = (ushort) myEndpoint.Port;
-            
-            Debug.Log("Joining instance... " + hostEndpoint);
-            _networkManager.StartClient(new Uri("kcp://" + hostEndpoint.Address + ":" + hostEndpoint.Port));
-
+            Debug.Log("Joining instance... " + connectionUri);
+            _networkManager.StartClient(new Uri(connectionUri));
         }
 
         public void Disconnect()
         {
             Debug.Log("Disconnecting...");
-            _holepunch.StopClient();
             _networkManager.StopClient();
         }
 
         public void OnDestroy()
         {
             StopHosting();
-            _holepunch.OnDestroy();
         }
 
         public void OnGUI()

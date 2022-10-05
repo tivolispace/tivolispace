@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Sockets;
-using UnityEngine;
 
 namespace kcp2k
 {
@@ -58,9 +57,7 @@ namespace kcp2k
             else Log.Info($"KcpClient: RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(maximizeSendReceiveBuffersToOSLimit)} to increase it to OS limit. If they still drop, increase the OS limit.");
         }
 
-        public void Connect(Socket reuseSocket,
-                            ushort bindPort,
-                            string host,
+        public void Connect(string host,
                             ushort port,
                             bool noDelay,
                             uint interval = Kcp.INTERVAL,
@@ -81,23 +78,7 @@ namespace kcp2k
                 CreateRemoteEndPoint(addresses, port);
 
                 // create socket
-                if (reuseSocket != null)
-                {
-                    Debug.Log("KCP: Client re-using socket");
-                    socket = reuseSocket;
-                }
-                else
-                {
-                    socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-                    if (bindPort > 0)
-                    {
-                        Debug.Log("KCP: Client using bind port: "+ bindPort);
-                        socket.Bind(new IPEndPoint(IPAddress.Any, bindPort));
-                    }
-                }
-                
-                // maybe this helps for nat
-                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
 
                 // configure buffer sizes
                 ConfigureSocketBufferSizes(maximizeSendReceiveBuffersToOSLimit);

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using UnityEngine;
 
 namespace kcp2k
 {
@@ -119,39 +118,27 @@ namespace kcp2k
             else Log.Info($"KcpServer: RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(MaximizeSendReceiveBuffersToOSLimit)} to increase it to OS limit. If they still drop, increase the OS limit.");
         }
 
-        public void Start(Socket reuseSocket, ushort port)
+        public void Start(ushort port)
         {
             // only start once
             if (socket != null)
             {
-                Log.Warning("KCP: server already started! but its expected");
+                Log.Warning("KCP: server already started!");
             }
 
             // listen
-            if (reuseSocket != null)
+            if (DualMode)
             {
-                Debug.Log("KCP: Host re-using socket");
-                socket = reuseSocket;
+                // IPv6 socket with DualMode
+                socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
+                socket.DualMode = true;
+                socket.Bind(new IPEndPoint(IPAddress.IPv6Any, port));
             }
             else
             {
-                if (DualMode)
-                {
-                    // IPv6 socket with DualMode
-                    socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
-                    socket.DualMode = true;
-                    socket.ExclusiveAddressUse = false;
-                    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-                    socket.Bind(new IPEndPoint(IPAddress.IPv6Any, port));
-                }
-                else
-                {
-                    // IPv4 socket
-                    socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                    socket.ExclusiveAddressUse = false;
-                    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-                    socket.Bind(new IPEndPoint(IPAddress.Any, port));
-                }
+                // IPv4 socket
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                socket.Bind(new IPEndPoint(IPAddress.Any, port));
             }
 
             // configure socket buffer size.

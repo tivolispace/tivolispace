@@ -1,4 +1,18 @@
-﻿using System;
+﻿/*
+ 
+let's look at this problem some other time
+matching server in `backend/unused/holepunch-server.py`
+
+unity comes with webrtc that works on all platforms
+https://docs.unity3d.com/Packages/com.unity.webrtc@2.4/manual/requirements.html
+
+maybe its better to use a stellar udp holepunch system than our own garbage.
+but lets just use steamworks p2p for now. i don't want to be stuck on this problem right now.
+
+*/
+ 
+/*
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -183,3 +197,4 @@ namespace Tivoli.Scripts.Networking
         }
     }
 }
+*/

@@ -34,13 +34,15 @@ namespace Mirror.FizzySteam
     [Tooltip("This will display your Steam User ID when you start or connect to a server.")]
     public ulong SteamUserID;
 
-    // used to be Awake but modified to not init steamworks since we do that ourselves
+    // tivoli: used to be Awake but modified to not init steamworks since we do it ourselves
+    // gets run in ConnectionManager 
     public void Init()
     {
       Debug.Assert(Channels != null && Channels.Length > 0, "No channel configured for FizzySteamworks.");
 
       if (!InitFacepunch) return;
       
+      // tivoli: commented out
       // var initialised = InitialiseSteamworks(SteamAppID);
       // if (!initialised) return;
       
