@@ -1,4 +1,5 @@
 ﻿using Mirror;
+using Tivoli.Scripts.Managers;
 using Tivoli.Scripts.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -19,7 +20,7 @@ namespace Tivoli.Scripts.Player
 
         private const float CameraBoomInitial = 2f;
         private const float CameraBoomMinimumDistance = 1f;
-        
+
         private bool _firstPerson = false;
 
         private bool _mouseLocked;
@@ -40,8 +41,9 @@ namespace Tivoli.Scripts.Player
             _inputActions.Player.ActivateLook.Enable();
 
             // attach main camera
-            Camera.main.transform.parent = cameraBoom;
-            Camera.main.transform.eulerAngles = Vector3.zero;
+            var camera = DependencyManager.Instance.UIManager.GetMainCamera();
+            camera.transform.parent = cameraBoom;
+            camera.transform.eulerAngles = Vector3.zero;
 
             _cameraBoomTweener = _tweenManager.NewTweener(SetCameraBoomLength, CameraBoomInitial);
 
@@ -52,15 +54,16 @@ namespace Tivoli.Scripts.Player
         private void SetCameraBoomLength(float length)
         {
             if (!isLocalPlayer) return;
-            Camera.main.transform.localPosition = new Vector3(0f, 0f, _firstPerson ? 0 : -length);
+            DependencyManager.Instance.UIManager.GetMainCamera().transform.localPosition =
+                new Vector3(0f, 0f, _firstPerson ? 0 : -length);
         }
 
         public override void OnStopLocalPlayer()
         {
             _inputActions.Dispose();
-            
+
             // detach main camera
-            Camera.main.transform.parent = null;
+            DependencyManager.Instance.UIManager.GetMainCamera().transform.parent = null;
         }
 
         private void Update()
@@ -127,7 +130,7 @@ namespace Tivoli.Scripts.Player
 
             cameraBoom.localEulerAngles = newCameraBoom;
         }
-        
+
         private void OnBoomLength(InputAction.CallbackContext context)
         {
             if (!isLocalPlayer) return;

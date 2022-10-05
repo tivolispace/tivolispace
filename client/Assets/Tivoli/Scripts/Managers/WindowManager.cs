@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace Tivoli.Scripts.Managers
 {
-    public class WindowManager
+    public class WindowManager : Manager
     {
         #if UNITY_STANDALONE_WIN
         [DllImport("user32.dll", EntryPoint = "SetWindowText", CharSet = CharSet.Unicode)]
@@ -27,14 +28,20 @@ namespace Tivoli.Scripts.Managers
 
         public WindowManager()
         {
-            #if UNITY_STANDALONE_WIN
+        }
+
+        public override Task Init()
+        {
+#if UNITY_STANDALONE_WIN
             windowPtr = FindWindow(null, "Tivoli Space");
-            #endif
+#endif
             
             // TODO: use xdotool for linux support
             // TODO: mac os needs support
             
             UpdateWindowTitle();
+            
+            return Task.CompletedTask;
         }
     }
 }

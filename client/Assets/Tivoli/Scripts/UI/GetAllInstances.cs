@@ -15,13 +15,13 @@ namespace Tivoli.Scripts.UI
         private async void Start()
         {
             instanceGameObject.SetActive(false);
-            await DependencyManager.Instance.accountManager.WhenLoggedIn();
+            await DependencyManager.Instance.AccountManager.WhenLoggedIn();
             RefreshInstances();
         }
 
         public async void RefreshInstances()
         {
-            var allInstanaces = await DependencyManager.Instance.accountManager.GetAllInstances();
+            var allInstanaces = await DependencyManager.Instance.AccountManager.GetAllInstances();
 
             foreach (var currentInstanceGameObject in _instanceGameObjects)
             {
@@ -40,9 +40,9 @@ namespace Tivoli.Scripts.UI
                 getUserProfile.text = instance.owner.displayName + "'s Instance";
 
                 var button = currentInstanceGameObject.GetComponent<Button>();
-                button.onClick.AddListener(() =>
+                button.onClick.AddListener(async () =>
                 {
-                    DependencyManager.Instance.connectionManager.Join(instance.connectionUri);
+                    await DependencyManager.Instance.UIManager.Join(instance.connectionUri);
                 });
 
                 currentInstanceGameObject.SetActive(true);

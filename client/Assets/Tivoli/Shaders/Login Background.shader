@@ -146,7 +146,7 @@ Shader "Maki/Login Background"
                 // to:   
                 //       
                 //   /\    /\
-                //  /  \  /  \ 
+                //  /  \  /  \
                 // /    \/    \
                 
                 lines = min(lines * 2., 1.) - max(lines * 2. - 1., 0.);

@@ -15,12 +15,14 @@ namespace Tivoli.Scripts.Player
 
         public override async void OnStartLocalPlayer()
         {
-            await DependencyManager.Instance.accountManager.WhenLoggedIn();
+            await DependencyManager.Instance.AccountManager.WhenLoggedIn();
             nametag.gameObject.SetActive(false);
-            CmdSetupPlayer(DependencyManager.Instance.accountManager.Profile.id);
+            CmdSetupPlayer(DependencyManager.Instance.AccountManager.Profile.id);
         }
 
-        public override void OnStopLocalPlayer() { }
+        public override void OnStopLocalPlayer()
+        {
+        }
 
         [Command]
         private void CmdSetupPlayer(string newUserId)
@@ -41,7 +43,7 @@ namespace Tivoli.Scripts.Player
         {
             if (!isLocalPlayer)
             {
-                nametagTransform.LookAt(Camera.main.transform);
+                nametagTransform.LookAt(DependencyManager.Instance.UIManager.GetMainCamera().transform);
             }
         }
     }

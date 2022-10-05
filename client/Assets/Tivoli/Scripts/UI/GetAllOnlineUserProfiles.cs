@@ -15,13 +15,13 @@ public class GetAllOnlineUserProfiles : MonoBehaviour
     private async void Start()
     {
         userGameObject.SetActive(false);
-        await DependencyManager.Instance.accountManager.WhenLoggedIn();
+        await DependencyManager.Instance.AccountManager.WhenLoggedIn();
         RefreshUsers();
     }
 
     public async void RefreshUsers()
     {
-        var allOnlineUsers = await DependencyManager.Instance.accountManager.GetAllOnlineUsers();
+        var allOnlineUsers = await DependencyManager.Instance.AccountManager.GetAllOnlineUsers();
 
         foreach (var currentUserGameObject in _userGameObjects)
         {

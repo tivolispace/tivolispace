@@ -5,14 +5,18 @@ using UnityEngine;
 
 namespace Tivoli.Scripts.Managers
 {
-    public class SteamManager
+    public class SteamManager : Manager
     {
         public const uint AppId = 2161040;
 
-        private readonly bool _initialized;
+        private bool _initialized;
         private Action _onInitialized = () => { };
 
         public SteamManager()
+        {
+        }
+
+        public override Task Init()
         {
             try
             {
@@ -33,8 +37,10 @@ namespace Tivoli.Scripts.Managers
                 Debug.LogError("Failed to load Steam API\n" + e);
                 Application.Quit();
             }
+
+            return Task.CompletedTask;
         }
-        
+
         public Task WhenInitialized()
         {
             var cs = new TaskCompletionSource<object>();
@@ -44,21 +50,19 @@ namespace Tivoli.Scripts.Managers
             }
             else
             {
-                _onInitialized += () =>
-                {
-                    cs.SetResult(null);
-                };
+                _onInitialized += () => { cs.SetResult(null); };
             }
+
             return cs.Task;
         }
 
-        public void Update()
+        public override void Update()
         {
             if (!_initialized) return;
             SteamClient.RunCallbacks();
         }
 
-        public void OnDestroy()
+        public override void OnDestroy()
         {
             if (!_initialized) return;
             SteamClient.Shutdown();

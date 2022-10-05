@@ -3,108 +3,102 @@ using System.Threading.Tasks;
 using Mirror;
 using Mirror.FizzySteam;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Tivoli.Scripts.Managers
 {
-    public class ConnectionManager
+    public class ConnectionManager : Manager
     {
-        private NetworkManager _networkManager;
-        private FizzyFacepunch _fizzyFacepunch;
+        private readonly AccountManager _accountManager;
+        private readonly SteamManager _steamManager;
+
+        private readonly NetworkManager _networkManager;
 
         public string HostingInstanceId;
 
-        public ConnectionManager()
+        public ConnectionManager(NetworkManager networkManager)
         {
-            Init();
+            _accountManager = DependencyManager.Instance.AccountManager;
+            _steamManager = DependencyManager.Instance.SteamManager;
+            _networkManager = networkManager;
         }
 
-        public async void OnDestroy()
+        public override async void OnDestroy()
         {
             await CloseInstance();
             // StopHosting is useless here because its a race condition with Mirror
         }
 
-        private async void Init()
+        public override async Task Init()
         {
-            var steamManager = DependencyManager.Instance.steamManager;
-            await steamManager.WhenInitialized();
-
-            await DependencyManager.Instance.accountManager.WhenLoggedIn();
-
-            _networkManager = Object.FindObjectOfType<NetworkManager>();
-
-            _fizzyFacepunch = _networkManager.GetComponent<FizzyFacepunch>();
-            _fizzyFacepunch.SteamAppID = SteamManager.AppId;
-            _fizzyFacepunch.SteamUserID = steamManager.GetMySteamID();
-            _fizzyFacepunch.Init();
+            await _steamManager.WhenInitialized();
+            await _accountManager.WhenLoggedIn();
+            
+            var fizzyFacepunch = _networkManager.GetComponent<FizzyFacepunch>();
+            fizzyFacepunch.SteamAppID = SteamManager.AppId;
+            fizzyFacepunch.SteamUserID = _steamManager.GetMySteamID();
+            fizzyFacepunch.Init();
+            _networkManager.transport = fizzyFacepunch;
 
             // create private instance right away
             await StartHosting();
         }
 
+        private async Task CloseInstance()
+        {
+            if (HostingInstanceId == "") return;
+            await _accountManager.CloseInstance(HostingInstanceId);
+            HostingInstanceId = "";
+        }
+
+        private async Task<bool> StopHostingOrDisconnect()
+        {
+            if (NetworkServer.active)
+            {
+                await CloseInstance();
+
+                Debug.Log("Hosting stopped...");
+                _networkManager.StopHost();
+
+                _accountManager.HeartbeatNow();
+
+                return true;
+            }
+            else if (NetworkClient.active)
+            {
+                Debug.Log("Disconnecting...");
+                _networkManager.StopClient();
+                
+                return true;
+            }
+            return false;
+        }
+
         public async Task StartHosting()
         {
-            if (NetworkServer.active) return;
+            var wait = await StopHostingOrDisconnect();
+            if (wait)
+            {
+                await Task.Delay(500);
+            }
 
-            var accountManager = DependencyManager.Instance.accountManager;
-
-            HostingInstanceId =
-                await accountManager.StartInstance("steam://" + DependencyManager.Instance.steamManager.GetMySteamID());
+            HostingInstanceId = await _accountManager.StartInstance("steam://" + _steamManager.GetMySteamID());
 
             Debug.Log("Hosting started...");
             _networkManager.StartHost();
 
-            accountManager.HeartbeatNow();
+            _accountManager.HeartbeatNow();
         }
 
-        private async Task CloseInstance()
+        public async Task Join(string connectionUri)
         {
-            if (HostingInstanceId == "") return;
-            await DependencyManager.Instance.accountManager.CloseInstance(HostingInstanceId);
-            HostingInstanceId = "";
-        }
-
-        public async Task StopHosting()
-        {
-            if (!NetworkServer.active) return;
-
-            await CloseInstance();
-
-            Debug.Log("Hosting stopped...");
-            _networkManager.StopHost();
+            var wait = await StopHostingOrDisconnect();
+            if (wait)
+            {
+                await Task.Delay(500);
+            }
             
-            DependencyManager.Instance.accountManager.HeartbeatNow();
-        }
-
-        public void Join(string connectionUri)
-        {
             Debug.Log("Joining instance... " + connectionUri);
             _networkManager.StartClient(new Uri(connectionUri));
-        }
-
-        public void Disconnect()
-        {
-            Debug.Log("Disconnecting...");
-            _networkManager.StopClient();
-        }
-
-        public void OnGUI()
-        {
-            if (NetworkServer.active || NetworkClient.active)
-            {
-                if (GUI.Button(new Rect(8, 56, 100, 24), "disconnect"))
-                {
-                    if (NetworkServer.active)
-                    {
-                        StopHosting();
-                    }
-                    else
-                    {
-                        Disconnect();
-                    }
-                }
-            }
         }
     }
 }

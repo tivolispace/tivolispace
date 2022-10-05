@@ -39,13 +39,13 @@ namespace Tivoli.Scripts.UI
 
         private async void UpdateInfo()
         {
-            await DependencyManager.Instance.accountManager.WhenLoggedIn();
+            await DependencyManager.Instance.AccountManager.WhenLoggedIn();
             
             if (!getSelf && userId == "") return;
                 
             var profile = getSelf
-                ? DependencyManager.Instance.accountManager.Profile
-                : await DependencyManager.Instance.accountManager.GetProfile(userId);
+                ? DependencyManager.Instance.AccountManager.Profile
+                : await DependencyManager.Instance.AccountManager.GetProfile(userId);
 
             var sprite = Sprite.Create(profile.profilePicture,
                 new Rect(0, 0, profile.profilePicture.width, profile.profilePicture.height), new Vector2(0.5f, 0.5f));

@@ -24,7 +24,7 @@ namespace Tivoli.Scripts.UI
 
         private async void Refresh()
         {
-            var profile = await DependencyManager.Instance.accountManager.GetProfile(_userId);
+            var profile = await DependencyManager.Instance.AccountManager.GetProfile(_userId);
             var displayName = profile.displayName;
             if (displayName == null) return;
 

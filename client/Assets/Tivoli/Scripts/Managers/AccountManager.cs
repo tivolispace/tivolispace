@@ -19,7 +19,7 @@ namespace Tivoli.Scripts.Managers
         public Texture2D profilePicture;
     }
 
-    public class AccountManager
+    public class AccountManager : Manager
     {
 #if UNITY_EDITOR
         private static readonly string ApiUrl = EditorPrefs.GetString(TivoliEditorPrefs.OverrideApiUrl);
@@ -45,14 +45,13 @@ namespace Tivoli.Scripts.Managers
 
         public AccountManager()
         {
-            Login();
         }
-
-        private async void Login()
+        
+        public override async Task Init()
         {
-            await DependencyManager.Instance.steamManager.WhenInitialized();
+            await DependencyManager.Instance.SteamManager.WhenInitialized();
 
-            var authTicket = await DependencyManager.Instance.steamManager.GetAuthSessionTicket();
+            var authTicket = await DependencyManager.Instance.SteamManager.GetAuthSessionTicket();
 
             var (res, error) = await new HttpFox(ApiUrl + "/api/auth/steam-ticket", "POST")
                 .WithJson(new {ticket = authTicket})
@@ -117,7 +116,7 @@ namespace Tivoli.Scripts.Managers
                 .WithBearerAuth(_accessToken)
                 .WithJson(new
                 {
-                    hostingInstanceId = DependencyManager.Instance.connectionManager.HostingInstanceId,
+                    hostingInstanceId = DependencyManager.Instance.ConnectionManager.HostingInstanceId,
                     closingGame = _heartbeatClosingGame
                 })
                 .ReceiveNothing();
@@ -249,7 +248,7 @@ namespace Tivoli.Scripts.Managers
         }
 
 
-        public void Update()
+        public override void Update()
         {
             if (_loggedIn)
             {
@@ -262,7 +261,7 @@ namespace Tivoli.Scripts.Managers
             }
         }
 
-        public void OnDestroy()
+        public override void OnDestroy()
         {
             _heartbeatClosingGame = true;
             HeartbeatNow();
