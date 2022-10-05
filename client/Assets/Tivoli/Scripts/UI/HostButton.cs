@@ -1,3 +1,4 @@
+using Mirror;
 using Tivoli.Scripts.Managers;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,9 +9,14 @@ namespace Tivoli.Scripts.UI
     {
         private void Start()
         {
-            GetComponent<Button>().onClick.AddListener(() =>
+            GetComponent<Button>().onClick.AddListener(async () =>
             {
-                DependencyManager.Instance.connectionManager.StartHosting();
+                var connectionManager = DependencyManager.Instance.connectionManager;
+                if (NetworkServer.active)
+                {
+                    await connectionManager.StopHosting();
+                }
+                await connectionManager.StartHosting();
             });
         }
     }

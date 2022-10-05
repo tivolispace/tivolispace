@@ -12,7 +12,7 @@ namespace Tivoli.Scripts.Player
 
         private Rigidbody _playerRigidbody;
 
-        private InputActions _inputActions;
+        private TivoliInputActions _inputActions;
 
         private TweenManager _tweenManager = new();
         private TweenManager.Tweener _cameraBoomTweener;
@@ -31,7 +31,7 @@ namespace Tivoli.Scripts.Player
 
         public override void OnStartLocalPlayer()
         {
-            _inputActions = new InputActions();
+            _inputActions = new TivoliInputActions();
             _inputActions.Player.Enable();
             _inputActions.Player.Move.Enable();
             _inputActions.Player.Look.Enable();

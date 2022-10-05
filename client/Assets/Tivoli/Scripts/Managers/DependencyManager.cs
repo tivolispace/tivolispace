@@ -11,6 +11,7 @@ namespace Tivoli.Scripts.Managers
         public SteamManager steamManager;
         public AccountManager accountManager;
         public ConnectionManager connectionManager;
+        public MainMenuManager mainMenuManager;
 
         private bool _initialized;
 
@@ -29,6 +30,7 @@ namespace Tivoli.Scripts.Managers
             steamManager = new SteamManager();
             accountManager = new AccountManager();
             connectionManager = new ConnectionManager();
+            mainMenuManager = new MainMenuManager();
             
             _initialized = true;
         }

@@ -2,7 +2,7 @@ Shader "Maki/Login Background"
 {
     Properties
     {
-        _MainTex ("Main texture", 2D) = "white" {}
+//        _MainTex ("Main texture", 2D) = "white" {}
     }
     SubShader
     {
@@ -30,8 +30,8 @@ Shader "Maki/Login Background"
                 return o;
             }
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
+            // sampler2D _MainTex;
+            // float4 _MainTex_ST;
 
             #define mod(x,y) (x-y*floor(x/y))
 
@@ -97,7 +97,7 @@ Shader "Maki/Login Background"
                 uv *= 2.0;
 
                 float repeatSize = 4.;
-                float speed = 0.03;
+                float speed = 0.01;
                 float x = uv.x - mod(_Time.y * speed, repeatSize / 2.0);
                 float y = uv.y;
                 

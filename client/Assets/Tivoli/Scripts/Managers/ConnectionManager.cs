@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Mirror;
 using Mirror.FizzySteam;
-using Tivoli.Scripts.Networking;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -10,7 +9,7 @@ namespace Tivoli.Scripts.Managers
 {
     public class ConnectionManager
     {
-        private TivoliNetworkManager _networkManager;
+        private NetworkManager _networkManager;
         private FizzyFacepunch _fizzyFacepunch;
 
         public string HostingInstanceId;
@@ -31,15 +30,20 @@ namespace Tivoli.Scripts.Managers
             var steamManager = DependencyManager.Instance.steamManager;
             await steamManager.WhenInitialized();
 
-            _networkManager = Object.FindObjectOfType<TivoliNetworkManager>();
+            await DependencyManager.Instance.accountManager.WhenLoggedIn();
+
+            _networkManager = Object.FindObjectOfType<NetworkManager>();
 
             _fizzyFacepunch = _networkManager.GetComponent<FizzyFacepunch>();
             _fizzyFacepunch.SteamAppID = SteamManager.AppId;
             _fizzyFacepunch.SteamUserID = steamManager.GetMySteamID();
             _fizzyFacepunch.Init();
+
+            // create private instance right away
+            await StartHosting();
         }
 
-        public async void StartHosting()
+        public async Task StartHosting()
         {
             if (NetworkServer.active) return;
 
@@ -61,7 +65,7 @@ namespace Tivoli.Scripts.Managers
             HostingInstanceId = "";
         }
 
-        public async void StopHosting()
+        public async Task StopHosting()
         {
             if (!NetworkServer.active) return;
 
