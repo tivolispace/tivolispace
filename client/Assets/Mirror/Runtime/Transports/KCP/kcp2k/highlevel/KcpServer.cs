@@ -140,12 +140,16 @@ namespace kcp2k
                     // IPv6 socket with DualMode
                     socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
                     socket.DualMode = true;
+                    socket.ExclusiveAddressUse = false;
+                    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                     socket.Bind(new IPEndPoint(IPAddress.IPv6Any, port));
                 }
                 else
                 {
                     // IPv4 socket
                     socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                    socket.ExclusiveAddressUse = false;
+                    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                     socket.Bind(new IPEndPoint(IPAddress.Any, port));
                 }
             }

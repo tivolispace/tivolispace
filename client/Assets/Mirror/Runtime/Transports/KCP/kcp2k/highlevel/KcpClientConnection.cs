@@ -96,6 +96,9 @@ namespace kcp2k
                     }
                 }
                 
+                // maybe this helps for nat
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+
                 // configure buffer sizes
                 ConfigureSocketBufferSizes(maximizeSendReceiveBuffersToOSLimit);
 

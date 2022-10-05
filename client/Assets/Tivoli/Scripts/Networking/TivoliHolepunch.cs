@@ -2,10 +2,12 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using UnityEngine;
 using Random = System.Random;
+using Timer = System.Timers.Timer;
 
 namespace Tivoli.Scripts.Networking
 {
@@ -18,6 +20,7 @@ namespace Tivoli.Scripts.Networking
         private readonly Timer _timer;
 
         private bool _hosting;
+        private readonly CancellationTokenSource _hostingCts = new();
 
         public TivoliHolepunch()
         {
@@ -40,7 +43,7 @@ namespace Tivoli.Scripts.Networking
             _udpClient.Close();
         }
 
-        private static IPEndPoint UdpResultToIPEndPoint(byte[] result)
+        private static IPEndPoint HolepunchServerBytesToIp(byte[] result)
         {
             var data = Encoding.UTF8.GetString(result);
             var address = data.Split(' ');
@@ -51,16 +54,19 @@ namespace Tivoli.Scripts.Networking
         private void SendGarbageToHolepunch(IPEndPoint endpoint)
         {
             var i = 0;
-            var random = new Random();
-            var bytes = new byte[16];
+            // var random = new Random();
+            // var bytes = new byte[16];
 
             var timer = new Timer();
             timer.Elapsed += (_, _) =>
             {
                 i++;
                 
-                random.NextBytes(bytes);
-                _udpClient.SendAsync(bytes, bytes.Length, endpoint);
+                // random.NextBytes(bytes);
+                // _udpClient.SendAsync(bytes, bytes.Length, endpoint);
+
+                _udpClient.SendAsync(new byte[] { 0 }, 1, endpoint);
+                
                 Debug.Log("garbage sent");
 
                 if (i < 10) return;
@@ -72,43 +78,63 @@ namespace Tivoli.Scripts.Networking
             timer.Enabled = true;
         }
 
-        private void HostReceivingClientsLoop()
+        // doing this for now because its really hard to use the same port
+        // but will conflict on symmetrical nats which arent working anyway
+        private IPEndPoint EndpointPlusOnePort(IPEndPoint endpoint)
+        {
+            return new IPEndPoint(endpoint.Address, endpoint.Port + 1);
+        }
+
+        private void StartHostReceivingClients()
         {
             if (!_hosting) return;
-
-            var holepunchServer = _tivoliHolepunchServer;
-            _udpClient.BeginReceive(asyncResult =>
+            Task.Run(async () =>
             {
-                try
+                while (_hosting)
                 {
-                    var result = _udpClient.EndReceive(asyncResult, ref holepunchServer);
-                    var endpoint = UdpResultToIPEndPoint(result);
+                    try
+                    {
+                        var result = await _udpClient.ReceiveAsync();
+                        if (!Equals(result.RemoteEndPoint, _tivoliHolepunchServer)) continue;
 
-                    Debug.Log("holepunch got, client: " + endpoint);
-                    Debug.Log("holepunch sending garbage to: " + endpoint);
-                    SendGarbageToHolepunch(endpoint);
+                        var endpoint = HolepunchServerBytesToIp(result.Buffer);
+                        Debug.Log("holepunch got, client: " + endpoint);
+                        endpoint = EndpointPlusOnePort(endpoint);
+                        Debug.Log("holepunch sending garbage to: " + endpoint);
+                        SendGarbageToHolepunch(endpoint);
+                    }
+                    catch (Exception exception)
+                    {
+                        Debug.LogWarning("failed to receive from heartbeat\n" + exception);
+                    }
                 }
-                catch (Exception exception)
-                {
-                    Debug.LogWarning("failed to receive from heartbeat\n" + exception);
-                }
-
-                HostReceivingClientsLoop();
-            }, this);
+            }, _hostingCts.Token);
+        }
+        
+        private static string GetLocalIpAddress()
+        {
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0);
+            socket.Connect("8.8.8.8", 65530);
+            var endPoint = socket.LocalEndPoint as IPEndPoint;
+            return endPoint?.Address.ToString();
         }
 
         public async Task<IPEndPoint> StartHost(string instanceId)
         {
-            var message = Encoding.UTF8.GetBytes("host " + instanceId);
-            await _udpClient.SendAsync(message, message.Length, _tivoliHolepunchServer);
-            Debug.Log("holepunch sent: host " + instanceId);
+            var message = "host " + instanceId + " " + GetLocalIpAddress();
+            var messageBytes = Encoding.UTF8.GetBytes(message);
+            await _udpClient.SendAsync(messageBytes, messageBytes.Length, _tivoliHolepunchServer);
+            Debug.Log("holepunch sent: " + message);
 
             var result = await _udpClient.ReceiveAsync();
-            var endpoint = UdpResultToIPEndPoint(result.Buffer);
+            var endpoint = HolepunchServerBytesToIp(result.Buffer);
             Debug.Log("holepunch got: host " + endpoint);
+            endpoint = EndpointPlusOnePort(endpoint);
+            Debug.Log("holepunch: host instead use port: " + endpoint.Port);
 
             _hosting = true;
-            HostReceivingClientsLoop();
+            StartHostReceivingClients();
+            
 
             return endpoint;
         }
@@ -116,23 +142,30 @@ namespace Tivoli.Scripts.Networking
         public void StopHost()
         {
             _hosting = false;
+            _hostingCts.Cancel();
 
             // should reset better but its just proof of concept for now
         }
 
         public async Task<(IPEndPoint, IPEndPoint)> StartClient(string instanceId)
         {
-            var message = Encoding.UTF8.GetBytes("client " + instanceId);
-            await _udpClient.SendAsync(message, message.Length, _tivoliHolepunchServer);
-            Debug.Log("holepunch sent: client " + instanceId);
+            var message = "client " + instanceId + " " + GetLocalIpAddress();
+            var messageBytes = Encoding.UTF8.GetBytes(message);
+            await _udpClient.SendAsync(messageBytes, messageBytes.Length, _tivoliHolepunchServer);
+            Debug.Log("holepunch sent: " + message);
 
             var myResult = await _udpClient.ReceiveAsync();
-            var myEndpoint = UdpResultToIPEndPoint(myResult.Buffer);
+            var myEndpoint = HolepunchServerBytesToIp(myResult.Buffer);
             Debug.Log("holepunch got: client " + myEndpoint);
+            myEndpoint = EndpointPlusOnePort(myEndpoint);
+            Debug.Log("holepunch: client instead use port: " + myEndpoint.Port);
             
             var hostResult = await _udpClient.ReceiveAsync();
-            var hostEndpoint = UdpResultToIPEndPoint(hostResult.Buffer);
+            var hostEndpoint = HolepunchServerBytesToIp(hostResult.Buffer);
             Debug.Log("holepunch got: host " + hostEndpoint);
+            hostEndpoint = EndpointPlusOnePort(hostEndpoint);
+            Debug.Log("holepunch: host instead use port: " + hostEndpoint.Port);
+            
             Debug.Log("holepunch sending garbage to: " + hostEndpoint);
             SendGarbageToHolepunch(hostEndpoint);
 
