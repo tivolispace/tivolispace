@@ -1,6 +1,7 @@
 // kcp client logic abstracted into a class.
 // for use in Mirror, DOTSNET, testing, etc.
 using System;
+using System.Net.Sockets;
 
 namespace kcp2k
 {
@@ -27,7 +28,8 @@ namespace kcp2k
         protected virtual KcpClientConnection CreateConnection() =>
             new KcpClientConnection();
 
-        public void Connect(string address,
+        public void Connect(Socket reuseSocket,
+                            string address,
                             ushort port,
                             bool noDelay,
                             uint interval,
@@ -69,7 +71,8 @@ namespace kcp2k
             };
 
             // connect
-            connection.Connect(address,
+            connection.Connect(reuseSocket,
+                               address,
                                port,
                                noDelay,
                                interval,

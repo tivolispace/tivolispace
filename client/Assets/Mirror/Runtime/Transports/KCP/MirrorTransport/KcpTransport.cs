@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using UnityEngine;
 using Mirror;
 using Unity.Collections;
@@ -50,6 +51,7 @@ namespace kcp2k
         [ReadOnly] public int UnreliableMaxMessageSize = 0; // readonly, displayed from OnValidate
 
         // server & client (where-allocation NonAlloc versions)
+        public Socket ReuseSocket;
         KcpServer server;
         KcpClient client;
 
@@ -148,7 +150,7 @@ namespace kcp2k
         public override bool ClientConnected() => client.connected;
         public override void ClientConnect(string address)
         {
-            client.Connect(address, Port, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmit, MaximizeSendReceiveBuffersToOSLimit);
+            client.Connect(ReuseSocket, address, Port, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmit, MaximizeSendReceiveBuffersToOSLimit);
         }
         public override void ClientConnect(Uri uri)
         {
@@ -156,7 +158,7 @@ namespace kcp2k
                 throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port instead", nameof(uri));
 
             int serverPort = uri.IsDefaultPort ? Port : uri.Port;
-            client.Connect(uri.Host, (ushort)serverPort, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmit, MaximizeSendReceiveBuffersToOSLimit);
+            client.Connect(ReuseSocket, uri.Host, (ushort)serverPort, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmit, MaximizeSendReceiveBuffersToOSLimit);
         }
         public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
@@ -187,7 +189,7 @@ namespace kcp2k
             return builder.Uri;
         }
         public override bool ServerActive() => server.IsActive();
-        public override void ServerStart() => server.Start(Port);
+        public override void ServerStart() => server.Start(ReuseSocket, Port);
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
             server.Send(connectionId, segment, ToKcpChannel(channelId));

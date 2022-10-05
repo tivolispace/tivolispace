@@ -14,6 +14,8 @@ namespace Tivoli.Scripts.Managers
         // private FizzyFacepunch _fizzyFacepunch;
         private KcpTransport _kcpTransport;
 
+        private TivoliHolepunch _holepunch;
+
         // TivoliNetworkManager sets these values
         public bool Hosting;
         public bool InWorld;
@@ -24,12 +26,7 @@ namespace Tivoli.Scripts.Managers
         {
             Init();
         }
-
-        ~ConnectionManager()
-        {
-            StopHosting();
-        }
-
+        
         private async void Init()
         {
             var steamManager = DependencyManager.Instance.steamManager;
@@ -43,25 +40,9 @@ namespace Tivoli.Scripts.Managers
             // _fizzyFacepunch.Init();
 
             _kcpTransport = _networkManager.GetComponent<KcpTransport>();
+
+            _holepunch = new TivoliHolepunch();
         }
-
-        // private static string GetLocalIPAddress()
-        // {
-        //     var host = Dns.GetHostEntry(Dns.GetHostName());
-        //     foreach (var ip in host.AddressList)
-        //     {
-        //         if (ip.AddressFamily != AddressFamily.InterNetwork) continue;
-        //         var ipStr = ip.ToString();
-        //         if (ipStr.StartsWith("192.168.1."))
-        //         {
-        //             return ipStr;
-        //         }
-        //     }
-        //
-        //     throw new Exception("No network adapters with an IPv4 address in the system!");
-        // }
-
-        private TivoliHolepunch _holepunch;
 
         public async void StartHosting()
         {
@@ -69,17 +50,12 @@ namespace Tivoli.Scripts.Managers
 
             var accountManager = DependencyManager.Instance.accountManager;
 
-            if (_holepunch == null)
-            {
-                _holepunch = new TivoliHolepunch();
-            }
+            var instanceId = await accountManager.StartInstance("there is none");
 
-            var ip = await _holepunch.GetMyIpAndPort();
+            var endpoint = await _holepunch.StartHost(instanceId);
 
-            _kcpTransport.Port = (ushort) ip.Port;
-
-            var instanceId =
-                await accountManager.StartInstance("kcp://" + ip.Address + ":" + ip.Port);
+            _kcpTransport.Port = (ushort) endpoint.Port;
+            _kcpTransport.ReuseSocket = _holepunch.GetUdpClient().Client;
 
             Debug.Log("Hosting started...");
             _networkManager.StartHost();
@@ -94,6 +70,8 @@ namespace Tivoli.Scripts.Managers
         {
             if (!Hosting) return;
 
+            _holepunch.StopHost();
+
             await DependencyManager.Instance.accountManager.CloseInstance(HostingInstanceId);
 
             Debug.Log("Hosting stopped...");
@@ -105,16 +83,29 @@ namespace Tivoli.Scripts.Managers
             DependencyManager.Instance.accountManager.HeartbeatNow();
         }
 
-        public void Join(string connectionUri)
+        public async void Join(string instanceId)
         {
-            Debug.Log("Joining instance... " + connectionUri);
-            _networkManager.StartClient(new Uri(connectionUri));
+            Debug.Log("UDP hole punching instance... " + instanceId);
+
+            var endpoint = await _holepunch.StartClient(instanceId);
+            _kcpTransport.ReuseSocket = _holepunch.GetUdpClient().Client;
+            
+            Debug.Log("Joining instance... " + endpoint);
+            _networkManager.StartClient(new Uri("kcp://" + endpoint.Address + ":" + endpoint.Port));
+
         }
 
         public void Disconnect()
         {
             Debug.Log("Disconnecting...");
+            _holepunch.StopClient();
             _networkManager.StopClient();
+        }
+
+        public void OnDestroy()
+        {
+            StopHosting();
+            _holepunch.OnDestroy();
         }
 
         public void OnGUI()

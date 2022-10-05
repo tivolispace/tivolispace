@@ -47,6 +47,7 @@ namespace Tivoli.Scripts.Managers
             
             steamManager.OnDestroy();
             accountManager.OnDestroy();
+            connectionManager.OnDestroy();
         }
 
         public void OnGUI()
