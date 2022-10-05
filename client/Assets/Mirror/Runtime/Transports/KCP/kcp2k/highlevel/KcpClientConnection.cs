@@ -59,6 +59,7 @@ namespace kcp2k
         }
 
         public void Connect(Socket reuseSocket,
+                            ushort bindPort,
                             string host,
                             ushort port,
                             bool noDelay,
@@ -88,6 +89,11 @@ namespace kcp2k
                 else
                 {
                     socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+                    if (bindPort > 0)
+                    {
+                        Debug.Log("KCP: Client using bind port: "+ bindPort);
+                        socket.Bind(new IPEndPoint(IPAddress.Any, bindPort));
+                    }
                 }
                 
                 // configure buffer sizes

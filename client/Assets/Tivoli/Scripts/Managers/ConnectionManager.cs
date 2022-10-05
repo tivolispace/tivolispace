@@ -1,6 +1,5 @@
 ﻿using System;
 using kcp2k;
-using Mirror.FizzySteam;
 using Tivoli.Scripts.Networking;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -52,10 +51,8 @@ namespace Tivoli.Scripts.Managers
 
             var instanceId = await accountManager.StartInstance("there is none");
 
-            var endpoint = await _holepunch.StartHost(instanceId);
-
-            _kcpTransport.Port = (ushort) endpoint.Port;
-            _kcpTransport.ReuseSocket = _holepunch.GetUdpClient().Client;
+            var myEndpoint = await _holepunch.StartHost(instanceId);
+            _kcpTransport.Port = (ushort) myEndpoint.Port;
 
             Debug.Log("Hosting started...");
             _networkManager.StartHost();
@@ -87,11 +84,11 @@ namespace Tivoli.Scripts.Managers
         {
             Debug.Log("UDP hole punching instance... " + instanceId);
 
-            var endpoint = await _holepunch.StartClient(instanceId);
-            _kcpTransport.ReuseSocket = _holepunch.GetUdpClient().Client;
+            var (myEndpoint, hostEndpoint) = await _holepunch.StartClient(instanceId);
+            _kcpTransport.BindPort = (ushort) myEndpoint.Port;
             
-            Debug.Log("Joining instance... " + endpoint);
-            _networkManager.StartClient(new Uri("kcp://" + endpoint.Address + ":" + endpoint.Port));
+            Debug.Log("Joining instance... " + hostEndpoint);
+            _networkManager.StartClient(new Uri("kcp://" + hostEndpoint.Address + ":" + hostEndpoint.Port));
 
         }
 

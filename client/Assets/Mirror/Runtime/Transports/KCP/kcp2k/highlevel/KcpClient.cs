@@ -29,6 +29,7 @@ namespace kcp2k
             new KcpClientConnection();
 
         public void Connect(Socket reuseSocket,
+                            ushort bindPort,
                             string address,
                             ushort port,
                             bool noDelay,
@@ -72,6 +73,7 @@ namespace kcp2k
 
             // connect
             connection.Connect(reuseSocket,
+                               bindPort,
                                address,
                                port,
                                noDelay,

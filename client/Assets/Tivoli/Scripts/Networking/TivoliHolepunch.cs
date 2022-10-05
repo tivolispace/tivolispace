@@ -58,7 +58,7 @@ namespace Tivoli.Scripts.Networking
             timer.Elapsed += (_, _) =>
             {
                 i++;
-
+                
                 random.NextBytes(bytes);
                 _udpClient.SendAsync(bytes, bytes.Length, endpoint);
                 Debug.Log("garbage sent");
@@ -97,11 +97,6 @@ namespace Tivoli.Scripts.Networking
             }, this);
         }
 
-        public UdpClient GetUdpClient()
-        {
-            return _udpClient;
-        }
-
         public async Task<IPEndPoint> StartHost(string instanceId)
         {
             var message = Encoding.UTF8.GetBytes("host " + instanceId);
@@ -125,19 +120,23 @@ namespace Tivoli.Scripts.Networking
             // should reset better but its just proof of concept for now
         }
 
-        public async Task<IPEndPoint> StartClient(string instanceId)
+        public async Task<(IPEndPoint, IPEndPoint)> StartClient(string instanceId)
         {
             var message = Encoding.UTF8.GetBytes("client " + instanceId);
             await _udpClient.SendAsync(message, message.Length, _tivoliHolepunchServer);
             Debug.Log("holepunch sent: client " + instanceId);
 
-            var result = await _udpClient.ReceiveAsync();
-            var endpoint = UdpResultToIPEndPoint(result.Buffer);
-            Debug.Log("holepunch got: host " + endpoint);
-            Debug.Log("holepunch sending garbage to: " + endpoint);
-            SendGarbageToHolepunch(endpoint);
+            var myResult = await _udpClient.ReceiveAsync();
+            var myEndpoint = UdpResultToIPEndPoint(myResult.Buffer);
+            Debug.Log("holepunch got: client " + myEndpoint);
+            
+            var hostResult = await _udpClient.ReceiveAsync();
+            var hostEndpoint = UdpResultToIPEndPoint(hostResult.Buffer);
+            Debug.Log("holepunch got: host " + hostEndpoint);
+            Debug.Log("holepunch sending garbage to: " + hostEndpoint);
+            SendGarbageToHolepunch(hostEndpoint);
 
-            return endpoint;
+            return (myEndpoint, hostEndpoint);
         }
 
         public void StopClient()
