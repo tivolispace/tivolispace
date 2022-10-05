@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading.Tasks;
+using Mirror;
 using Mirror.FizzySteam;
 using Tivoli.Scripts.Networking;
 using UnityEngine;
@@ -11,15 +13,17 @@ namespace Tivoli.Scripts.Managers
         private TivoliNetworkManager _networkManager;
         private FizzyFacepunch _fizzyFacepunch;
 
-        // TivoliNetworkManager sets these values
-        public bool Hosting;
-        public bool InWorld;
-
         public string HostingInstanceId;
 
         public ConnectionManager()
         {
             Init();
+        }
+
+        public void OnDestroy()
+        {
+            CloseInstance();
+            // StopHosting is useless here because its a race condition with Mirror
         }
 
         private async void Init()
@@ -37,38 +41,39 @@ namespace Tivoli.Scripts.Managers
 
         public async void StartHosting()
         {
-            if (Hosting) return;
+            if (NetworkServer.active) return;
 
             var accountManager = DependencyManager.Instance.accountManager;
 
-            var instanceId =
+            HostingInstanceId =
                 await accountManager.StartInstance("steam://" + DependencyManager.Instance.steamManager.GetMySteamID());
 
             Debug.Log("Hosting started...");
             _networkManager.StartHost();
 
-            Hosting = true; // above should set this but lets do it here in case
-            HostingInstanceId = instanceId;
-
             accountManager.HeartbeatNow();
+        }
+
+        private async Task CloseInstance()
+        {
+            if (HostingInstanceId == "") return;
+            await DependencyManager.Instance.accountManager.CloseInstance(HostingInstanceId);
+            HostingInstanceId = "";
         }
 
         public async void StopHosting()
         {
-            if (!Hosting) return;
+            if (!NetworkServer.active) return;
 
-            await DependencyManager.Instance.accountManager.CloseInstance(HostingInstanceId);
+            await CloseInstance();
 
             Debug.Log("Hosting stopped...");
             _networkManager.StopHost();
-
-            Hosting = false; // above should set this but lets do it here in case
-            HostingInstanceId = "";
-
+            
             DependencyManager.Instance.accountManager.HeartbeatNow();
         }
 
-        public async void Join(string connectionUri)
+        public void Join(string connectionUri)
         {
             Debug.Log("Joining instance... " + connectionUri);
             _networkManager.StartClient(new Uri(connectionUri));
@@ -80,18 +85,13 @@ namespace Tivoli.Scripts.Managers
             _networkManager.StopClient();
         }
 
-        public void OnDestroy()
-        {
-            StopHosting();
-        }
-
         public void OnGUI()
         {
-            if (InWorld)
+            if (NetworkServer.active || NetworkClient.active)
             {
                 if (GUI.Button(new Rect(8, 56, 100, 24), "disconnect"))
                 {
-                    if (Hosting)
+                    if (NetworkServer.active)
                     {
                         StopHosting();
                     }

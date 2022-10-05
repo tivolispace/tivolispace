@@ -220,8 +220,6 @@ namespace Tivoli.Scripts.Networking
         /// </summary>
         public override void OnStartHost()
         {
-            DependencyManager.Instance.connectionManager.Hosting = true;
-            DependencyManager.Instance.connectionManager.InWorld = true;
         }
 
         /// <summary>
@@ -237,7 +235,6 @@ namespace Tivoli.Scripts.Networking
         /// </summary>
         public override void OnStartClient()
         {
-            DependencyManager.Instance.connectionManager.InWorld = true;
         }
 
         /// <summary>
@@ -245,8 +242,6 @@ namespace Tivoli.Scripts.Networking
         /// </summary>
         public override void OnStopHost()
         {
-            DependencyManager.Instance.connectionManager.Hosting = false;
-            DependencyManager.Instance.connectionManager.InWorld = false;
         }
 
         /// <summary>
@@ -259,7 +254,6 @@ namespace Tivoli.Scripts.Networking
         /// </summary>
         public override void OnStopClient()
         {
-            DependencyManager.Instance.connectionManager.InWorld = false;
         }
 
         #endregion
