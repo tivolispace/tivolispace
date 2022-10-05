@@ -20,9 +20,9 @@ namespace Tivoli.Scripts.Managers
             Init();
         }
 
-        public void OnDestroy()
+        public async void OnDestroy()
         {
-            CloseInstance();
+            await CloseInstance();
             // StopHosting is useless here because its a race condition with Mirror
         }
 

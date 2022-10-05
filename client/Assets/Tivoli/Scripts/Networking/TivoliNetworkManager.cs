@@ -1,6 +1,4 @@
-using System;
 using Mirror;
-using Tivoli.Scripts.Managers;
 
 /*
 	Documentation: https://mirror-networking.gitbook.io/docs/components/network-manager
@@ -170,7 +168,7 @@ namespace Tivoli.Scripts.Networking
         /// </summary>
         /// <param name="conn">Connection of the client...may be null</param>
         /// <param name="exception">Exception thrown from the Transport.</param>
-        public override void OnServerError(NetworkConnectionToClient conn, Exception exception) { }
+        public override void OnServerError(NetworkConnectionToClient conn, TransportError transportError, string message) { }
 
         #endregion
 
@@ -204,7 +202,7 @@ namespace Tivoli.Scripts.Networking
         /// Called on client when transport raises an exception.</summary>
         /// </summary>
         /// <param name="exception">Exception thrown from the Transport.</param>
-        public override void OnClientError(Exception exception) { }
+        public override void OnClientError(TransportError transportError, string message) { }
 
         #endregion
 
@@ -218,31 +216,23 @@ namespace Tivoli.Scripts.Networking
         /// This is invoked when a host is started.
         /// <para>StartHost has multiple signatures, but they all cause this hook to be called.</para>
         /// </summary>
-        public override void OnStartHost()
-        {
-        }
+        public override void OnStartHost() { }
 
         /// <summary>
         /// This is invoked when a server is started - including when a host is started.
         /// <para>StartServer has multiple signatures, but they all cause this hook to be called.</para>
         /// </summary>
-        public override void OnStartServer()
-        {
-        }
+        public override void OnStartServer() { }
 
         /// <summary>
         /// This is invoked when the client is started.
         /// </summary>
-        public override void OnStartClient()
-        {
-        }
+        public override void OnStartClient() { }
 
         /// <summary>
         /// This is called when a host is stopped.
         /// </summary>
-        public override void OnStopHost()
-        {
-        }
+        public override void OnStopHost() { }
 
         /// <summary>
         /// This is called when a server is stopped - including when a host is stopped.
@@ -252,9 +242,7 @@ namespace Tivoli.Scripts.Networking
         /// <summary>
         /// This is called when a client is stopped.
         /// </summary>
-        public override void OnStopClient()
-        {
-        }
+        public override void OnStopClient() { }
 
         #endregion
     }
