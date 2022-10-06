@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Tivoli/Initialize.unity
+    guid: 923be2634cc830b41919b427bb1cb6b7
+  - enabled: 1
     path: Assets/Tivoli/Loading.unity
     guid: 205ee09fb7e6c9b428513f95934f095a
   - enabled: 1
