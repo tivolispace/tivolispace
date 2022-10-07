@@ -1,6 +1,6 @@
 ﻿using Mirror;
-using Tivoli.Scripts.UI;
 using Tivoli.Scripts.Managers;
+using Tivoli.Scripts.UI;
 using UnityEngine;
 
 namespace Tivoli.Scripts.Player
@@ -13,10 +13,24 @@ namespace Tivoli.Scripts.Player
         public Transform nametagTransform;
         public Nametag nametag;
 
+        // private XROrigin _xrOrigin;
+
         public override async void OnStartLocalPlayer()
         {
-            await DependencyManager.Instance.AccountManager.WhenLoggedIn();
             nametag.gameObject.SetActive(false);
+
+            // get xr origin and parent player to it
+            // _xrOrigin = DependencyManager.Instance.UIManager.GetXrOrigin();
+            // var currentPosition = transform.position;
+            // var currentRotation = transform.rotation;
+            // transform.SetParent(_xrOrigin.transform);
+            // transform.position = Vector3.zero;
+            // transform.rotation = Quaternion.identity;
+            // _xrOrigin.transform.position = currentPosition;
+            // _xrOrigin.transform.rotation = currentRotation;
+
+            await DependencyManager.Instance.AccountManager.WhenLoggedIn();
+            
             CmdSetupPlayer(DependencyManager.Instance.AccountManager.Profile.id);
         }
 
@@ -41,8 +55,10 @@ namespace Tivoli.Scripts.Player
 
         private void Update()
         {
-            if (!isLocalPlayer)
+            if (isLocalPlayer)
             {
+                
+            } else {
                 nametagTransform.LookAt(DependencyManager.Instance.UIManager.GetMainCamera().transform);
             }
         }

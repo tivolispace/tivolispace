@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 namespace Tivoli.Scripts.Managers
 {
@@ -21,7 +20,7 @@ namespace Tivoli.Scripts.Managers
         [Header("Connection Manager")] public TivoliNetworkManager connectionNetworkManager;
         public ConnectionManager ConnectionManager;
 
-        [Header("UI Manager")] public Camera uiMainCamera;
+        [Header("UI Manager")] public GameObject uiXrOrigin;
         public Canvas uiCanvas;
         public GameObject uiMainMenu;
         public UIManager UIManager;
@@ -52,8 +51,8 @@ namespace Tivoli.Scripts.Managers
             managers.Add(ConnectionManager = new ConnectionManager(connectionNetworkManager));
             persistantGameObjects.Add(connectionNetworkManager.gameObject);
             
-            managers.Add(UIManager = new UIManager(uiMainCamera, uiCanvas, uiMainMenu));
-            persistantGameObjects.Add(uiMainCamera.gameObject);
+            managers.Add(UIManager = new UIManager(uiCanvas, uiMainMenu));
+            // persistantGameObjects.Add(uiXrOrigin.gameObject);
             persistantGameObjects.Add(uiCanvas.gameObject);
 
             _managers = managers.ToArray();

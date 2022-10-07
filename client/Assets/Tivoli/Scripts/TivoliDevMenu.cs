@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,11 +9,11 @@ namespace Tivoli.Scripts
     public static class TivoliEditorPrefs
     {
         public const string OverrideApiUrl = "TivoliOverrideApiUrl";
+        public const string OverridePlayMode = "TivoliOverridePlayMode";
     }
-    
+
     public class TivoliDevMenu : EditorWindow
     {
-
         [MenuItem("Tivoli/Open Dev Menu")]
         public static void OpenTivoliDevMenu()
         {
@@ -46,6 +47,7 @@ namespace Tivoli.Scripts
                 {
                     fontSize = 16,
                     unityFontStyleAndWeight = FontStyle.Bold,
+                    marginTop = Padding,
                     marginBottom = Padding
                 }
             });
@@ -62,10 +64,11 @@ namespace Tivoli.Scripts
                     paddingBottom = Padding
                 }
             };
-            
+
             rootVisualElement.Add(flexbox);
 
-            string[] apiUrls = {
+            string[] apiUrls =
+            {
                 "https://tivoli.space",
                 "http://127.0.0.1:3000"
             };
@@ -74,7 +77,7 @@ namespace Tivoli.Scripts
             {
                 EditorPrefs.SetString(TivoliEditorPrefs.OverrideApiUrl, apiUrls[0]);
             }
-            
+
             var textField = new TextField
             {
                 value = EditorPrefs.GetString(TivoliEditorPrefs.OverrideApiUrl),
@@ -87,19 +90,18 @@ namespace Tivoli.Scripts
 
             textField.RegisterCallback<ChangeEvent<string>>((e) =>
             {
-                 EditorPrefs.SetString(TivoliEditorPrefs.OverrideApiUrl, e.newValue);
+                EditorPrefs.SetString(TivoliEditorPrefs.OverrideApiUrl, e.newValue);
             });
 
             flexbox.Add(textField);
-
-            
 
             foreach (var apiUrl in apiUrls)
             {
                 var button = new Button
                 {
                     text = apiUrl,
-                    style = {
+                    style =
+                    {
                         marginRight = Padding
                     }
                 };
@@ -114,6 +116,93 @@ namespace Tivoli.Scripts
             }
         }
 
+        private void DrawOverridePlayMode()
+        {
+            if (!EditorPrefs.HasKey(TivoliEditorPrefs.OverridePlayMode))
+            {
+                EditorPrefs.SetBool(TivoliEditorPrefs.OverridePlayMode, true);
+            }
+
+            var overridePlayModeText = new Func<string>(() => EditorPrefs.GetBool(TivoliEditorPrefs.OverridePlayMode)
+                ? "Tivoli \"Initialize\" scene"
+                : "current scene");
+
+            var labelFlexbox = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    paddingBottom = Padding
+                }
+            };
+
+            rootVisualElement.Add(labelFlexbox);
+
+            var preLabel = new Label
+            {
+                text = "Play button will take you to ",
+            };
+
+            labelFlexbox.Add(preLabel);
+
+            var label = new Label
+            {
+                text = overridePlayModeText(),
+                style =
+                {
+                    unityFontStyleAndWeight = FontStyle.Bold
+                }
+            };
+
+            labelFlexbox.Add(label);
+
+            var buttonsFlexbox = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    alignItems = Align.Center,
+                    paddingBottom = Padding
+                }
+            };
+
+            rootVisualElement.Add(buttonsFlexbox);
+
+            var initializeButton = new Button
+            {
+                text = "Tivoli \"Initialize\" scene",
+                style =
+                {
+                    marginRight = Padding
+                }
+            };
+
+            initializeButton.clicked += () =>
+            {
+                EditorPrefs.SetBool(TivoliEditorPrefs.OverridePlayMode, true);
+                label.text = overridePlayModeText();
+            };
+
+            buttonsFlexbox.Add(initializeButton);
+
+            var currentButton = new Button
+            {
+                text = "Current scene",
+                style =
+                {
+                    marginRight = Padding
+                }
+            };
+
+            currentButton.clicked += () =>
+            {
+                EditorPrefs.SetBool(TivoliEditorPrefs.OverridePlayMode, false);
+                label.text = overridePlayModeText();
+            };
+
+            buttonsFlexbox.Add(currentButton);
+        }
+
         public void CreateGUI()
         {
             rootVisualElement.style.paddingTop = Padding;
@@ -125,6 +214,9 @@ namespace Tivoli.Scripts
 
             DrawSubtitle("Override API url");
             DrawOverrideApiUrl();
+
+            DrawSubtitle("Override play mode");
+            DrawOverridePlayMode();
         }
     }
 }

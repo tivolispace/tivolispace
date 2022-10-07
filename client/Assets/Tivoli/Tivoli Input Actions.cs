@@ -37,28 +37,10 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Look"",
+                    ""name"": ""Turn"",
                     ""type"": ""Value"",
-                    ""id"": ""ab2c3cba-bc78-4b0e-88cd-ddd481404e3d"",
+                    ""id"": ""4c510699-ea13-466e-bebe-6d48a72b5afc"",
                     ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
-                    ""name"": ""ActivateLook"",
-                    ""type"": ""Button"",
-                    ""id"": ""8d804831-a8ca-4710-8ff1-de041a6ac716"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""BoomLength"",
-                    ""type"": ""Value"",
-                    ""id"": ""7f36e39f-36e7-44be-b5dc-2d18a40cc4be"",
-                    ""expectedControlType"": ""Axis"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
@@ -75,8 +57,19 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
             ],
             ""bindings"": [
                 {
-                    ""name"": ""Move"",
-                    ""id"": ""9e04472d-161f-433f-85bd-9d4198c7cc2c"",
+                    ""name"": """",
+                    ""id"": ""8f00b49b-8a71-48f4-b189-9d869de909bf"",
+                    ""path"": ""<XRController>{LeftHand}/joystick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""XR Controller"",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""3380a239-d661-40b7-bbbe-1055530e67fd"",
                     ""path"": ""2DVector"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -87,104 +80,328 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""up"",
-                    ""id"": ""655667bd-4509-4713-bb38-beca01c8635f"",
+                    ""id"": ""9a496e56-bfcd-4b7c-8279-c533a27c4970"",
                     ""path"": ""<Keyboard>/w"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""Keyboard and Mouse"",
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
                     ""name"": ""down"",
-                    ""id"": ""149e662e-ae3c-4495-aff7-5d9e29ca517d"",
+                    ""id"": ""a2659365-e711-4305-a7e3-c5635fe97972"",
                     ""path"": ""<Keyboard>/s"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""Keyboard and Mouse"",
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
                     ""name"": ""left"",
-                    ""id"": ""e49ba539-e54a-49ce-97ce-a261b79c61c2"",
+                    ""id"": ""fd154507-f807-475a-8ac3-456f67fcc155"",
                     ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""Keyboard and Mouse"",
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
                     ""name"": ""right"",
-                    ""id"": ""96db6933-7965-409b-ada1-e5f666b123dc"",
+                    ""id"": ""e1acd65a-634b-4c04-9c27-f38287c25e47"",
                     ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""Keyboard and Mouse"",
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
                     ""name"": """",
-                    ""id"": ""d652f256-de24-4a04-921a-7313f9737736"",
+                    ""id"": ""756ec286-6d77-4514-a38b-b5ba1f002d31"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""ToggleMainMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e72f0cb8-1d1c-461e-927e-000b5a6211d7"",
+                    ""path"": ""<ValveIndexController>{RightHand}/primaryButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""XR Controller"",
+                    ""action"": ""ToggleMainMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""13d84cde-b5d0-4b39-bde9-34d728781473"",
+                    ""path"": ""<XRController>{RightHand}/joystick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""XR Controller"",
+                    ""action"": ""Turn"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""VR Tracking"",
+            ""id"": ""faa927bb-80c8-49fb-a574-0541c932cbe8"",
+            ""actions"": [
+                {
+                    ""name"": ""CenterEyePosition"",
+                    ""type"": ""Value"",
+                    ""id"": ""7dde6ec3-b85e-425e-89ff-1fc31038a8a5"",
+                    ""expectedControlType"": ""Vector3"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""CenterEyeRotation"",
+                    ""type"": ""Value"",
+                    ""id"": ""acf5c778-1e49-4c4f-81e1-70737d6e4a9c"",
+                    ""expectedControlType"": ""Quaternion"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""LeftHandPosition"",
+                    ""type"": ""Value"",
+                    ""id"": ""80373e99-05a4-43fa-9ae5-252bfa7df4f1"",
+                    ""expectedControlType"": ""Vector3"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""LeftHandRotation"",
+                    ""type"": ""Value"",
+                    ""id"": ""0d937105-1354-41d2-837a-c8db3a54c6f9"",
+                    ""expectedControlType"": ""Quaternion"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""RightHandPosition"",
+                    ""type"": ""Value"",
+                    ""id"": ""0d91adb9-322f-4fff-92f2-2d524b6963be"",
+                    ""expectedControlType"": ""Vector3"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""RightHandRotation"",
+                    ""type"": ""Value"",
+                    ""id"": ""839ccf1b-37ba-44f8-9064-6c14adb15367"",
+                    ""expectedControlType"": ""Quaternion"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""2208d180-f484-4d8f-beff-bfa1c26c2bec"",
+                    ""path"": ""<XRHMD>/centerEyePosition"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CenterEyePosition"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e829f89b-e0cc-4f49-ad05-ff88c42fcadc"",
+                    ""path"": ""<XRController>{LeftHand}/devicePosition"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""XR Controller"",
+                    ""action"": ""LeftHandPosition"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e37213d8-d74d-4d16-a6f4-d0bc388937eb"",
+                    ""path"": ""<XRHMD>/centerEyeRotation"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CenterEyeRotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3fa3bbb0-4444-4498-9bed-75bfab4daee8"",
+                    ""path"": ""<XRController>{LeftHand}/deviceRotation"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""XR Controller"",
+                    ""action"": ""LeftHandRotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""257fc299-41de-4ce1-9c11-7284c8ecf1ef"",
+                    ""path"": ""<XRController>{RightHand}/devicePosition"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""XR Controller"",
+                    ""action"": ""RightHandPosition"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8d0a6c67-efc8-486b-abac-1ff6a077714d"",
+                    ""path"": ""<XRController>{RightHand}/deviceRotation"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""XR Controller"",
+                    ""action"": ""RightHandRotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""Unused Player"",
+            ""id"": ""2d22cebc-7e29-450c-a48f-656a6a052df7"",
+            ""actions"": [
+                {
+                    ""name"": ""ThirdPersonLook"",
+                    ""type"": ""Value"",
+                    ""id"": ""ad972676-69d0-4526-83ca-d2d7d155a1a8"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""ThirdPersonActivateLook"",
+                    ""type"": ""Button"",
+                    ""id"": ""309b5339-dcef-487b-b924-95e8aa733f52"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ThirdPersonBoomLength"",
+                    ""type"": ""Value"",
+                    ""id"": ""ee34af99-741b-4709-a18a-dfccab732735"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""10c5dd40-76dc-4568-adbd-a2d8f310bc52"",
                     ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Look"",
+                    ""action"": ""ThirdPersonLook"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""483ae6f2-0f27-476c-bae0-12dd43d11789"",
+                    ""id"": ""03d76122-b207-478a-9773-5c7622d6405d"",
                     ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ActivateLook"",
+                    ""action"": ""ThirdPersonActivateLook"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""af53e037-b833-4f5e-8a22-3ef0bb6b1c16"",
+                    ""id"": ""409e878a-6574-449b-86d9-5e9f4fbd76e1"",
                     ""path"": ""<Mouse>/scroll/y"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""BoomLength"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""984192c0-5a1d-4004-8b5f-6553871e0eae"",
-                    ""path"": ""<Keyboard>/escape"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ToggleMainMenu"",
+                    ""action"": ""ThirdPersonBoomLength"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
             ]
         }
     ],
-    ""controlSchemes"": []
+    ""controlSchemes"": [
+        {
+            ""name"": ""Keyboard and Mouse"",
+            ""bindingGroup"": ""Keyboard and Mouse"",
+            ""devices"": [
+                {
+                    ""devicePath"": ""<Keyboard>"",
+                    ""isOptional"": false,
+                    ""isOR"": false
+                },
+                {
+                    ""devicePath"": ""<Mouse>"",
+                    ""isOptional"": false,
+                    ""isOR"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""XR Controller"",
+            ""bindingGroup"": ""XR Controller"",
+            ""devices"": [
+                {
+                    ""devicePath"": ""<XRController>"",
+                    ""isOptional"": true,
+                    ""isOR"": false
+                }
+            ]
+        }
+    ]
 }");
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
-        m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
-        m_Player_ActivateLook = m_Player.FindAction("ActivateLook", throwIfNotFound: true);
-        m_Player_BoomLength = m_Player.FindAction("BoomLength", throwIfNotFound: true);
+        m_Player_Turn = m_Player.FindAction("Turn", throwIfNotFound: true);
         m_Player_ToggleMainMenu = m_Player.FindAction("ToggleMainMenu", throwIfNotFound: true);
+        // VR Tracking
+        m_VRTracking = asset.FindActionMap("VR Tracking", throwIfNotFound: true);
+        m_VRTracking_CenterEyePosition = m_VRTracking.FindAction("CenterEyePosition", throwIfNotFound: true);
+        m_VRTracking_CenterEyeRotation = m_VRTracking.FindAction("CenterEyeRotation", throwIfNotFound: true);
+        m_VRTracking_LeftHandPosition = m_VRTracking.FindAction("LeftHandPosition", throwIfNotFound: true);
+        m_VRTracking_LeftHandRotation = m_VRTracking.FindAction("LeftHandRotation", throwIfNotFound: true);
+        m_VRTracking_RightHandPosition = m_VRTracking.FindAction("RightHandPosition", throwIfNotFound: true);
+        m_VRTracking_RightHandRotation = m_VRTracking.FindAction("RightHandRotation", throwIfNotFound: true);
+        // Unused Player
+        m_UnusedPlayer = asset.FindActionMap("Unused Player", throwIfNotFound: true);
+        m_UnusedPlayer_ThirdPersonLook = m_UnusedPlayer.FindAction("ThirdPersonLook", throwIfNotFound: true);
+        m_UnusedPlayer_ThirdPersonActivateLook = m_UnusedPlayer.FindAction("ThirdPersonActivateLook", throwIfNotFound: true);
+        m_UnusedPlayer_ThirdPersonBoomLength = m_UnusedPlayer.FindAction("ThirdPersonBoomLength", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -245,18 +462,14 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private IPlayerActions m_PlayerActionsCallbackInterface;
     private readonly InputAction m_Player_Move;
-    private readonly InputAction m_Player_Look;
-    private readonly InputAction m_Player_ActivateLook;
-    private readonly InputAction m_Player_BoomLength;
+    private readonly InputAction m_Player_Turn;
     private readonly InputAction m_Player_ToggleMainMenu;
     public struct PlayerActions
     {
         private @TivoliInputActions m_Wrapper;
         public PlayerActions(@TivoliInputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Player_Move;
-        public InputAction @Look => m_Wrapper.m_Player_Look;
-        public InputAction @ActivateLook => m_Wrapper.m_Player_ActivateLook;
-        public InputAction @BoomLength => m_Wrapper.m_Player_BoomLength;
+        public InputAction @Turn => m_Wrapper.m_Player_Turn;
         public InputAction @ToggleMainMenu => m_Wrapper.m_Player_ToggleMainMenu;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
@@ -270,15 +483,9 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
                 @Move.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMove;
                 @Move.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMove;
                 @Move.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMove;
-                @Look.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLook;
-                @Look.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLook;
-                @Look.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLook;
-                @ActivateLook.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnActivateLook;
-                @ActivateLook.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnActivateLook;
-                @ActivateLook.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnActivateLook;
-                @BoomLength.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBoomLength;
-                @BoomLength.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBoomLength;
-                @BoomLength.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBoomLength;
+                @Turn.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTurn;
+                @Turn.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTurn;
+                @Turn.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTurn;
                 @ToggleMainMenu.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnToggleMainMenu;
                 @ToggleMainMenu.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnToggleMainMenu;
                 @ToggleMainMenu.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnToggleMainMenu;
@@ -289,15 +496,9 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
                 @Move.started += instance.OnMove;
                 @Move.performed += instance.OnMove;
                 @Move.canceled += instance.OnMove;
-                @Look.started += instance.OnLook;
-                @Look.performed += instance.OnLook;
-                @Look.canceled += instance.OnLook;
-                @ActivateLook.started += instance.OnActivateLook;
-                @ActivateLook.performed += instance.OnActivateLook;
-                @ActivateLook.canceled += instance.OnActivateLook;
-                @BoomLength.started += instance.OnBoomLength;
-                @BoomLength.performed += instance.OnBoomLength;
-                @BoomLength.canceled += instance.OnBoomLength;
+                @Turn.started += instance.OnTurn;
+                @Turn.performed += instance.OnTurn;
+                @Turn.canceled += instance.OnTurn;
                 @ToggleMainMenu.started += instance.OnToggleMainMenu;
                 @ToggleMainMenu.performed += instance.OnToggleMainMenu;
                 @ToggleMainMenu.canceled += instance.OnToggleMainMenu;
@@ -305,12 +506,165 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
         }
     }
     public PlayerActions @Player => new PlayerActions(this);
+
+    // VR Tracking
+    private readonly InputActionMap m_VRTracking;
+    private IVRTrackingActions m_VRTrackingActionsCallbackInterface;
+    private readonly InputAction m_VRTracking_CenterEyePosition;
+    private readonly InputAction m_VRTracking_CenterEyeRotation;
+    private readonly InputAction m_VRTracking_LeftHandPosition;
+    private readonly InputAction m_VRTracking_LeftHandRotation;
+    private readonly InputAction m_VRTracking_RightHandPosition;
+    private readonly InputAction m_VRTracking_RightHandRotation;
+    public struct VRTrackingActions
+    {
+        private @TivoliInputActions m_Wrapper;
+        public VRTrackingActions(@TivoliInputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @CenterEyePosition => m_Wrapper.m_VRTracking_CenterEyePosition;
+        public InputAction @CenterEyeRotation => m_Wrapper.m_VRTracking_CenterEyeRotation;
+        public InputAction @LeftHandPosition => m_Wrapper.m_VRTracking_LeftHandPosition;
+        public InputAction @LeftHandRotation => m_Wrapper.m_VRTracking_LeftHandRotation;
+        public InputAction @RightHandPosition => m_Wrapper.m_VRTracking_RightHandPosition;
+        public InputAction @RightHandRotation => m_Wrapper.m_VRTracking_RightHandRotation;
+        public InputActionMap Get() { return m_Wrapper.m_VRTracking; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(VRTrackingActions set) { return set.Get(); }
+        public void SetCallbacks(IVRTrackingActions instance)
+        {
+            if (m_Wrapper.m_VRTrackingActionsCallbackInterface != null)
+            {
+                @CenterEyePosition.started -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnCenterEyePosition;
+                @CenterEyePosition.performed -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnCenterEyePosition;
+                @CenterEyePosition.canceled -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnCenterEyePosition;
+                @CenterEyeRotation.started -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnCenterEyeRotation;
+                @CenterEyeRotation.performed -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnCenterEyeRotation;
+                @CenterEyeRotation.canceled -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnCenterEyeRotation;
+                @LeftHandPosition.started -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftHandPosition;
+                @LeftHandPosition.performed -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftHandPosition;
+                @LeftHandPosition.canceled -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftHandPosition;
+                @LeftHandRotation.started -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftHandRotation;
+                @LeftHandRotation.performed -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftHandRotation;
+                @LeftHandRotation.canceled -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftHandRotation;
+                @RightHandPosition.started -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnRightHandPosition;
+                @RightHandPosition.performed -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnRightHandPosition;
+                @RightHandPosition.canceled -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnRightHandPosition;
+                @RightHandRotation.started -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnRightHandRotation;
+                @RightHandRotation.performed -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnRightHandRotation;
+                @RightHandRotation.canceled -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnRightHandRotation;
+            }
+            m_Wrapper.m_VRTrackingActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @CenterEyePosition.started += instance.OnCenterEyePosition;
+                @CenterEyePosition.performed += instance.OnCenterEyePosition;
+                @CenterEyePosition.canceled += instance.OnCenterEyePosition;
+                @CenterEyeRotation.started += instance.OnCenterEyeRotation;
+                @CenterEyeRotation.performed += instance.OnCenterEyeRotation;
+                @CenterEyeRotation.canceled += instance.OnCenterEyeRotation;
+                @LeftHandPosition.started += instance.OnLeftHandPosition;
+                @LeftHandPosition.performed += instance.OnLeftHandPosition;
+                @LeftHandPosition.canceled += instance.OnLeftHandPosition;
+                @LeftHandRotation.started += instance.OnLeftHandRotation;
+                @LeftHandRotation.performed += instance.OnLeftHandRotation;
+                @LeftHandRotation.canceled += instance.OnLeftHandRotation;
+                @RightHandPosition.started += instance.OnRightHandPosition;
+                @RightHandPosition.performed += instance.OnRightHandPosition;
+                @RightHandPosition.canceled += instance.OnRightHandPosition;
+                @RightHandRotation.started += instance.OnRightHandRotation;
+                @RightHandRotation.performed += instance.OnRightHandRotation;
+                @RightHandRotation.canceled += instance.OnRightHandRotation;
+            }
+        }
+    }
+    public VRTrackingActions @VRTracking => new VRTrackingActions(this);
+
+    // Unused Player
+    private readonly InputActionMap m_UnusedPlayer;
+    private IUnusedPlayerActions m_UnusedPlayerActionsCallbackInterface;
+    private readonly InputAction m_UnusedPlayer_ThirdPersonLook;
+    private readonly InputAction m_UnusedPlayer_ThirdPersonActivateLook;
+    private readonly InputAction m_UnusedPlayer_ThirdPersonBoomLength;
+    public struct UnusedPlayerActions
+    {
+        private @TivoliInputActions m_Wrapper;
+        public UnusedPlayerActions(@TivoliInputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @ThirdPersonLook => m_Wrapper.m_UnusedPlayer_ThirdPersonLook;
+        public InputAction @ThirdPersonActivateLook => m_Wrapper.m_UnusedPlayer_ThirdPersonActivateLook;
+        public InputAction @ThirdPersonBoomLength => m_Wrapper.m_UnusedPlayer_ThirdPersonBoomLength;
+        public InputActionMap Get() { return m_Wrapper.m_UnusedPlayer; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(UnusedPlayerActions set) { return set.Get(); }
+        public void SetCallbacks(IUnusedPlayerActions instance)
+        {
+            if (m_Wrapper.m_UnusedPlayerActionsCallbackInterface != null)
+            {
+                @ThirdPersonLook.started -= m_Wrapper.m_UnusedPlayerActionsCallbackInterface.OnThirdPersonLook;
+                @ThirdPersonLook.performed -= m_Wrapper.m_UnusedPlayerActionsCallbackInterface.OnThirdPersonLook;
+                @ThirdPersonLook.canceled -= m_Wrapper.m_UnusedPlayerActionsCallbackInterface.OnThirdPersonLook;
+                @ThirdPersonActivateLook.started -= m_Wrapper.m_UnusedPlayerActionsCallbackInterface.OnThirdPersonActivateLook;
+                @ThirdPersonActivateLook.performed -= m_Wrapper.m_UnusedPlayerActionsCallbackInterface.OnThirdPersonActivateLook;
+                @ThirdPersonActivateLook.canceled -= m_Wrapper.m_UnusedPlayerActionsCallbackInterface.OnThirdPersonActivateLook;
+                @ThirdPersonBoomLength.started -= m_Wrapper.m_UnusedPlayerActionsCallbackInterface.OnThirdPersonBoomLength;
+                @ThirdPersonBoomLength.performed -= m_Wrapper.m_UnusedPlayerActionsCallbackInterface.OnThirdPersonBoomLength;
+                @ThirdPersonBoomLength.canceled -= m_Wrapper.m_UnusedPlayerActionsCallbackInterface.OnThirdPersonBoomLength;
+            }
+            m_Wrapper.m_UnusedPlayerActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @ThirdPersonLook.started += instance.OnThirdPersonLook;
+                @ThirdPersonLook.performed += instance.OnThirdPersonLook;
+                @ThirdPersonLook.canceled += instance.OnThirdPersonLook;
+                @ThirdPersonActivateLook.started += instance.OnThirdPersonActivateLook;
+                @ThirdPersonActivateLook.performed += instance.OnThirdPersonActivateLook;
+                @ThirdPersonActivateLook.canceled += instance.OnThirdPersonActivateLook;
+                @ThirdPersonBoomLength.started += instance.OnThirdPersonBoomLength;
+                @ThirdPersonBoomLength.performed += instance.OnThirdPersonBoomLength;
+                @ThirdPersonBoomLength.canceled += instance.OnThirdPersonBoomLength;
+            }
+        }
+    }
+    public UnusedPlayerActions @UnusedPlayer => new UnusedPlayerActions(this);
+    private int m_KeyboardandMouseSchemeIndex = -1;
+    public InputControlScheme KeyboardandMouseScheme
+    {
+        get
+        {
+            if (m_KeyboardandMouseSchemeIndex == -1) m_KeyboardandMouseSchemeIndex = asset.FindControlSchemeIndex("Keyboard and Mouse");
+            return asset.controlSchemes[m_KeyboardandMouseSchemeIndex];
+        }
+    }
+    private int m_XRControllerSchemeIndex = -1;
+    public InputControlScheme XRControllerScheme
+    {
+        get
+        {
+            if (m_XRControllerSchemeIndex == -1) m_XRControllerSchemeIndex = asset.FindControlSchemeIndex("XR Controller");
+            return asset.controlSchemes[m_XRControllerSchemeIndex];
+        }
+    }
     public interface IPlayerActions
     {
         void OnMove(InputAction.CallbackContext context);
-        void OnLook(InputAction.CallbackContext context);
-        void OnActivateLook(InputAction.CallbackContext context);
-        void OnBoomLength(InputAction.CallbackContext context);
+        void OnTurn(InputAction.CallbackContext context);
         void OnToggleMainMenu(InputAction.CallbackContext context);
+    }
+    public interface IVRTrackingActions
+    {
+        void OnCenterEyePosition(InputAction.CallbackContext context);
+        void OnCenterEyeRotation(InputAction.CallbackContext context);
+        void OnLeftHandPosition(InputAction.CallbackContext context);
+        void OnLeftHandRotation(InputAction.CallbackContext context);
+        void OnRightHandPosition(InputAction.CallbackContext context);
+        void OnRightHandRotation(InputAction.CallbackContext context);
+    }
+    public interface IUnusedPlayerActions
+    {
+        void OnThirdPersonLook(InputAction.CallbackContext context);
+        void OnThirdPersonActivateLook(InputAction.CallbackContext context);
+        void OnThirdPersonBoomLength(InputAction.CallbackContext context);
     }
 }

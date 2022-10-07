@@ -1,5 +1,7 @@
+using Tivoli.Scripts;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEngine;
 
 namespace Tivoli.Editor
 {
@@ -8,9 +10,16 @@ namespace Tivoli.Editor
     {
         static LoadInitializeSceneOnPlay()
         {
-            var pathOfFirstScene = EditorBuildSettings.scenes[0].path;
-            var sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(pathOfFirstScene);
-            EditorSceneManager.playModeStartScene = sceneAsset;
+            if (EditorPrefs.GetBool(TivoliEditorPrefs.OverridePlayMode))
+            {
+                var pathOfFirstScene = EditorBuildSettings.scenes[0].path;
+                var sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(pathOfFirstScene);
+                EditorSceneManager.playModeStartScene = sceneAsset;
+            }
+            else
+            {
+                EditorSceneManager.playModeStartScene = null;
+            }
         }
     }
 }

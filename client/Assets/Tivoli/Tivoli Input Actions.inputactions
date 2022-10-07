@@ -1,5 +1,5 @@
 {
-    "name": "Input Actions",
+    "name": "Tivoli Input Actions",
     "maps": [
         {
             "name": "Player",
@@ -15,28 +15,10 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Look",
+                    "name": "Turn",
                     "type": "Value",
-                    "id": "ab2c3cba-bc78-4b0e-88cd-ddd481404e3d",
+                    "id": "4c510699-ea13-466e-bebe-6d48a72b5afc",
                     "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "ActivateLook",
-                    "type": "Button",
-                    "id": "8d804831-a8ca-4710-8ff1-de041a6ac716",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "BoomLength",
-                    "type": "Value",
-                    "id": "7f36e39f-36e7-44be-b5dc-2d18a40cc4be",
-                    "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -53,8 +35,19 @@
             ],
             "bindings": [
                 {
-                    "name": "Move",
-                    "id": "9e04472d-161f-433f-85bd-9d4198c7cc2c",
+                    "name": "",
+                    "id": "8f00b49b-8a71-48f4-b189-9d869de909bf",
+                    "path": "<XRController>{LeftHand}/joystick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Controller",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "2D Vector",
+                    "id": "3380a239-d661-40b7-bbbe-1055530e67fd",
                     "path": "2DVector",
                     "interactions": "",
                     "processors": "",
@@ -65,94 +58,307 @@
                 },
                 {
                     "name": "up",
-                    "id": "655667bd-4509-4713-bb38-beca01c8635f",
+                    "id": "9a496e56-bfcd-4b7c-8279-c533a27c4970",
                     "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard and Mouse",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "down",
-                    "id": "149e662e-ae3c-4495-aff7-5d9e29ca517d",
+                    "id": "a2659365-e711-4305-a7e3-c5635fe97972",
                     "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard and Mouse",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "left",
-                    "id": "e49ba539-e54a-49ce-97ce-a261b79c61c2",
+                    "id": "fd154507-f807-475a-8ac3-456f67fcc155",
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard and Mouse",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "right",
-                    "id": "96db6933-7965-409b-ada1-e5f666b123dc",
+                    "id": "e1acd65a-634b-4c04-9c27-f38287c25e47",
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard and Mouse",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "",
-                    "id": "d652f256-de24-4a04-921a-7313f9737736",
+                    "id": "756ec286-6d77-4514-a38b-b5ba1f002d31",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard and Mouse",
+                    "action": "ToggleMainMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e72f0cb8-1d1c-461e-927e-000b5a6211d7",
+                    "path": "<ValveIndexController>{RightHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Controller",
+                    "action": "ToggleMainMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "13d84cde-b5d0-4b39-bde9-34d728781473",
+                    "path": "<XRController>{RightHand}/joystick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Controller",
+                    "action": "Turn",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "VR Tracking",
+            "id": "faa927bb-80c8-49fb-a574-0541c932cbe8",
+            "actions": [
+                {
+                    "name": "CenterEyePosition",
+                    "type": "Value",
+                    "id": "7dde6ec3-b85e-425e-89ff-1fc31038a8a5",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "CenterEyeRotation",
+                    "type": "Value",
+                    "id": "acf5c778-1e49-4c4f-81e1-70737d6e4a9c",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "LeftHandPosition",
+                    "type": "Value",
+                    "id": "80373e99-05a4-43fa-9ae5-252bfa7df4f1",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "LeftHandRotation",
+                    "type": "Value",
+                    "id": "0d937105-1354-41d2-837a-c8db3a54c6f9",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "RightHandPosition",
+                    "type": "Value",
+                    "id": "0d91adb9-322f-4fff-92f2-2d524b6963be",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "RightHandRotation",
+                    "type": "Value",
+                    "id": "839ccf1b-37ba-44f8-9064-6c14adb15367",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "2208d180-f484-4d8f-beff-bfa1c26c2bec",
+                    "path": "<XRHMD>/centerEyePosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CenterEyePosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e829f89b-e0cc-4f49-ad05-ff88c42fcadc",
+                    "path": "<XRController>{LeftHand}/devicePosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Controller",
+                    "action": "LeftHandPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e37213d8-d74d-4d16-a6f4-d0bc388937eb",
+                    "path": "<XRHMD>/centerEyeRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CenterEyeRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3fa3bbb0-4444-4498-9bed-75bfab4daee8",
+                    "path": "<XRController>{LeftHand}/deviceRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Controller",
+                    "action": "LeftHandRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "257fc299-41de-4ce1-9c11-7284c8ecf1ef",
+                    "path": "<XRController>{RightHand}/devicePosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Controller",
+                    "action": "RightHandPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8d0a6c67-efc8-486b-abac-1ff6a077714d",
+                    "path": "<XRController>{RightHand}/deviceRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Controller",
+                    "action": "RightHandRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Unused Player",
+            "id": "2d22cebc-7e29-450c-a48f-656a6a052df7",
+            "actions": [
+                {
+                    "name": "ThirdPersonLook",
+                    "type": "Value",
+                    "id": "ad972676-69d0-4526-83ca-d2d7d155a1a8",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "ThirdPersonActivateLook",
+                    "type": "Button",
+                    "id": "309b5339-dcef-487b-b924-95e8aa733f52",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ThirdPersonBoomLength",
+                    "type": "Value",
+                    "id": "ee34af99-741b-4709-a18a-dfccab732735",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "10c5dd40-76dc-4568-adbd-a2d8f310bc52",
                     "path": "<Mouse>/delta",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Look",
+                    "action": "ThirdPersonLook",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "483ae6f2-0f27-476c-bae0-12dd43d11789",
+                    "id": "03d76122-b207-478a-9773-5c7622d6405d",
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ActivateLook",
+                    "action": "ThirdPersonActivateLook",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "af53e037-b833-4f5e-8a22-3ef0bb6b1c16",
+                    "id": "409e878a-6574-449b-86d9-5e9f4fbd76e1",
                     "path": "<Mouse>/scroll/y",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "BoomLength",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "984192c0-5a1d-4004-8b5f-6553871e0eae",
-                    "path": "<Keyboard>/escape",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "ToggleMainMenu",
+                    "action": "ThirdPersonBoomLength",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
             ]
         }
     ],
-    "controlSchemes": []
+    "controlSchemes": [
+        {
+            "name": "Keyboard and Mouse",
+            "bindingGroup": "Keyboard and Mouse",
+            "devices": [
+                {
+                    "devicePath": "<Keyboard>",
+                    "isOptional": false,
+                    "isOR": false
+                },
+                {
+                    "devicePath": "<Mouse>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        },
+        {
+            "name": "XR Controller",
+            "bindingGroup": "XR Controller",
+            "devices": [
+                {
+                    "devicePath": "<XRController>",
+                    "isOptional": true,
+                    "isOR": false
+                }
+            ]
+        }
+    ]
 }

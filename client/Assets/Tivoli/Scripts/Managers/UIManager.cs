@@ -1,19 +1,22 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace Tivoli.Scripts.Managers
 {
     public class UIManager : Manager
     {
-        private readonly Camera _uiMainCamera;
+        // private readonly XROrigin _uiXrOrigin;
+        private readonly Camera _uiCamera;
+
         private readonly Canvas _uiCanvas;
         private readonly GameObject _uiMainMenu;
 
-        public UIManager(Camera uiMainCamera, Canvas uiCanvas, GameObject uiMainMenu)
+        public UIManager(Canvas uiCanvas, GameObject uiMainMenu)
         {
-            _uiMainCamera = uiMainCamera;
+            // _uiXrOrigin = uiXrOrigin;
+            // _uiCamera = uiXrOrigin.Camera;
+
             _uiCanvas = uiCanvas;
             _uiMainMenu = uiMainMenu;
         }
@@ -24,16 +27,13 @@ namespace Tivoli.Scripts.Managers
             inputActions.Enable();
             inputActions.Player.Enable();
             inputActions.Player.ToggleMainMenu.Enable();
-            inputActions.Player.ToggleMainMenu.performed += _ =>
-            {
-                _uiMainMenu.SetActive(!_uiMainMenu.activeSelf);
-            };
+            inputActions.Player.ToggleMainMenu.performed += _ => { _uiMainMenu.SetActive(!_uiMainMenu.activeSelf); };
 
             SceneManager.sceneLoaded += (scene, mode) =>
             {
                 if (scene.name == "Loading")
                 {
-                    var transform = _uiMainCamera.transform;
+                    var transform = _uiCamera.transform;
                     transform.position = Vector3.zero;
                     transform.rotation = Quaternion.identity;
                 }
@@ -42,9 +42,14 @@ namespace Tivoli.Scripts.Managers
             return Task.CompletedTask;
         }
 
+        // public XROrigin GetXrOrigin()
+        // {
+        //     return _uiXrOrigin;
+        // }
+
         public Camera GetMainCamera()
         {
-            return _uiMainCamera;
+            return _uiCamera;
         }
 
         public async Task StartHosting()
