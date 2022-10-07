@@ -9,6 +9,8 @@ namespace Tivoli.VR_Player_Controller
         public Camera _mainCamera;
         private Transform _mainCameraTransform;
 
+        public Animator _animator;
+
         private Rigidbody _rigidbody;
 
         private TivoliInputActions _inputActions;
@@ -34,10 +36,12 @@ namespace Tivoli.VR_Player_Controller
             _inputActions.VRTracking.Enable();
             _inputActions.VRTracking.CenterEyePosition.Enable();
             _inputActions.VRTracking.CenterEyeRotation.Enable();
-            // _inputActions.VRTracking.LeftHandPosition.Enable();
-            // _inputActions.VRTracking.LeftHandRotation.Enable();
-            // _inputActions.VRTracking.RightHandPosition.Enable();
-            // _inputActions.VRTracking.RightHandRotation.Enable();
+            _inputActions.VRTracking.LeftHandPosition.Enable();
+            _inputActions.VRTracking.LeftHandRotation.Enable();
+            _inputActions.VRTracking.RightHandPosition.Enable();
+            _inputActions.VRTracking.RightHandRotation.Enable();
+
+            _animator.GetBoneTransform(HumanBodyBones.Head).localScale = Vector3.zero;
         }
 
         private void OnEnable()
@@ -48,6 +52,39 @@ namespace Tivoli.VR_Player_Controller
         private void OnDisable()
         {
             Application.onBeforeRender -= OnBeforeRender;
+        }
+
+        private void OnAnimatorIK(int layerIndex)
+        {
+            var playerPosition = transform.position;
+            var playerY = Quaternion.Euler(0, transform.eulerAngles.y, 0);
+
+            var leftHandPosition =
+                playerY * (_inputActions.VRTracking.LeftHandPosition.ReadValue<Vector3>() -
+                           _lastRigidbodyXZCenterEyePosition) + playerPosition;
+
+            _animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
+            _animator.SetIKPosition(AvatarIKGoal.LeftHand, leftHandPosition);
+
+            var leftHandRotation = playerY * _inputActions.VRTracking.LeftHandRotation.ReadValue<Quaternion>() *
+                                   Quaternion.Euler(0, 0, 90);
+
+
+            _animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, 1);
+            _animator.SetIKRotation(AvatarIKGoal.LeftHand, leftHandRotation);
+
+            var rightHandPosition =
+                playerY * (_inputActions.VRTracking.RightHandPosition.ReadValue<Vector3>() -
+                           _lastRigidbodyXZCenterEyePosition) + playerPosition;
+
+            _animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
+            _animator.SetIKPosition(AvatarIKGoal.RightHand, rightHandPosition);
+
+            var rightHandRotation = playerY * _inputActions.VRTracking.RightHandRotation.ReadValue<Quaternion>() *
+                                    Quaternion.Euler(0, 0, -90);
+
+            _animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 1);
+            _animator.SetIKRotation(AvatarIKGoal.RightHand, rightHandRotation);
         }
 
         private void TrackingUpdate()
@@ -130,7 +167,7 @@ namespace Tivoli.VR_Player_Controller
 
             _lastRigidbodyXZCenterEyePosition = xzCenterEyePosition;
 
-            // apply
+            // moving apply
 
             _rigidbody.MovePosition(transform.position + xzCameraOffset + xzMoveOffset);
 
