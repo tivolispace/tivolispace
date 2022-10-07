@@ -114,10 +114,10 @@ Shader "Maki/UI Gaussian Blur"
                 }
 
                 blurColor /= quality * directions - 15.0;
-
-                // _Color = pow(_Color, 2.2);
                 
-                return half4(blurColor.rgb * lerp(blurColor.rgb, _Color.rgb, _Color.a), blurColor.a);
+                return half4(lerp(blurColor.rgb, _Color.rgb, _Color.a), blurColor.a);
+                
+                // return half4(blurColor.rgb * lerp(blurColor.rgb, _Color.rgb, _Color.a), blurColor.a);
             }
             ENDCG
         }
