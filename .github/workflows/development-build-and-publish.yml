@@ -20,7 +20,7 @@ jobs:
             matrix:
                 include:
                     - targetPlatform: StandaloneWindows64
-                      runsOn: windows-latest # required for il2cpp
+                      runsOn: windows-2019 # required for il2cpp
                       unityImage: unityci/editor:windows-2021.3.11f1-windows-il2cpp-1
                     # - targetPlatform: StandaloneOSX
                     #   # not doing arm64 for now because of steam audio
@@ -44,7 +44,9 @@ jobs:
               with:
                   path: client/Library
                   key: Library-${{ matrix.targetPlatform }}
-                  restore-keys: Library-
+                  restore-keys: |
+                      Library-${{ matrix.targetPlatform }}
+                      Library-
 
             - name: Build client
               uses: game-ci/unity-builder@v2
