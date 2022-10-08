@@ -1,88 +1,435 @@
-using System;
-using Tivoli.Scripts.Managers;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Tivoli.Scripts.World
 {
+    // same implementation as vrchat mirror 
+    
+    [ExecuteInEditMode]
     public class WorldMirror : MonoBehaviour
     {
-        private Camera _mainCamera;
+        public enum Resolution
+        {
+            Auto = 0,
+            X256 = 256,
+            X512 = 512,
+            X1024 = 1024,
+        }
+
+        public enum AntialiasingSamples
+        {
+            X1 = 1,
+            X2 = 2,
+            X4 = 4,
+            X8 = 8,
+        }
+
+        private class ReflectionData
+        {
+            public readonly RenderTexture[] Texture = new RenderTexture[2];
+            public MaterialPropertyBlock PropertyBlock;
+        }
+
+        public bool disablePixelLights = true;
+        public bool turnOffMirrorOcclusion = true;
+        public LayerMask reflectLayers = -1;
+        public Resolution resolution = Resolution.Auto;
+        public AntialiasingSamples maximumAntialiasing = AntialiasingSamples.X4;
+
+        private RenderTexture _temporaryRenderTexture;
+        private readonly Dictionary<Camera, ReflectionData> _allReflectionData = new();
 
         private TivoliInputActions _inputActions;
 
-        private bool _enabled;
-
-        private RenderTexture _leftEyeTexture;
-        private RenderTexture _rightEyeTexture;
-
-        private GameObject _mirrorCameraGameObject;
+        private Renderer _mirrorRenderer;
         private Camera _mirrorCamera;
         private Skybox _mirrorSkybox;
 
         private Matrix4x4 _parentTransform;
         private Quaternion _parentRotation;
+        private int _playerLocalLayer;
 
-        private void Awake()
+        private bool _insideRendering;
+        private readonly int[] _texturePropertyId = new int[2];
+
+        private const int MAX_RESOLUTION = 2048;
+
+        private void OnValidate()
         {
-            _inputActions = new TivoliInputActions();
-            _inputActions.Enable();
-            _inputActions.VRTracking.Enable();
-            _inputActions.VRTracking.CenterEyePosition.Enable();
-            _inputActions.VRTracking.CenterEyeRotation.Enable();
-            _inputActions.VRTracking.LeftEyePosition.Enable();
-            _inputActions.VRTracking.LeftEyeRotation.Enable();
-            _inputActions.VRTracking.RightEyePosition.Enable();
-            _inputActions.VRTracking.RightEyeRotation.Enable();
+            _insideRendering = false;
+            // check shader or material
+        }
 
-            _mainCamera = DependencyManager.Instance.UIManager.GetMainCamera();
-
-            var width = Mathf.Min(_mainCamera.pixelWidth, 2048);
-            var height = Mathf.Min(_mainCamera.pixelHeight, 2048);
-
-            _leftEyeTexture = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGBHalf,
-                RenderTextureReadWrite.Default, 1);
-
-            GetComponent<MeshRenderer>().material.SetTexture(Shader.PropertyToID("_ReflectionTex0"), _leftEyeTexture);
-
-            _rightEyeTexture = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGBHalf,
-                RenderTextureReadWrite.Default, 1);
-
-            GetComponent<MeshRenderer>().material.SetTexture(Shader.PropertyToID("_ReflectionTex1"), _rightEyeTexture);
-
-            _mirrorCameraGameObject =
-                new GameObject("Mirror Camera", typeof(Camera), typeof(Skybox), typeof(FlareLayer))
+        private void Start()
+        {
+            _mirrorRenderer = GetComponent<Renderer>();
+            if (_mirrorRenderer == null)
+            {
+                enabled = false;
+            }
+            else
+            {
+                var sharedMaterial = _mirrorRenderer.sharedMaterial;
+                if (sharedMaterial == null)
                 {
-                    hideFlags = HideFlags.HideAndDontSave
-                };
+                    enabled = false;
+                }
+                else
+                {
+                    if (sharedMaterial.shader == Shader.Find("Tivoli/Mirror"))
+                    {
+                        _texturePropertyId[0] = Shader.PropertyToID("_ReflectionTex0");
+                        _texturePropertyId[1] = Shader.PropertyToID("_ReflectionTex1");
+                        _playerLocalLayer = LayerMask.NameToLayer("PlayerLocal");
+                        Camera.onPostRender += CameraPostRender;
+                    }
+                }
+            }
 
-            _mirrorCamera = _mirrorCameraGameObject.GetComponent<Camera>();
-            _mirrorCamera.enabled = false;
+            if (enabled && _inputActions == null)
+            {
+                _inputActions = new TivoliInputActions();
+                _inputActions.Enable();
+                _inputActions.VRTracking.Enable();
+                // _inputActions.VRTracking.CenterEyePosition.Enable();
+                // _inputActions.VRTracking.CenterEyeRotation.Enable();
+                _inputActions.VRTracking.LeftEyePosition.Enable();
+                _inputActions.VRTracking.LeftEyeRotation.Enable();
+                _inputActions.VRTracking.RightEyePosition.Enable();
+                _inputActions.VRTracking.RightEyeRotation.Enable();
+            }
+        }
 
-            _mirrorSkybox = _mirrorCameraGameObject.GetComponent<Skybox>();
+        private void OnWillRenderObject()
+        {
+            if (!enabled || !_mirrorRenderer || !_mirrorRenderer.enabled) return;
 
-            _enabled = true;
+            var currentCamera = Camera.current;
+            if (!currentCamera || currentCamera == _mirrorCamera || _insideRendering) return;
+
+            _insideRendering = true;
+
+            var reflectionData = GetReflectionData(currentCamera);
+
+            var pixelLightCount = QualitySettings.pixelLightCount;
+            if (disablePixelLights)
+            {
+                QualitySettings.pixelLightCount = 0;
+            }
+
+            UpdateCameraModes(currentCamera);
+            UpdateParentTransform(currentCamera);
+
+            if (currentCamera.stereoEnabled)
+            {
+                if (ShouldRenderLeftEye(currentCamera))
+                {
+                    RenderMirror(_temporaryRenderTexture, GetWorldEyePos(_inputActions.VRTracking.LeftEyePosition),
+                        GetWorldEyeRot(_inputActions.VRTracking.LeftEyeRotation),
+                        GetEyeProjectionMatrix(currentCamera, Camera.StereoscopicEye.Left)
+                    );
+
+                    Graphics.CopyTexture(_temporaryRenderTexture, 0, 0, 0, 0,
+                        _temporaryRenderTexture.width, _temporaryRenderTexture.height,
+                        reflectionData.Texture[0], 0, 0, 0, 0);
+                }
+
+                if (ShouldRenderRightEye(currentCamera))
+                {
+                    RenderMirror(_temporaryRenderTexture, GetWorldEyePos(_inputActions.VRTracking.RightEyePosition),
+                        GetWorldEyeRot(_inputActions.VRTracking.RightEyeRotation),
+                        GetEyeProjectionMatrix(currentCamera, Camera.StereoscopicEye.Right)
+                    );
+
+                    Graphics.CopyTexture(_temporaryRenderTexture, 0, 0, 0, 0,
+                        _temporaryRenderTexture.width, _temporaryRenderTexture.height,
+                        reflectionData.Texture[1], 0, 0, 0, 0);
+                }
+            }
+            else if (ShouldRenderMonoscopic(currentCamera))
+            {
+                var currentCameraTransform = currentCamera.transform;
+                RenderMirror(_temporaryRenderTexture, currentCameraTransform.position, currentCameraTransform.rotation,
+                    currentCamera.projectionMatrix);
+
+                Graphics.CopyTexture(_temporaryRenderTexture, 0, 0, 0, 0,
+                    _temporaryRenderTexture.width, _temporaryRenderTexture.height,
+                    reflectionData.Texture[0], 0, 0, 0, 0);
+            }
+
+            if (_temporaryRenderTexture)
+            {
+                RenderTexture.ReleaseTemporary(_temporaryRenderTexture);
+                _temporaryRenderTexture = null;
+            }
+
+            _mirrorRenderer.SetPropertyBlock(reflectionData.PropertyBlock);
+
+            if (disablePixelLights)
+            {
+                QualitySettings.pixelLightCount = pixelLightCount;
+            }
+
+            _insideRendering = false;
+        }
+
+        private void CameraPostRender(Camera currentCamera)
+        {
+            if (!_allReflectionData.ContainsKey(currentCamera)) return;
+
+            var reflectionData = _allReflectionData[currentCamera];
+
+            if (reflectionData.Texture[0] != null)
+            {
+                RenderTexture.ReleaseTemporary(reflectionData.Texture[0]);
+                reflectionData.Texture[0] = null;
+            }
+
+            if (reflectionData.Texture[1] != null)
+            {
+                RenderTexture.ReleaseTemporary(reflectionData.Texture[0]);
+                reflectionData.Texture[1] = null;
+            }
+        }
+
+        private void OnDisable()
+        {
+            foreach (var reflectionData in _allReflectionData.Values)
+            {
+                if (reflectionData.Texture[0] != null)
+                {
+                    RenderTexture.ReleaseTemporary(reflectionData.Texture[0]);
+                    reflectionData.Texture[0] = null;
+                }
+
+                if (reflectionData.Texture[1] != null)
+                {
+                    RenderTexture.ReleaseTemporary(reflectionData.Texture[0]);
+                    reflectionData.Texture[1] = null;
+                }
+            }
+
+            _allReflectionData.Clear();
         }
 
         private void OnDestroy()
         {
-            _enabled = false;
+            if (_mirrorCamera == null) return;
+            if (Application.isEditor)
+            {
+                DestroyImmediate(_mirrorCamera.gameObject);
+            }
+            else
+            {
+                Destroy(_mirrorCamera.gameObject);
+            }
 
-            Destroy(_mirrorCameraGameObject);
+            _mirrorCamera = null;
+            _mirrorSkybox = null;
 
-            RenderTexture.ReleaseTemporary(_leftEyeTexture);
-            RenderTexture.ReleaseTemporary(_rightEyeTexture);
-
-            _inputActions.Disable();
+            if (_inputActions != null)
+            {
+                _inputActions.Disable();
+                _inputActions = null;
+            }
         }
 
-        private Vector3 GetNormalDirection()
+        private bool ShouldRenderLeftEye(Camera currentCamera)
         {
-            return -transform.forward;
+            var stereoTargetEye = currentCamera.stereoTargetEye;
+            var flag = stereoTargetEye is StereoTargetEyeMask.Both or StereoTargetEyeMask.Left;
+            if (!flag) return false;
+            if (Vector3.Dot(GetWorldEyePos(_inputActions.VRTracking.LeftEyePosition) - transform.position,
+                    GetNormalDirection()) <= 0.0)
+            {
+                flag = false;
+            }
+
+            return flag;
+        }
+
+        private bool ShouldRenderRightEye(Camera currentCamera)
+        {
+            var stereoTargetEye = currentCamera.stereoTargetEye;
+            var flag = stereoTargetEye is StereoTargetEyeMask.Both or StereoTargetEyeMask.Right;
+            if (!flag) return false;
+            if (Vector3.Dot(GetWorldEyePos(_inputActions.VRTracking.RightEyePosition) - transform.position,
+                    GetNormalDirection()) <= 0.0)
+            {
+                flag = false;
+            }
+
+            return flag;
+        }
+
+        private bool ShouldRenderMonoscopic(Component currentCamera) =>
+            Vector3.Dot(currentCamera.transform.position - transform.position,
+                GetNormalDirection()) > 0.0;
+
+        private Vector3 GetWorldEyePos(InputAction action) =>
+            _parentTransform.MultiplyPoint3x4(action.ReadValue<Vector3>());
+
+
+        private Quaternion GetWorldEyeRot(InputAction action) =>
+            _parentRotation * action.ReadValue<Quaternion>();
+
+        private static Matrix4x4 GetEyeProjectionMatrix(Camera currentCamera, Camera.StereoscopicEye eye) =>
+            currentCamera.GetStereoProjectionMatrix(eye);
+
+        private Vector3 GetNormalDirection() => -transform.forward;
+
+        private void RenderMirror(
+            RenderTexture targetTexture,
+            Vector3 cameraPosition,
+            Quaternion cameraRotation,
+            Matrix4x4 cameraProjectionMatrix
+        )
+        {
+            _mirrorCamera.ResetWorldToCameraMatrix();
+            _mirrorCamera.transform.position = cameraPosition;
+            _mirrorCamera.transform.rotation = cameraRotation;
+            _mirrorCamera.projectionMatrix = cameraProjectionMatrix;
+            _mirrorCamera.cullingMask = -17 & ~(1 << _playerLocalLayer) & reflectLayers.value;
+            _mirrorCamera.targetTexture = targetTexture;
+
+            var position = transform.position;
+            var normal = GetNormalDirection();
+            _mirrorCamera.worldToCameraMatrix *= CalculateReflectionMatrix(Plane(position, normal));
+            _mirrorCamera.projectionMatrix =
+                _mirrorCamera.CalculateObliqueMatrix(CameraSpacePlane(_mirrorCamera, position, normal));
+
+            _mirrorCamera.transform.position = GetPosition(_mirrorCamera.cameraToWorldMatrix);
+            _mirrorCamera.transform.rotation = GetRotation(_mirrorCamera.cameraToWorldMatrix);
+
+            var num = GL.invertCulling ? 1 : 0;
+            GL.invertCulling = num == 0;
+            _mirrorCamera.Render();
+            GL.invertCulling = num != 0;
+        }
+
+        private void UpdateCameraModes(Camera src)
+        {
+            if (!_mirrorCamera)
+            {
+                var mirrorCameraGameObject =
+                    new GameObject(
+                        "Mirror Camera", typeof(Camera), typeof(Skybox), typeof(FlareLayer)
+                    )
+                    {
+                        hideFlags = HideFlags.HideAndDontSave
+                    };
+                _mirrorSkybox = mirrorCameraGameObject.GetComponent<Skybox>();
+                _mirrorCamera = mirrorCameraGameObject.GetComponent<Camera>();
+                _mirrorCamera.enabled = false;
+            }
+
+            _mirrorCamera.clearFlags = src.clearFlags;
+            _mirrorCamera.backgroundColor = src.backgroundColor;
+            if (src.clearFlags == CameraClearFlags.Skybox)
+            {
+                var skybox = src.GetComponent<Skybox>();
+                if (!skybox || !skybox.material)
+                {
+                    _mirrorSkybox.enabled = false;
+                }
+                else
+                {
+                    _mirrorSkybox.enabled = true;
+                    _mirrorSkybox.material = skybox.material;
+                }
+            }
+
+            _mirrorCamera.farClipPlane = src.farClipPlane;
+            _mirrorCamera.nearClipPlane = src.nearClipPlane;
+            _mirrorCamera.orthographic = src.orthographic;
+            _mirrorCamera.aspect = src.aspect;
+            _mirrorCamera.orthographicSize = src.orthographicSize;
+            _mirrorCamera.useOcclusionCulling = !turnOffMirrorOcclusion;
+            _mirrorCamera.allowMSAA = src.allowMSAA;
+            if (src.stereoEnabled) return;
+            _mirrorCamera.fieldOfView = src.fieldOfView;
+        }
+
+        private void UpdateParentTransform(Component currentCamera)
+        {
+            // if (currentCamera.transform.parent != null)
+            // {
+            //     _parentTransform = currentCamera.transform.parent.localToWorldMatrix;
+            //     _parentRotation = currentCamera.transform.parent.rotation;
+            // }
+            // else
+            // {
+            var localRotation = _inputActions.VRTracking.CenterEyeRotation.ReadValue<Quaternion>();
+            var matrix4X4 = Matrix4x4.TRS(_inputActions.VRTracking.CenterEyePosition.ReadValue<Vector3>(),
+                localRotation, Vector3.one);
+            // var localRotation = currentCamera.transform.rotation;
+            // var matrix4X4 = Matrix4x4.TRS(currentCamera.transform.position, localRotation, Vector3.one);
+            _parentTransform = currentCamera.transform.localToWorldMatrix * matrix4X4.inverse;
+            _parentRotation = currentCamera.transform.rotation * Quaternion.Inverse(localRotation);
+            // }
+        }
+
+        private ReflectionData GetReflectionData(Camera currentCamera)
+        {
+            if (!_allReflectionData.TryGetValue(currentCamera, out var reflectionData))
+            {
+                reflectionData = new ReflectionData()
+                {
+                    PropertyBlock = new MaterialPropertyBlock()
+                };
+                _allReflectionData[currentCamera] = reflectionData;
+            }
+
+            if (_temporaryRenderTexture) RenderTexture.ReleaseTemporary(_temporaryRenderTexture);
+            if (reflectionData.Texture[0]) RenderTexture.ReleaseTemporary(reflectionData.Texture[0]);
+            if (reflectionData.Texture[1]) RenderTexture.ReleaseTemporary(reflectionData.Texture[1]);
+
+            var width = Mathf.Min(currentCamera.pixelWidth, MAX_RESOLUTION);
+            var height = Mathf.Min(currentCamera.pixelWidth, MAX_RESOLUTION);
+            if (resolution != Resolution.Auto)
+            {
+                width = (int) resolution;
+                height = (int) resolution;
+            }
+
+            var antiAliasing = Mathf.Clamp(1, QualitySettings.antiAliasing, (int) maximumAntialiasing);
+
+            _temporaryRenderTexture = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGBHalf,
+                RenderTextureReadWrite.Default, antiAliasing);
+
+            if (currentCamera.stereoEnabled)
+            {
+                reflectionData.Texture[0] = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGBHalf,
+                    RenderTextureReadWrite.Default, 1);
+
+                reflectionData.PropertyBlock.SetTexture(_texturePropertyId[0], (Texture) reflectionData.Texture[0]);
+
+                reflectionData.Texture[1] = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGBHalf,
+                    RenderTextureReadWrite.Default, 1);
+
+                reflectionData.PropertyBlock.SetTexture(_texturePropertyId[1], (Texture) reflectionData.Texture[1]);
+            }
+            else
+            {
+                reflectionData.Texture[0] = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGBHalf,
+                    RenderTextureReadWrite.Default, 1);
+
+                reflectionData.PropertyBlock.SetTexture(_texturePropertyId[0], reflectionData.Texture[0]);
+            }
+
+            return reflectionData;
         }
 
         private static Vector4 Plane(Vector3 position, Vector3 normal) =>
             new(normal.x, normal.y, normal.z, -Vector3.Dot(position, normal));
+
+        private static Vector4 CameraSpacePlane(Camera camera, Vector3 position, Vector3 normal)
+        {
+            var worldToCameraMatrix = camera.worldToCameraMatrix;
+            return Plane(worldToCameraMatrix.MultiplyPoint(position),
+                worldToCameraMatrix.MultiplyVector(normal).normalized);
+        }
 
         private static Matrix4x4 CalculateReflectionMatrix(Vector4 plane)
         {
@@ -106,23 +453,6 @@ namespace Tivoli.Scripts.World
             return m;
         }
 
-        private static Vector4 CameraSpacePlane(Camera camera, Vector3 position, Vector3 normal)
-        {
-            var worldToCameraMatrix = camera.worldToCameraMatrix;
-            return Plane(worldToCameraMatrix.MultiplyPoint(position),
-                worldToCameraMatrix.MultiplyVector(normal).normalized);
-        }
-
-        private static Vector3 GetPosition(Matrix4x4 matrix)
-        {
-            double m03 = (double) matrix.m03;
-            float m13 = matrix.m13;
-            float m23 = matrix.m23;
-            double y = (double) m13;
-            double z = (double) m23;
-            return new Vector3((float) m03, (float) y, (float) z);
-        }
-
         private static float CopySign(float sizeValue, float signValue) => Mathf.Sign(signValue) * Mathf.Abs(sizeValue);
 
         private static Quaternion GetRotation(Matrix4x4 matrix)
@@ -140,153 +470,14 @@ namespace Tivoli.Scripts.World
             return rotation;
         }
 
-        private void RenderEye(
-            Vector3 eyePosition,
-            Quaternion eyeRotation,
-            Matrix4x4 eyeProjectionMatrix,
-            RenderTexture targetTexture
-        )
+        private static Vector3 GetPosition(Matrix4x4 matrix)
         {
-            var planePosition = transform.position;
-            var planeNormal = GetNormalDirection();
-
-            _mirrorCamera.ResetWorldToCameraMatrix();
-            _mirrorCamera.transform.position = eyePosition;
-            _mirrorCamera.transform.rotation = eyeRotation;
-            _mirrorCamera.projectionMatrix = eyeProjectionMatrix;
-            _mirrorCamera.targetTexture = targetTexture;
-            _mirrorCamera.worldToCameraMatrix *= CalculateReflectionMatrix(Plane(planePosition, planeNormal));
-            _mirrorCamera.projectionMatrix =
-                _mirrorCamera.CalculateObliqueMatrix(CameraSpacePlane(_mirrorCamera, planePosition, planeNormal));
-            _mirrorCamera.transform.position = GetPosition(_mirrorCamera.cameraToWorldMatrix);
-            _mirrorCamera.transform.rotation = GetRotation(_mirrorCamera.cameraToWorldMatrix);
-            var num = GL.invertCulling ? 1 : 0;
-            GL.invertCulling = num == 0;
-            _mirrorCamera.Render();
-            GL.invertCulling = num != 0;
-        }
-
-        private Vector3 GetWorldEyePosition(InputAction action)
-        {
-            return _parentTransform.MultiplyPoint3x4(action.ReadValue<Vector3>());
-        }
-
-        private Quaternion GetWorldEyeRotation(InputAction action)
-        {
-            return _parentRotation * action.ReadValue<Quaternion>();
-        }
-
-        private Matrix4x4 GetEyeProjectionMatrix(Camera.StereoscopicEye eye)
-        {
-            return _mainCamera.GetStereoProjectionMatrix(eye);
-        }
-
-        private void UpdateMirrorCamera()
-        {
-            _mirrorCamera.clearFlags = _mainCamera.clearFlags;
-            _mirrorCamera.backgroundColor = _mainCamera.backgroundColor;
-            if (_mainCamera.clearFlags == CameraClearFlags.Skybox)
-            {
-                var skybox = _mainCamera.GetComponent<Skybox>();
-                if (skybox != null && skybox.material != null)
-                {
-                    _mirrorSkybox.enabled = true;
-                    _mirrorSkybox.material = skybox.material;
-                }
-                else
-                {
-                    _mirrorSkybox.enabled = false;
-                }
-            }
-
-            _mirrorCamera.farClipPlane = _mainCamera.farClipPlane;
-            _mirrorCamera.nearClipPlane = _mainCamera.nearClipPlane;
-            _mirrorCamera.orthographic = _mainCamera.orthographic;
-            _mirrorCamera.aspect = _mainCamera.aspect;
-            _mirrorCamera.orthographicSize = _mainCamera.orthographicSize;
-            _mirrorCamera.useOcclusionCulling = _mainCamera.useOcclusionCulling;
-            _mirrorCamera.allowMSAA = _mainCamera.allowMSAA;
-
-            // if (notStereo)
-            // _mirrorCamera.fieldOfView = _mainCamera.fieldOfView;
-        }
-
-        private void UpdateParentTransform()
-        {
-            // if (_mainCamera.transform.parent != null)
-            // {
-            //     _parentTransform = _mainCamera.transform.parent.localToWorldMatrix;
-            //     _parentRotation = _mainCamera.transform.parent.rotation;
-            // }
-            // else
-            // {
-            var localRotation = _inputActions.VRTracking.CenterEyeRotation.ReadValue<Quaternion>();
-            var matrix4x4 = Matrix4x4.TRS(_inputActions.VRTracking.CenterEyePosition.ReadValue<Vector3>(),
-                localRotation, Vector3.one);
-            _parentTransform = _mainCamera.transform.localToWorldMatrix * matrix4x4.inverse;
-            _parentRotation = _mainCamera.transform.rotation * Quaternion.Inverse(localRotation);
-            // }
-        }
-
-        private bool ShouldRenderLeftEye()
-        {
-            var stereoTargetEye = _mainCamera.stereoTargetEye;
-            var flag = stereoTargetEye is StereoTargetEyeMask.Both or StereoTargetEyeMask.Left;
-            if (!flag) return false;
-            if (Vector3.Dot(GetWorldEyePosition(_inputActions.VRTracking.LeftEyePosition) - transform.position,
-                    GetNormalDirection()) <= 0.0)
-            {
-                flag = false;
-            }
-
-            return flag;
-        }
-
-
-        private bool ShouldRenderRightEye()
-        {
-            var stereoTargetEye = _mainCamera.stereoTargetEye;
-            var flag = stereoTargetEye is StereoTargetEyeMask.Both or StereoTargetEyeMask.Right;
-            if (!flag) return false;
-            if (Vector3.Dot(GetWorldEyePosition(_inputActions.VRTracking.RightEyePosition) - transform.position,
-                    GetNormalDirection()) <= 0.0)
-            {
-                flag = false;
-            }
-
-
-            return flag;
-        }
-
-        private void OnWillRenderObject()
-        {
-            if (!_enabled) return;
-
-            var current = Camera.current;
-            if (current == _mirrorCamera) return;
-
-            UpdateMirrorCamera();
-            UpdateParentTransform();
-
-            if (ShouldRenderLeftEye())
-            {
-                RenderEye(
-                    GetWorldEyePosition(_inputActions.VRTracking.LeftEyePosition),
-                    GetWorldEyeRotation(_inputActions.VRTracking.LeftEyeRotation),
-                    GetEyeProjectionMatrix(Camera.StereoscopicEye.Left),
-                    _leftEyeTexture
-                );
-            }
-
-            if (ShouldRenderRightEye())
-            {
-                RenderEye(
-                    GetWorldEyePosition(_inputActions.VRTracking.RightEyePosition),
-                    GetWorldEyeRotation(_inputActions.VRTracking.RightEyeRotation),
-                    GetEyeProjectionMatrix(Camera.StereoscopicEye.Right),
-                    _rightEyeTexture
-                );
-            }
+            double m03 = (double) matrix.m03;
+            float m13 = matrix.m13;
+            float m23 = matrix.m23;
+            double y = (double) m13;
+            double z = (double) m23;
+            return new Vector3((float) m03, (float) y, (float) z);
         }
     }
 }
