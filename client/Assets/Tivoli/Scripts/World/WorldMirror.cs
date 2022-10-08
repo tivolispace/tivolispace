@@ -7,7 +7,7 @@ namespace Tivoli.Scripts.World
 {
     public class WorldMirror : MonoBehaviour
     {
-        public Camera _mainCamera;
+        private Camera _mainCamera;
 
         private TivoliInputActions _inputActions;
 
@@ -35,15 +35,10 @@ namespace Tivoli.Scripts.World
             _inputActions.VRTracking.RightEyePosition.Enable();
             _inputActions.VRTracking.RightEyeRotation.Enable();
 
-            // TODO: fix this
-            // var mainCamera = DependencyManager.Instance.UIManager.GetMainCamera();
-            // var mainCamera = Camera.main;
+            _mainCamera = DependencyManager.Instance.UIManager.GetMainCamera();
 
-            // var width = Mathf.Min(mainCamera.pixelWidth, 2048);
-            // var height = Mathf.Min(mainCamera.pixelHeight, 2048);
-
-            const int width = 2048;
-            const int height = 2048;
+            var width = Mathf.Min(_mainCamera.pixelWidth, 2048);
+            var height = Mathf.Min(_mainCamera.pixelHeight, 2048);
 
             _leftEyeTexture = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGBHalf,
                 RenderTextureReadWrite.Default, 1);

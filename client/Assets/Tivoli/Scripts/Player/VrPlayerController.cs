@@ -1,15 +1,16 @@
-using System;
+﻿using Tivoli.Scripts.Managers;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace Tivoli.VR_Player_Controller
+namespace Tivoli.Scripts.Player
 {
     [DefaultExecutionOrder(-30000)]
-    public class VRPlayerController : MonoBehaviour
+    public class VrPlayerController : MonoBehaviour
     {
-        public Camera _mainCamera;
+        private Camera _mainCamera;
         private Transform _mainCameraTransform;
 
-        public Animator _animator;
+        public Animator animator;
 
         private Rigidbody _rigidbody;
 
@@ -21,13 +22,19 @@ namespace Tivoli.VR_Player_Controller
         private const float TurnDeadzone = 0.2f;
         private const float TurnDegrees = 30f;
 
-        public VRIKController ikController;
+        public VrPlayerIkController ikController;
 
-        void Awake()
+        private void Awake()
         {
+            _mainCamera = DependencyManager.Instance.UIManager.GetMainCamera();
             _mainCameraTransform = _mainCamera.transform;
 
             _rigidbody = gameObject.GetComponent<Rigidbody>();
+        }
+
+        private void OnEnable()
+        {
+            _mainCamera.transform.SetParent(transform);
 
             _inputActions = new TivoliInputActions();
 
@@ -43,16 +50,17 @@ namespace Tivoli.VR_Player_Controller
             _inputActions.VRTracking.RightHandPosition.Enable();
             _inputActions.VRTracking.RightHandRotation.Enable();
 
-            _animator.GetBoneTransform(HumanBodyBones.Head).localScale = Vector3.zero;
-        }
+            animator.GetBoneTransform(HumanBodyBones.Head).localScale = Vector3.zero;
 
-        private void OnEnable()
-        {
             Application.onBeforeRender += OnBeforeRender;
         }
 
         private void OnDisable()
         {
+            _mainCamera.transform.SetParent(null);
+
+            _inputActions.Disable();
+
             Application.onBeforeRender -= OnBeforeRender;
         }
 
@@ -155,6 +163,11 @@ namespace Tivoli.VR_Player_Controller
             public Quaternion RightHandRotation;
         }
 
+        // public Vector3 leftHandRotateOffset = new(45, 60, 240);
+        // public Vector3 rightHandRotateOffset = new(-45, 120, 240);
+        public Vector3 leftHandRotateOffset = new(90, 0, 0);
+        public Vector3 rightHandRotateOffset = new(90, 0, 0);
+
         public IkData GetIkData()
         {
             var playerPosition = transform.position;
@@ -165,14 +178,16 @@ namespace Tivoli.VR_Player_Controller
                            _lastRigidbodyXZCenterEyePosition) + playerPosition;
 
             var leftHandRotation = playerY * _inputActions.VRTracking.LeftHandRotation.ReadValue<Quaternion>() *
-                                   Quaternion.Euler(90, 0, 0);
+                                   Quaternion.Euler(leftHandRotateOffset.x, leftHandRotateOffset.y,
+                                       leftHandRotateOffset.z);
 
             var rightHandPosition =
                 playerY * (_inputActions.VRTracking.RightHandPosition.ReadValue<Vector3>() -
                            _lastRigidbodyXZCenterEyePosition) + playerPosition;
 
             var rightHandRotation = playerY * _inputActions.VRTracking.RightHandRotation.ReadValue<Quaternion>() *
-                                    Quaternion.Euler(90, 0, 0);
+                                    Quaternion.Euler(rightHandRotateOffset.x, rightHandRotateOffset.y,
+                                        rightHandRotateOffset.z);
 
             return new IkData
             {
@@ -183,7 +198,6 @@ namespace Tivoli.VR_Player_Controller
                 RightHandPosition = rightHandPosition,
                 RightHandRotation = rightHandRotation,
             };
-            ;
         }
 
         private void LateUpdate()
@@ -191,10 +205,7 @@ namespace Tivoli.VR_Player_Controller
             // update ik
 
             var ikData = GetIkData();
-
-            ikController.UpdateHead(ikData.HeadPosition, ikData.HeadRotation, 0.1f);
-            ikController.UpdateLeftHand(ikData.LeftHandPosition, ikData.LeftHandRotation);
-            ikController.UpdateRightHand(ikData.RightHandPosition, ikData.RightHandRotation);
+            ikController.UpdateWithIkData(ikData);
         }
     }
 }

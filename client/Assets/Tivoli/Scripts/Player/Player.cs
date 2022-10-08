@@ -5,6 +5,8 @@ using UnityEngine;
 
 namespace Tivoli.Scripts.Player
 {
+    [RequireComponent(typeof(VrPlayerController))]
+    [RequireComponent(typeof(VrPlayerIkController))]
     public class Player : NetworkBehaviour
     {
         [SyncVar(hook = nameof(OnUserIdChanged))]
@@ -13,24 +15,26 @@ namespace Tivoli.Scripts.Player
         public Transform nametagTransform;
         public Nametag nametag;
 
-        // private XROrigin _xrOrigin;
+        private VrPlayerController _vrPlayerController;
+        private VrPlayerIkController _vrPlayerIkController;
+
+        [SyncVar(hook = nameof(OnIkData))]
+        private VrPlayerController.IkData _ikData;
+
+        public void Awake()
+        {
+            _vrPlayerController = GetComponent<VrPlayerController>();
+            _vrPlayerIkController = GetComponent<VrPlayerIkController>();
+        }
 
         public override async void OnStartLocalPlayer()
         {
             nametag.gameObject.SetActive(false);
 
-            // get xr origin and parent player to it
-            // _xrOrigin = DependencyManager.Instance.UIManager.GetXrOrigin();
-            // var currentPosition = transform.position;
-            // var currentRotation = transform.rotation;
-            // transform.SetParent(_xrOrigin.transform);
-            // transform.position = Vector3.zero;
-            // transform.rotation = Quaternion.identity;
-            // _xrOrigin.transform.position = currentPosition;
-            // _xrOrigin.transform.rotation = currentRotation;
+            _vrPlayerController.enabled = true;
 
             await DependencyManager.Instance.AccountManager.WhenLoggedIn();
-            
+
             CmdSetupPlayer(DependencyManager.Instance.AccountManager.Profile.id);
         }
 
@@ -44,22 +48,34 @@ namespace Tivoli.Scripts.Player
             userId = newUserId;
         }
 
-        private void OnUserIdChanged(string @old, string @new)
+        private void OnUserIdChanged(string oldUserId, string newUserId)
         {
             if (isLocalPlayer)
                 return;
 
             nametag.gameObject.SetActive(true);
-            nametag.GetComponent<Nametag>().UserId = @new;
+            nametag.GetComponent<Nametag>().UserId = newUserId;
+        }
+
+        private void OnIkData(VrPlayerController.IkData oldIkData, VrPlayerController.IkData newIkData)
+        {
+            if (isLocalPlayer) return;
+
+            _vrPlayerIkController.UpdateWithIkData(newIkData);
         }
 
         private void Update()
         {
+            if (isLocalPlayer) return;
+            
+            nametagTransform.LookAt(DependencyManager.Instance.UIManager.GetMainCamera().transform);
+        }
+
+        private void LateUpdate()
+        {
             if (isLocalPlayer)
             {
-                
-            } else {
-                nametagTransform.LookAt(DependencyManager.Instance.UIManager.GetMainCamera().transform);
+                _ikData = _vrPlayerController.GetIkData();
             }
         }
     }

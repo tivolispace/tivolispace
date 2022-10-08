@@ -57,12 +57,18 @@ Shader "Maki/UI Gaussian Blur"
 
             struct v2f
             {
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+			    UNITY_VERTEX_OUTPUT_STEREO
                 float4 pos : SV_POSITION;
                 float4 grabPos : TEXCOORD0;
             };
 
             v2f vert(appdata_base v) {
                 v2f o;
+                UNITY_INITIALIZE_OUTPUT(v2f, o);
+			    UNITY_SETUP_INSTANCE_ID(v);
+			    UNITY_TRANSFER_INSTANCE_ID(v,o);
+			    UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.grabPos = ComputeGrabScreenPos(o.pos);
                 return o;
@@ -101,7 +107,7 @@ Shader "Maki/UI Gaussian Blur"
                 float size = _Size; // Radius (it gets blurrier in vr)
 
                 // float radius = size/float2(1024,1024); // iResolution.xy
-                float radius = size/(isVR() ? 1024 : 512);
+                float radius = size/(isVR() ? 1024 : 256);
 
                 half4 blurColor = tex2D(_BackgroundTexture, uv);
 

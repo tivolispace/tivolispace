@@ -1,22 +1,19 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace Tivoli.Scripts.Managers
 {
     public class UIManager : Manager
     {
-        // private readonly XROrigin _uiXrOrigin;
         private readonly Camera _uiCamera;
-
         private readonly Canvas _uiCanvas;
         private readonly GameObject _uiMainMenu;
 
-        public UIManager(Canvas uiCanvas, GameObject uiMainMenu)
+        public UIManager(Camera uiMainCamera, Canvas uiCanvas, GameObject uiMainMenu)
         {
-            // _uiXrOrigin = uiXrOrigin;
-            // _uiCamera = uiXrOrigin.Camera;
-
+            _uiCamera = uiMainCamera;
             _uiCanvas = uiCanvas;
             _uiMainMenu = uiMainMenu;
         }
@@ -27,7 +24,7 @@ namespace Tivoli.Scripts.Managers
             inputActions.Enable();
             inputActions.Player.Enable();
             inputActions.Player.ToggleMainMenu.Enable();
-            inputActions.Player.ToggleMainMenu.performed += _ => { _uiMainMenu.SetActive(!_uiMainMenu.activeSelf); };
+            inputActions.Player.ToggleMainMenu.performed += OnToggleMainMenu;
 
             SceneManager.sceneLoaded += (scene, mode) =>
             {
@@ -42,10 +39,27 @@ namespace Tivoli.Scripts.Managers
             return Task.CompletedTask;
         }
 
-        // public XROrigin GetXrOrigin()
-        // {
-        //     return _uiXrOrigin;
-        // }
+        private void OnToggleMainMenu(InputAction.CallbackContext obj)
+        {
+            if (!_uiMainMenu.activeSelf)
+            {
+                var cameraPosition = _uiCamera.transform.position;
+                var cameraRotation = _uiCamera.transform.rotation;
+
+                var canvas = _uiCanvas.GetComponent<RectTransform>();
+                canvas.position = cameraPosition +
+                                  Quaternion.Euler(0f, cameraRotation.eulerAngles.y, 0f) *
+                                  new Vector3(0f, -0.4f, 1f);
+
+                canvas.rotation = Quaternion.Euler(10f, cameraRotation.eulerAngles.y, 0f);
+
+                _uiMainMenu.SetActive(true);
+            }
+            else
+            {
+                _uiMainMenu.SetActive(false);
+            }
+        }
 
         public Camera GetMainCamera()
         {

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Tivoli.Scripts.Player
 {
     [RequireComponent(typeof(Rigidbody))]
-    public class PlayerController : NetworkBehaviour
+    public class BrokenDesktopPlayerController : NetworkBehaviour
     {
         // public Transform cameraBoom;
         public Transform playerOffset;
@@ -93,14 +93,14 @@ namespace Tivoli.Scripts.Player
 
             // TODO: look into character controller some day
 
-            var moveXy = _inputActions.Player.Move.ReadValue<Vector2>();
-             
-            // _mainCamera.transform.eulerAngles.y
-
-            var positionOffset = Quaternion.Euler(0, transform.localEulerAngles.y, 0) *
-                                 new Vector3(moveXy.x, 0, moveXy.y);
-
-            _playerRigidbody.MovePosition(transform.position + positionOffset * 0.1f);
+            // var moveXy = _inputActions.Player.Move.ReadValue<Vector2>();
+            //  
+            // // _mainCamera.transform.eulerAngles.y
+            //
+            // var positionOffset = Quaternion.Euler(0, transform.localEulerAngles.y, 0) *
+            //                      new Vector3(moveXy.x, 0, moveXy.y);
+            //
+            // _playerRigidbody.MovePosition(transform.position + positionOffset * 0.1f);
             
             // _characterController.Move(moveXy);
 

@@ -1,13 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using DitzelGames.FastIK;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace Tivoli.VR_Player_Controller
+namespace Tivoli.Scripts.Player
 {
-    public class VRIKController : MonoBehaviour
+    public class VrPlayerIkController : MonoBehaviour
     {
         public Animator animator;
 
@@ -51,11 +50,11 @@ namespace Tivoli.VR_Player_Controller
             // head
 
             var headTransform = animator.GetBoneTransform(HumanBodyBones.Head);
-            
+
             _headTarget = new GameObject("IK Head Target");
             _headTarget.transform.SetParent(transform);
             _headTarget.transform.localPosition = new Vector3(0f, 1.3f, 0f);
-            
+
             _headPole = new GameObject("IK Head Pole");
             _headPole.transform.SetParent(_headTarget.transform);
             _headPole.transform.localPosition = new Vector3(0f, 0f, -0.5f);
@@ -104,11 +103,11 @@ namespace Tivoli.VR_Player_Controller
             var leftFootTransform = animator.GetBoneTransform(HumanBodyBones.LeftFoot);
             var leftToeTransform = animator.GetBoneTransform(HumanBodyBones.LeftToes);
             var distanceFromLeftToeToFoot = leftFootTransform.position.y - leftToeTransform.position.y;
-            
+
             _leftFootTarget = new GameObject("IK Left Foot Target");
             _leftFootTarget.transform.SetParent(transform);
             _leftFootTarget.transform.localPosition = new Vector3(-0.05f, distanceFromLeftToeToFoot, 0f);
-            
+
             _leftFootPole = new GameObject("IK Left Foot Pole");
             _leftFootPole.transform.SetParent(_leftFootTarget.transform);
             _leftFootPole.transform.localPosition = new Vector3(0f, 0f, 0.5f);
@@ -126,11 +125,11 @@ namespace Tivoli.VR_Player_Controller
             var rightFootTransform = animator.GetBoneTransform(HumanBodyBones.RightFoot);
             var rightToeTransform = animator.GetBoneTransform(HumanBodyBones.RightToes);
             var distanceFromRightToeToFoot = rightFootTransform.position.y - rightToeTransform.position.y;
-            
+
             _rightFootTarget = new GameObject("IK Right Foot Target");
             _rightFootTarget.transform.SetParent(transform);
             _rightFootTarget.transform.localPosition = new Vector3(0.05f, distanceFromRightToeToFoot, 0f);
-            
+
             _rightFootPole = new GameObject("IK Left Foot Pole");
             _rightFootPole.transform.SetParent(_rightFootTarget.transform);
             _rightFootPole.transform.localPosition = new Vector3(0f, 0f, 0.5f);
@@ -166,26 +165,32 @@ namespace Tivoli.VR_Player_Controller
                 hipsTransform.position.z);
         }
 
-        public void UpdateHead(Vector3 position, Quaternion rotation, float distanceToEyes)
+        private void UpdateHead(Vector3 position, Quaternion rotation, float distanceToEyes)
         {
             _headTarget.transform.position = position;
             var localPosition = _headTarget.transform.localPosition;
             localPosition.z -= distanceToEyes;
             _headTarget.transform.localPosition = localPosition;
             _headTarget.transform.rotation = rotation;
-            
         }
 
-        public void UpdateLeftHand(Vector3 position, Quaternion rotation)
+        private void UpdateLeftHand(Vector3 position, Quaternion rotation)
         {
             _leftHandTarget.transform.position = position;
             _leftHandTarget.transform.rotation = rotation;
         }
 
-        public void UpdateRightHand(Vector3 position, Quaternion rotation)
+        private void UpdateRightHand(Vector3 position, Quaternion rotation)
         {
             _rightHandTarget.transform.position = position;
             _rightHandTarget.transform.rotation = rotation;
+        }
+
+        public void UpdateWithIkData(VrPlayerController.IkData ikData)
+        {
+            UpdateHead(ikData.HeadPosition, ikData.HeadRotation, 0.1f);
+            UpdateLeftHand(ikData.LeftHandPosition, ikData.LeftHandRotation);
+            UpdateRightHand(ikData.RightHandPosition, ikData.RightHandRotation);
         }
     }
 }

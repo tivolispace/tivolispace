@@ -20,7 +20,7 @@ namespace Tivoli.Scripts.Managers
         [Header("Connection Manager")] public TivoliNetworkManager connectionNetworkManager;
         public ConnectionManager ConnectionManager;
 
-        [Header("UI Manager")] public GameObject uiXrOrigin;
+        [Header("UI Manager")] public Camera uiMainCamera;
         public Canvas uiCanvas;
         public GameObject uiMainMenu;
         public UIManager UIManager;
@@ -51,8 +51,8 @@ namespace Tivoli.Scripts.Managers
             managers.Add(ConnectionManager = new ConnectionManager(connectionNetworkManager));
             persistantGameObjects.Add(connectionNetworkManager.gameObject);
             
-            managers.Add(UIManager = new UIManager(uiCanvas, uiMainMenu));
-            // persistantGameObjects.Add(uiXrOrigin.gameObject);
+            managers.Add(UIManager = new UIManager(uiMainCamera, uiCanvas, uiMainMenu));
+            persistantGameObjects.Add(uiMainCamera.gameObject);
             persistantGameObjects.Add(uiCanvas.gameObject);
 
             _managers = managers.ToArray();
