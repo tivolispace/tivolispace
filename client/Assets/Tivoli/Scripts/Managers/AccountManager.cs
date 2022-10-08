@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NativeWebSocket;
+using Sentry;
 using Tivoli.Scripts.Utils;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -72,6 +73,21 @@ namespace Tivoli.Scripts.Managers
 
             // get own profile
             Profile = await GetProfile(null);
+
+            // let sentry know who's who
+            SentrySdk.ConfigureScope(scope =>
+            {
+                scope.User = new User
+                {
+                    Id = Profile.id,
+                    Username = Profile.displayName,
+                    Other = new Dictionary<string, string>()
+                    {
+                        {"SteamId", Profile.steamId}
+                    },
+                    // IpAddress = "whaaaaa nooo"
+                };
+            });
 
             _loggedIn = true;
             _onLoggedIn();

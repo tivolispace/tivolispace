@@ -20,8 +20,9 @@ jobs:
             matrix:
                 include:
                     - targetPlatform: StandaloneWindows64
-                      itchioChannel: windows
                       runsOn: windows-latest # required for il2cpp
+                      unityImage: windows-2021.3.11f1-windows-il2cpp-1
+                      itchioChannel: windows
                     # - targetPlatform: StandaloneOSX
                     #   # not doing arm64 for now because of steam audio
                     #   buildMethod: Tivoli.Editor.MacIntelBuildScript.Build
@@ -53,7 +54,9 @@ jobs:
                   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
                   UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
                   UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+                  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
               with:
+                  customImage: ${{ matrix.unityImage }}
                   projectPath: client/
                   buildName: Tivoli Space
                   targetPlatform: ${{ matrix.targetPlatform }}
