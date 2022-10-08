@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace Tivoli.VR_Player_Controller

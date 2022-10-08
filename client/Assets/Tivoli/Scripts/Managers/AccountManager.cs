@@ -22,7 +22,8 @@ namespace Tivoli.Scripts.Managers
     public class AccountManager : Manager
     {
 #if UNITY_EDITOR
-        private static readonly string ApiUrl = EditorPrefs.GetString(TivoliEditorPrefs.OverrideApiUrl);
+        private static readonly string ApiUrl =
+            EditorPrefs.GetString(TivoliEditorPrefs.OverrideApiUrl, TivoliDefaultEditorPrefs.OverrideApiUrl);
 #else
         private static readonly string ApiUrl =
             Environment.GetEnvironmentVariable("OVERRIDE_API_URL") ?? "https://tivoli.space";
@@ -46,7 +47,7 @@ namespace Tivoli.Scripts.Managers
         public AccountManager()
         {
         }
-        
+
         public override async Task Init()
         {
             await DependencyManager.Instance.SteamManager.WhenInitialized();

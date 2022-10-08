@@ -12,6 +12,12 @@ namespace Tivoli.Scripts
         public const string OverridePlayMode = "TivoliOverridePlayMode";
     }
 
+    public static class TivoliDefaultEditorPrefs
+    {
+        public const string OverrideApiUrl = "http://127.0.0.1:3000";
+        public const bool OverridePlayMode = true;
+    }
+
     public class TivoliDevMenu : EditorWindow
     {
         [MenuItem("Tivoli/Open Dev Menu")]
@@ -73,14 +79,11 @@ namespace Tivoli.Scripts
                 "http://127.0.0.1:3000"
             };
 
-            if (!EditorPrefs.HasKey(TivoliEditorPrefs.OverrideApiUrl))
-            {
-                EditorPrefs.SetString(TivoliEditorPrefs.OverrideApiUrl, apiUrls[0]);
-            }
 
             var textField = new TextField
             {
-                value = EditorPrefs.GetString(TivoliEditorPrefs.OverrideApiUrl),
+                value =
+                    EditorPrefs.GetString(TivoliEditorPrefs.OverrideApiUrl, TivoliDefaultEditorPrefs.OverrideApiUrl),
                 style =
                 {
                     width = 192,
@@ -118,14 +121,10 @@ namespace Tivoli.Scripts
 
         private void DrawOverridePlayMode()
         {
-            if (!EditorPrefs.HasKey(TivoliEditorPrefs.OverridePlayMode))
-            {
-                EditorPrefs.SetBool(TivoliEditorPrefs.OverridePlayMode, true);
-            }
-
-            var overridePlayModeText = new Func<string>(() => EditorPrefs.GetBool(TivoliEditorPrefs.OverridePlayMode)
-                ? "Tivoli \"Initialize\" scene"
-                : "current scene");
+            var overridePlayModeText = new Func<string>(() =>
+                EditorPrefs.GetBool(TivoliEditorPrefs.OverridePlayMode, TivoliDefaultEditorPrefs.OverridePlayMode)
+                    ? "Tivoli \"Initialize\" scene"
+                    : "current scene");
 
             var labelFlexbox = new VisualElement
             {

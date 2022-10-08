@@ -10,7 +10,7 @@ namespace Tivoli.Editor
     {
         static LoadInitializeSceneOnPlay()
         {
-            if (EditorPrefs.GetBool(TivoliEditorPrefs.OverridePlayMode))
+            if (EditorPrefs.GetBool(TivoliEditorPrefs.OverridePlayMode, TivoliDefaultEditorPrefs.OverridePlayMode))
             {
                 var pathOfFirstScene = EditorBuildSettings.scenes[0].path;
                 var sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(pathOfFirstScene);
