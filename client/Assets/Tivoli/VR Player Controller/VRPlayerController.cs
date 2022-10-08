@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Tivoli.VR_Player_Controller
@@ -19,6 +20,8 @@ namespace Tivoli.VR_Player_Controller
         private bool _snapTurnHoldingDown;
         private const float TurnDeadzone = 0.2f;
         private const float TurnDegrees = 30f;
+
+        public VRIKController ikController;
 
         void Awake()
         {
@@ -51,39 +54,6 @@ namespace Tivoli.VR_Player_Controller
         private void OnDisable()
         {
             Application.onBeforeRender -= OnBeforeRender;
-        }
-
-        private void OnAnimatorIK(int layerIndex)
-        {
-            var playerPosition = transform.position;
-            var playerY = Quaternion.Euler(0, transform.eulerAngles.y, 0);
-
-            var leftHandPosition =
-                playerY * (_inputActions.VRTracking.LeftHandPosition.ReadValue<Vector3>() -
-                           _lastRigidbodyXZCenterEyePosition) + playerPosition;
-
-            _animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
-            _animator.SetIKPosition(AvatarIKGoal.LeftHand, leftHandPosition);
-
-            var leftHandRotation = playerY * _inputActions.VRTracking.LeftHandRotation.ReadValue<Quaternion>() *
-                                   Quaternion.Euler(0, 0, 90);
-
-
-            _animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, 1);
-            _animator.SetIKRotation(AvatarIKGoal.LeftHand, leftHandRotation);
-
-            var rightHandPosition =
-                playerY * (_inputActions.VRTracking.RightHandPosition.ReadValue<Vector3>() -
-                           _lastRigidbodyXZCenterEyePosition) + playerPosition;
-
-            _animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
-            _animator.SetIKPosition(AvatarIKGoal.RightHand, rightHandPosition);
-
-            var rightHandRotation = playerY * _inputActions.VRTracking.RightHandRotation.ReadValue<Quaternion>() *
-                                    Quaternion.Euler(0, 0, -90);
-
-            _animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 1);
-            _animator.SetIKRotation(AvatarIKGoal.RightHand, rightHandRotation);
         }
 
         private void TrackingUpdate()
@@ -173,6 +143,58 @@ namespace Tivoli.VR_Player_Controller
             // tracking
 
             TrackingUpdate();
+        }
+
+        public class IkData
+        {
+            public Vector3 HeadPosition;
+            public Quaternion HeadRotation;
+            public Vector3 LeftHandPosition;
+            public Quaternion LeftHandRotation;
+            public Vector3 RightHandPosition;
+            public Quaternion RightHandRotation;
+        }
+
+        public IkData GetIkData()
+        {
+            var playerPosition = transform.position;
+            var playerY = Quaternion.Euler(0, transform.eulerAngles.y, 0);
+
+            var leftHandPosition =
+                playerY * (_inputActions.VRTracking.LeftHandPosition.ReadValue<Vector3>() -
+                           _lastRigidbodyXZCenterEyePosition) + playerPosition;
+
+            var leftHandRotation = playerY * _inputActions.VRTracking.LeftHandRotation.ReadValue<Quaternion>() *
+                                   Quaternion.Euler(90, 0, 0);
+
+            var rightHandPosition =
+                playerY * (_inputActions.VRTracking.RightHandPosition.ReadValue<Vector3>() -
+                           _lastRigidbodyXZCenterEyePosition) + playerPosition;
+
+            var rightHandRotation = playerY * _inputActions.VRTracking.RightHandRotation.ReadValue<Quaternion>() *
+                                    Quaternion.Euler(90, 0, 0);
+
+            return new IkData
+            {
+                HeadPosition = _mainCamera.transform.position,
+                HeadRotation = _mainCamera.transform.rotation,
+                LeftHandPosition = leftHandPosition,
+                LeftHandRotation = leftHandRotation,
+                RightHandPosition = rightHandPosition,
+                RightHandRotation = rightHandRotation,
+            };
+            ;
+        }
+
+        private void LateUpdate()
+        {
+            // update ik
+
+            var ikData = GetIkData();
+
+            ikController.UpdateHead(ikData.HeadPosition, ikData.HeadRotation, 0.1f);
+            ikController.UpdateLeftHand(ikData.LeftHandPosition, ikData.LeftHandRotation);
+            ikController.UpdateRightHand(ikData.RightHandPosition, ikData.RightHandRotation);
         }
     }
 }
