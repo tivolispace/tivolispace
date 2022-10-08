@@ -21,15 +21,13 @@ jobs:
                 include:
                     - targetPlatform: StandaloneWindows64
                       runsOn: windows-latest # required for il2cpp
-                      unityImage: windows-2021.3.11f1-windows-il2cpp-1
-                      itchioChannel: windows
+                      unityImage: unityci/editor:windows-2021.3.11f1-windows-il2cpp-1
                     # - targetPlatform: StandaloneOSX
                     #   # not doing arm64 for now because of steam audio
                     #   buildMethod: Tivoli.Editor.MacIntelBuildScript.Build
-                    #   itchioChannel: osx
                     # - targetPlatform: StandaloneLinux64
                     # - targetPlatform: Android
-        name: Build ${{ matrix.targetPlatform }} and upload to Itch.io
+        name: Build ${{ matrix.targetPlatform }}
         # runs-on: ubuntu-latest
         runs-on: ${{ matrix.runsOn }}
         needs:
@@ -77,17 +75,8 @@ jobs:
                   name: Client-${{ matrix.targetPlatform }}-${{ needs.version.outputs.version }}
                   path: ${{ matrix.targetPlatform }}.tar.gz
 
-            - name: Upload to Itch.io
-              uses: robpc/itchio-upload-action@v1
-              with:
-                  path: build/${{ matrix.targetPlatform }}
-                  project: makifoxgirl/tivolispace
-                  channel: ${{ matrix.itchioChannel }}
-                  api-key: ${{ secrets.BUTLER_CREDENTIALS }}
-                  version: ${{ needs.version.outputs.version }}
-
-    upload-to-steam:
-        name: Upload to Steam
+    upload-to-steam-and-itchio:
+        name: Upload to Steam and Itch.io
         runs-on: ubuntu-latest
         needs:
             - version
@@ -126,3 +115,21 @@ jobs:
                   depot1Path: StandaloneWindows64
                   # depot2Path: StandaloneOSX
                   releaseBranch: development
+
+            - name: Upload to Itch.io (Windows)
+              uses: robpc/itchio-upload-action@v1
+              with:
+                  path: build/StandaloneWindows64
+                  project: makifoxgirl/tivolispace
+                  channel: windows
+                  api-key: ${{ secrets.BUTLER_CREDENTIALS }}
+                  version: ${{ needs.version.outputs.version }}
+
+            # - name: Upload to Itch.io (macOS)
+            #   uses: robpc/itchio-upload-action@v1
+            #   with:
+            #       path: build/StandaloneOSX
+            #       project: makifoxgirl/tivolispace
+            #       channel: osx
+            #       api-key: ${{ secrets.BUTLER_CREDENTIALS }}
+            #       version: ${{ needs.version.outputs.version }}
