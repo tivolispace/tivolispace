@@ -31,7 +31,7 @@ jobs:
                     # - targetPlatform: Android
         name: Build ${{ matrix.targetPlatform }} and upload to Itch.io
         # runs-on: ubuntu-latest
-        runs-on: ${{ matrix.windows-latest }}
+        runs-on: ${{ matrix.runsOn }}
         needs:
             - version
         steps:
