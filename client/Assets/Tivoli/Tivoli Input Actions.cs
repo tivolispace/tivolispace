@@ -180,6 +180,42 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
+                    ""name"": ""LeftEyePosition"",
+                    ""type"": ""Value"",
+                    ""id"": ""63e5d755-fc30-418c-ba5c-7bd2c722af83"",
+                    ""expectedControlType"": ""Vector3"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""LeftEyeRotation"",
+                    ""type"": ""Value"",
+                    ""id"": ""d47826a4-1676-4f6c-907f-0dfd7295e8d1"",
+                    ""expectedControlType"": ""Quaternion"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""RightEyePosition"",
+                    ""type"": ""Value"",
+                    ""id"": ""54b3d767-3517-4051-8cdb-29dec2a9ac8f"",
+                    ""expectedControlType"": ""Vector3"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""RightEyeRotation"",
+                    ""type"": ""Value"",
+                    ""id"": ""4b844974-84a6-4fb2-aba4-f1d2d3b4dfac"",
+                    ""expectedControlType"": ""Quaternion"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
                     ""name"": ""LeftHandPosition"",
                     ""type"": ""Value"",
                     ""id"": ""80373e99-05a4-43fa-9ae5-252bfa7df4f1"",
@@ -227,83 +263,6 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
                     ""action"": ""CenterEyePosition"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""3D Vector"",
-                    ""id"": ""c45cdcbc-d3f6-4689-9c88-5c83d7c8e2e4"",
-                    ""path"": ""3DVector"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""CenterEyePosition"",
-                    ""isComposite"": true,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""up"",
-                    ""id"": ""40584edd-1672-44c6-84b0-aada6ccccad9"",
-                    ""path"": ""<Keyboard>/upArrow"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""CenterEyePosition"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""down"",
-                    ""id"": ""60b43929-bb7e-482c-90a3-9b691e7f25e2"",
-                    ""path"": ""<Keyboard>/downArrow"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""CenterEyePosition"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""left"",
-                    ""id"": ""b9a4d658-cbca-4dec-b720-17e05a1d16d7"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""CenterEyePosition"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""right"",
-                    ""id"": ""7c1a3810-46cc-4237-bfc5-df1cb415a73b"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""CenterEyePosition"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""forward"",
-                    ""id"": ""23582f81-5f7a-4c52-8df3-548714f521be"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""CenterEyePosition"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""backward"",
-                    ""id"": ""af2cc3b8-fcaf-47b6-94b2-c73b3871fcb9"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""CenterEyePosition"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
                 },
                 {
                     ""name"": """",
@@ -357,6 +316,50 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""XR Controller"",
                     ""action"": ""RightHandRotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""71876fcc-cda4-4f1f-9bf1-ee643b190e73"",
+                    ""path"": ""<XRHMD>/leftEyePosition"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LeftEyePosition"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d899a1df-21db-4b93-987f-3795d59c0157"",
+                    ""path"": ""<XRHMD>/leftEyeRotation"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LeftEyeRotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""46c96818-47da-4a97-8e38-c7eea9c030e6"",
+                    ""path"": ""<XRHMD>/rightEyePosition"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RightEyePosition"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1096387c-1a80-4dd3-a9d2-9728c6df5904"",
+                    ""path"": ""<XRHMD>/rightEyeRotation"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RightEyeRotation"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -470,6 +473,10 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
         m_VRTracking = asset.FindActionMap("VR Tracking", throwIfNotFound: true);
         m_VRTracking_CenterEyePosition = m_VRTracking.FindAction("CenterEyePosition", throwIfNotFound: true);
         m_VRTracking_CenterEyeRotation = m_VRTracking.FindAction("CenterEyeRotation", throwIfNotFound: true);
+        m_VRTracking_LeftEyePosition = m_VRTracking.FindAction("LeftEyePosition", throwIfNotFound: true);
+        m_VRTracking_LeftEyeRotation = m_VRTracking.FindAction("LeftEyeRotation", throwIfNotFound: true);
+        m_VRTracking_RightEyePosition = m_VRTracking.FindAction("RightEyePosition", throwIfNotFound: true);
+        m_VRTracking_RightEyeRotation = m_VRTracking.FindAction("RightEyeRotation", throwIfNotFound: true);
         m_VRTracking_LeftHandPosition = m_VRTracking.FindAction("LeftHandPosition", throwIfNotFound: true);
         m_VRTracking_LeftHandRotation = m_VRTracking.FindAction("LeftHandRotation", throwIfNotFound: true);
         m_VRTracking_RightHandPosition = m_VRTracking.FindAction("RightHandPosition", throwIfNotFound: true);
@@ -589,6 +596,10 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
     private IVRTrackingActions m_VRTrackingActionsCallbackInterface;
     private readonly InputAction m_VRTracking_CenterEyePosition;
     private readonly InputAction m_VRTracking_CenterEyeRotation;
+    private readonly InputAction m_VRTracking_LeftEyePosition;
+    private readonly InputAction m_VRTracking_LeftEyeRotation;
+    private readonly InputAction m_VRTracking_RightEyePosition;
+    private readonly InputAction m_VRTracking_RightEyeRotation;
     private readonly InputAction m_VRTracking_LeftHandPosition;
     private readonly InputAction m_VRTracking_LeftHandRotation;
     private readonly InputAction m_VRTracking_RightHandPosition;
@@ -599,6 +610,10 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
         public VRTrackingActions(@TivoliInputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @CenterEyePosition => m_Wrapper.m_VRTracking_CenterEyePosition;
         public InputAction @CenterEyeRotation => m_Wrapper.m_VRTracking_CenterEyeRotation;
+        public InputAction @LeftEyePosition => m_Wrapper.m_VRTracking_LeftEyePosition;
+        public InputAction @LeftEyeRotation => m_Wrapper.m_VRTracking_LeftEyeRotation;
+        public InputAction @RightEyePosition => m_Wrapper.m_VRTracking_RightEyePosition;
+        public InputAction @RightEyeRotation => m_Wrapper.m_VRTracking_RightEyeRotation;
         public InputAction @LeftHandPosition => m_Wrapper.m_VRTracking_LeftHandPosition;
         public InputAction @LeftHandRotation => m_Wrapper.m_VRTracking_LeftHandRotation;
         public InputAction @RightHandPosition => m_Wrapper.m_VRTracking_RightHandPosition;
@@ -618,6 +633,18 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
                 @CenterEyeRotation.started -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnCenterEyeRotation;
                 @CenterEyeRotation.performed -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnCenterEyeRotation;
                 @CenterEyeRotation.canceled -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnCenterEyeRotation;
+                @LeftEyePosition.started -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftEyePosition;
+                @LeftEyePosition.performed -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftEyePosition;
+                @LeftEyePosition.canceled -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftEyePosition;
+                @LeftEyeRotation.started -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftEyeRotation;
+                @LeftEyeRotation.performed -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftEyeRotation;
+                @LeftEyeRotation.canceled -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftEyeRotation;
+                @RightEyePosition.started -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnRightEyePosition;
+                @RightEyePosition.performed -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnRightEyePosition;
+                @RightEyePosition.canceled -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnRightEyePosition;
+                @RightEyeRotation.started -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnRightEyeRotation;
+                @RightEyeRotation.performed -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnRightEyeRotation;
+                @RightEyeRotation.canceled -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnRightEyeRotation;
                 @LeftHandPosition.started -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftHandPosition;
                 @LeftHandPosition.performed -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftHandPosition;
                 @LeftHandPosition.canceled -= m_Wrapper.m_VRTrackingActionsCallbackInterface.OnLeftHandPosition;
@@ -640,6 +667,18 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
                 @CenterEyeRotation.started += instance.OnCenterEyeRotation;
                 @CenterEyeRotation.performed += instance.OnCenterEyeRotation;
                 @CenterEyeRotation.canceled += instance.OnCenterEyeRotation;
+                @LeftEyePosition.started += instance.OnLeftEyePosition;
+                @LeftEyePosition.performed += instance.OnLeftEyePosition;
+                @LeftEyePosition.canceled += instance.OnLeftEyePosition;
+                @LeftEyeRotation.started += instance.OnLeftEyeRotation;
+                @LeftEyeRotation.performed += instance.OnLeftEyeRotation;
+                @LeftEyeRotation.canceled += instance.OnLeftEyeRotation;
+                @RightEyePosition.started += instance.OnRightEyePosition;
+                @RightEyePosition.performed += instance.OnRightEyePosition;
+                @RightEyePosition.canceled += instance.OnRightEyePosition;
+                @RightEyeRotation.started += instance.OnRightEyeRotation;
+                @RightEyeRotation.performed += instance.OnRightEyeRotation;
+                @RightEyeRotation.canceled += instance.OnRightEyeRotation;
                 @LeftHandPosition.started += instance.OnLeftHandPosition;
                 @LeftHandPosition.performed += instance.OnLeftHandPosition;
                 @LeftHandPosition.canceled += instance.OnLeftHandPosition;
@@ -733,6 +772,10 @@ public partial class @TivoliInputActions : IInputActionCollection2, IDisposable
     {
         void OnCenterEyePosition(InputAction.CallbackContext context);
         void OnCenterEyeRotation(InputAction.CallbackContext context);
+        void OnLeftEyePosition(InputAction.CallbackContext context);
+        void OnLeftEyeRotation(InputAction.CallbackContext context);
+        void OnRightEyePosition(InputAction.CallbackContext context);
+        void OnRightEyeRotation(InputAction.CallbackContext context);
         void OnLeftHandPosition(InputAction.CallbackContext context);
         void OnLeftHandRotation(InputAction.CallbackContext context);
         void OnRightHandPosition(InputAction.CallbackContext context);
