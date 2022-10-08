@@ -25,10 +25,10 @@ jobs:
                 include:
                     - targetPlatform: StandaloneWindows64
                       itchioChannel: windows
-                    - targetPlatform: StandaloneOSX
-                      # not doing arm64 for now because of steam audio
-                      buildMethod: Tivoli.Editor.MacIntelBuildScript.Build
-                      itchioChannel: osx
+                    # - targetPlatform: StandaloneOSX
+                    #   # not doing arm64 for now because of steam audio
+                    #   buildMethod: Tivoli.Editor.MacIntelBuildScript.Build
+                    #   itchioChannel: osx
                     # - targetPlatform: StandaloneLinux64
                     # - targetPlatform: Android
         steps:
@@ -92,15 +92,15 @@ jobs:
               with:
                   name: Client-StandaloneWindows64-${{ needs.version.outputs.version }}
 
-            - name: Download client artifact for StandaloneOSX
-              uses: actions/download-artifact@v3
-              with:
-                  name: Client-StandaloneOSX-${{ needs.version.outputs.version }}
+            # - name: Download client artifact for StandaloneOSX
+            #   uses: actions/download-artifact@v3
+            #   with:
+            #       name: Client-StandaloneOSX-${{ needs.version.outputs.version }}
 
             - name: Untar.gz build
               run: |
                   tar -xf 'StandaloneWindows64.tar.gz'
-                  tar -xf 'StandaloneOSX.tar.gz'
+                  # tar -xf 'StandaloneOSX.tar.gz'
 
             - name: List files
               run: |
@@ -118,5 +118,5 @@ jobs:
                   buildDescription: ${{ needs.version.outputs.version }}
                   rootPath: build
                   depot1Path: StandaloneWindows64
-                  depot2Path: StandaloneOSX
+                  # depot2Path: StandaloneOSX
                   releaseBranch: development
