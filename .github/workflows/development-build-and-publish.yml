@@ -45,7 +45,6 @@ jobs:
                   path: client/Library
                   key: Library-${{ matrix.targetPlatform }}
                   restore-keys: |
-                      Library-${{ matrix.targetPlatform }}
                       Library-
 
             - name: Build client
