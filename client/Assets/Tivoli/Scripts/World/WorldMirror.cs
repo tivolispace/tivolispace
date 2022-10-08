@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 namespace Tivoli.Scripts.World
 {
     // same implementation as vrchat mirror 
-    
+
     [ExecuteInEditMode]
     public class WorldMirror : MonoBehaviour
     {
@@ -351,7 +351,7 @@ namespace Tivoli.Scripts.World
             _mirrorCamera.fieldOfView = src.fieldOfView;
         }
 
-        private void UpdateParentTransform(Component currentCamera)
+        private void UpdateParentTransform(Camera currentCamera)
         {
             // if (currentCamera.transform.parent != null)
             // {
@@ -360,11 +360,21 @@ namespace Tivoli.Scripts.World
             // }
             // else
             // {
-            var localRotation = _inputActions.VRTracking.CenterEyeRotation.ReadValue<Quaternion>();
-            var matrix4X4 = Matrix4x4.TRS(_inputActions.VRTracking.CenterEyePosition.ReadValue<Vector3>(),
-                localRotation, Vector3.one);
-            // var localRotation = currentCamera.transform.rotation;
-            // var matrix4X4 = Matrix4x4.TRS(currentCamera.transform.position, localRotation, Vector3.one);
+            Quaternion localRotation;
+            Matrix4x4 matrix4X4;
+
+            if (currentCamera.stereoEnabled)
+            {
+                localRotation = _inputActions.VRTracking.CenterEyeRotation.ReadValue<Quaternion>();
+                matrix4X4 = Matrix4x4.TRS(_inputActions.VRTracking.CenterEyePosition.ReadValue<Vector3>(),
+                    localRotation, Vector3.one);
+            }
+            else
+            {
+                localRotation = currentCamera.transform.rotation;
+                matrix4X4 = Matrix4x4.TRS(currentCamera.transform.position, localRotation, Vector3.one);
+            }
+
             _parentTransform = currentCamera.transform.localToWorldMatrix * matrix4X4.inverse;
             _parentRotation = currentCamera.transform.rotation * Quaternion.Inverse(localRotation);
             // }
