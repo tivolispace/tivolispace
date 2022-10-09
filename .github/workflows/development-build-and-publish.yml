@@ -61,16 +61,29 @@ jobs:
                   buildMethod: ${{ matrix.buildMethod }}
                   versioning: Custom
                   version: ${{ needs.version.outputs.version }}
-                  customParameters: -sentryAuthToken ${{ secrets.SENTRY_AUTH_TOKEN }}
 
-            - name: Delete Windows debug symbols
+            - name: Upload and clean Windows debug symbols
               if: ${{ startsWith(matrix.runsOn, 'windows') }}
               run: |
+                  $env:SENTRY_URL = "https://sentry.tivoli.space"
+                  $env:SENTRY_AUTH_TOKEN = "${{ secrets.SENTRY_AUTH_TOKEN }}"
+
+                  npm i -g @sentry/cli
+
+                  sentry-cli upload-dif --il2cpp-mapping --include-sources client -o tivolispace -p tivolispace build
+
                   Get-ChildItem -Path build -Include '*_BackUpThisFolder_ButDontShipItWithYourGame' -Recurse | Where-Object {$_.PsIsContainer} | Remove-Item -Recurse -Force
 
-            - name: Delete Unix debug symbols
+            - name: Upload and clean Unix debug symbols
               if: ${{ !startsWith(matrix.runsOn, 'windows') }}
               run: |
+                  export SENTRY_URL="https://sentry.tivoli.space"
+                  export SENTRY_AUTH_TOKEN="${{ secrets.SENTRY_AUTH_TOKEN }}"
+
+                  npm i -g @sentry/cli
+
+                  sentry-cli upload-dif --il2cpp-mapping --include-sources client -o tivolispace -p tivolispace build
+
                   find build -type d -name '*_BackUpThisFolder_ButDontShipItWithYourGame' -exec rm -rf {} +
 
             # permissions are lost when we dont tar.gz it first
