@@ -64,12 +64,12 @@ jobs:
                   customParameters: "-sentryAuthToken ${{ secrets.SENTRY_AUTH_TOKEN }}"
 
             - name: Delete Windows debug symbols
-              if: ${{ startsWith(${{ matrix.runsOn }}, 'windows') }}
+              if: ${{ startsWith(matrix.runsOn, 'windows') }}
               run: |
                   Get-ChildItem -Path build -Include '*_BackUpThisFolder_ButDontShipItWithYourGame' -Recurse | Where-Object {$_.PsIsContainer} | Remove-Item -Recurse -Force
 
             - name: Delete Unix debug symbols
-              if: ${{ !startsWith(${{ matrix.runsOn }}, 'windows') }}
+              if: ${{ !startsWith(matrix.runsOn, 'windows') }}
               run: |
                   find build -type d -name '*_BackUpThisFolder_ButDontShipItWithYourGame' -exec rm -rf {} +
 
