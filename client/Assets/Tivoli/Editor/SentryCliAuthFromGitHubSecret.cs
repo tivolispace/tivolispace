@@ -17,10 +17,12 @@ namespace Tivoli.Editor
             var cliOptions =
                 AssetDatabase.LoadAssetAtPath<SentryCliOptions>("Assets/Plugins/Sentry/SentryCliOptions.asset");
 
-            var commandLineArgs = new List<string>(Environment.GetCommandLineArgs());
-            var foundSentryAuthToken = commandLineArgs.FindIndex(s => s == "-sentryAuthToken");
+            var args = new List<string>(Environment.GetCommandLineArgs());
 
-            if (foundSentryAuthToken == -1)
+            const string arg = "-sentryAuthToken";
+            var foundIndex = args.FindIndex(s => s.StartsWith(arg));
+
+            if (foundIndex == -1)
             {
                 Debug.Log("Sentry auth token not found, disabling symbol uploading");
                 cliOptions.UploadSymbols = false;
@@ -28,7 +30,12 @@ namespace Tivoli.Editor
             else
             {
                 Debug.Log("Sentry auth token found, enabling symbols uploading");
-                var sentryAuthToken = commandLineArgs[foundSentryAuthToken + 1];
+
+                // arguments are either: ["-sentryAuthToken", "token"] or ["-sentryAuthToken token"]
+                var sentryAuthToken = args[foundIndex].Length == arg.Length
+                    ? args[foundIndex + 1]
+                    : args[foundIndex].Split(' ')[1];
+
                 cliOptions.UploadSymbols = true;
                 cliOptions.Auth = sentryAuthToken;
             }

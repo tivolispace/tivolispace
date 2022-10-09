@@ -61,7 +61,7 @@ jobs:
                   buildMethod: ${{ matrix.buildMethod }}
                   versioning: Custom
                   version: ${{ needs.version.outputs.version }}
-                  customParameters: "-sentryAuthToken ${{ secrets.SENTRY_AUTH_TOKEN }}"
+                  customParameters: -sentryAuthToken ${{ secrets.SENTRY_AUTH_TOKEN }}
 
             - name: Delete Windows debug symbols
               if: ${{ startsWith(matrix.runsOn, 'windows') }}
