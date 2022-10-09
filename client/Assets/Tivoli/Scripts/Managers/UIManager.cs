@@ -53,6 +53,7 @@ namespace Tivoli.Scripts.Managers
 
                 canvas.rotation = Quaternion.Euler(10f, cameraRotation.eulerAngles.y, 0f);
 
+                // TODO: refresh main menu when opening
                 _uiMainMenu.SetActive(true);
             }
             else
