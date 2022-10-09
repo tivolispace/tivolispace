@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using Sentry.Unity.Editor;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEngine;
 
 namespace Tivoli.Editor
 {
@@ -12,17 +14,21 @@ namespace Tivoli.Editor
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            var sentryAuthToken = Environment.GetEnvironmentVariable("SENTRY_AUTH_TOKEN");
-
             var cliOptions =
                 AssetDatabase.LoadAssetAtPath<SentryCliOptions>("Assets/Plugins/Sentry/SentryCliOptions.asset");
 
-            if (string.IsNullOrEmpty(sentryAuthToken))
+            var commandLineArgs = new List<string>(Environment.GetCommandLineArgs());
+            var foundSentryAuthToken = commandLineArgs.FindIndex(s => s == "-sentryAuthToken");
+
+            if (foundSentryAuthToken == -1)
             {
+                Debug.Log("Sentry auth token not found, disabling symbol uploading");
                 cliOptions.UploadSymbols = false;
             }
             else
             {
+                Debug.Log("Sentry auth token found, enabling symbols uploading");
+                var sentryAuthToken = commandLineArgs[foundSentryAuthToken + 1];
                 cliOptions.UploadSymbols = true;
                 cliOptions.Auth = sentryAuthToken;
             }

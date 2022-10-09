@@ -15,7 +15,7 @@ MonoBehaviour:
   <UploadSymbols>k__BackingField: 0
   <UploadDevelopmentSymbols>k__BackingField: 1
   <UploadSources>k__BackingField: 1
-  <UrlOverride>k__BackingField: 
+  <UrlOverride>k__BackingField: https://sentry.tivoli.space
   <Auth>k__BackingField: FilledOutByGitHubActions
   <Organization>k__BackingField: tivolispace
   <Project>k__BackingField: tivolispace

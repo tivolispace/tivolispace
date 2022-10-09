@@ -53,7 +53,6 @@ jobs:
                   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
                   UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
                   UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-                  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
               with:
                   customImage: ${{ matrix.unityImage }}
                   projectPath: client/
@@ -62,7 +61,17 @@ jobs:
                   buildMethod: ${{ matrix.buildMethod }}
                   versioning: Custom
                   version: ${{ needs.version.outputs.version }}
-                  # customParameters: "-myParameter myValue -myBoolean -ThirdParameter andItsValue"
+                  customParameters: "-sentryAuthToken ${{ secrets.SENTRY_AUTH_TOKEN }}"
+
+            - name: Delete Windows debug symbols
+              if: ${{ startsWith(${{ matrix.runsOn }}, 'windows') }}
+              run: |
+                  Get-ChildItem -Path build -Include '*_BackUpThisFolder_ButDontShipItWithYourGame' -Recurse | Where-Object {$_.PsIsContainer} | Remove-Item -Recurse -Force
+
+            - name: Delete Unix debug symbols
+              if: ${{ !startsWith(${{ matrix.runsOn }}, 'windows') }}
+              run: |
+                  find build -type d -name '*_BackUpThisFolder_ButDontShipItWithYourGame' -exec rm -rf {} +
 
             # permissions are lost when we dont tar.gz it first
             # https://github.com/actions/upload-artifact/#maintaining-file-permissions-and-case-sensitive-files
