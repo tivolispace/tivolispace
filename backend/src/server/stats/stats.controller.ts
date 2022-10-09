@@ -14,8 +14,8 @@ export class StatsController {
 	@Get("online")
 	async online() {
 		return {
-			users: this.userSessionService.onlineCount(),
-			instances: this.instanceService.onlineCount(),
+			users: await this.userSessionService.onlineCount(),
+			instances: await this.instanceService.onlineCount(),
 		};
 	}
 
