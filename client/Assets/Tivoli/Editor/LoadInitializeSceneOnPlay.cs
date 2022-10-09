@@ -1,15 +1,21 @@
 using Tivoli.Scripts;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using UnityEngine;
 
 namespace Tivoli.Editor
 {
-    [InitializeOnLoad]
     public static class LoadInitializeSceneOnPlay
     {
-        static LoadInitializeSceneOnPlay()
+        [InitializeOnLoadMethod]
+        private static void Init()
         {
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        }
+
+        private static void OnPlayModeStateChanged(PlayModeStateChange state)
+        {
+            if (state != PlayModeStateChange.ExitingEditMode) return;
+
             if (EditorPrefs.GetBool(TivoliEditorPrefs.OverridePlayMode, TivoliDefaultEditorPrefs.OverridePlayMode))
             {
                 var pathOfFirstScene = EditorBuildSettings.scenes[0].path;
