@@ -57,4 +57,10 @@ export class UserSessionService {
 		});
 		return sessions.map(session => session.user as any as string);
 	}
+
+	async onlineCount() {
+		return await this.userSessionModel.countDocuments({
+			expiresAt: { $gte: Date.now() },
+		});
+	}
 }

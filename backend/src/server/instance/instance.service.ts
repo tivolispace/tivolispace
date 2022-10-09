@@ -74,4 +74,10 @@ export class InstanceService {
 			connectionUri: instance.connectionUri,
 		}));
 	}
+
+	async onlineCount() {
+		return await this.instanceModel.countDocuments({
+			expiresAt: { $gte: Date.now() },
+		});
+	}
 }

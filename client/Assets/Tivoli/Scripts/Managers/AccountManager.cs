@@ -182,7 +182,7 @@ namespace Tivoli.Scripts.Managers
 
         public async Task<AllOnlineUsers> GetAllOnlineUsers()
         {
-            var (allOnlineUsers, _) = await new HttpFox(ApiUrl + "/api/stats/online")
+            var (allOnlineUsers, _) = await new HttpFox(ApiUrl + "/api/stats/online-users")
                 .WithBearerAuth(_accessToken)
                 .ReceiveJson<AllOnlineUsers>();
 
