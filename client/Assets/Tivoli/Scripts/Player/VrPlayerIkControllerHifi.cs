@@ -14,7 +14,7 @@ namespace Tivoli.Scripts.Player
         private Vector3 _tposeHipsPosition = Vector3.zero;
         private readonly Dictionary<HumanBodyBones, SkeletonBone> _tposeBones = new();
 
-        // private readonly Dictionary<HumanBodyBones, Quaternion> _boneRotationOffsets = new();
+        private readonly Dictionary<HumanBodyBones, Quaternion> _boneRotationOffsets = new();
 
         public Transform testHead;
         public Transform testHips;
@@ -81,45 +81,34 @@ namespace Tivoli.Scripts.Player
 
             // hips need to be euler 0,0,0 so lets make a dictionary of what bone rotations should be
 
-            // var boneRotationResets = new[]
-            // {
-            //     (HumanBodyBones.Hips, new Vector3(0f, 0f, 0f)),
-            //     (HumanBodyBones.Head, new Vector3(0f, 0f, 0f)),
-            // };
-            //
-            // foreach (var (bone, eulerReset) in boneRotationResets)
-            // {
-            //     var tposeBone = _tposeBones[bone];
-            //     var rotReset = Quaternion.Euler(eulerReset);
-            //     _boneRotationOffsets[bone] = Quaternion.Inverse(tposeBone.rotation);
-            //     tposeBone.rotation = rotReset;
-            //     _tposeBones[bone] = tposeBone;
-            // }
+            var boneRotationResets = new[]
+            {
+                (HumanBodyBones.Hips, new Vector3(0f, 0f, 0f)),
+                (HumanBodyBones.Head, new Vector3(0f, 0f, 0f)),
+            };
+
+            foreach (var (bone, eulerReset) in boneRotationResets)
+            {
+                var tposeBone = _tposeBones[bone];
+                var rotReset = Quaternion.Euler(eulerReset);
+                _boneRotationOffsets[bone] = Quaternion.Inverse(tposeBone.rotation) * rotReset;
+                tposeBone.rotation = rotReset;
+                _tposeBones[bone] = tposeBone;
+            }
+
+            // make hifi my avatar
 
             _hifiMyAvatar = new MyAvatar
             {
                 // avatar bone position
-                GetAvatarBonePos = (bone) =>
-                    animator.GetBoneTransform(bone).position - _tposeHipsPosition - transform.position,
-
-                GetAvatarDefaultBonePos = bone => _tposeBones[bone].position,
-
+                GetAvatarBonePos = GetAvatarBonePos,
+                GetAvatarDefaultBonePos = GetAvatarDefaultBonePos,
                 // avatar bone rotation
-                GetAvatarBoneRot = bone =>
-                {
-                    var rotation = animator.GetBoneTransform(bone).rotation;
-                    // if (_boneRotationOffsets.TryGetValue(bone, out var offset))
-                    // {
-                    //     rotation = offset * rotation;
-                    // }
-                    return rotation;
-                },
-
-                GetAvatarDefaultBoneRot = bone => _tposeBones[bone].rotation,
-
+                GetAvatarBoneRot = GetAvatarBoneRot,
+                GetAvatarDefaultBoneRot = GetAvatarDefaultBoneRot,
                 // user eyes
-                GetUserEyePosition = () => testHead.transform.position,
-                GetUserEyeRotation = () => testHead.transform.rotation
+                GetUserEyePosition = GetUserEyePosition,
+                GetUserEyeRotation = GetUserEyeRotation,
             };
         }
 
@@ -127,10 +116,56 @@ namespace Tivoli.Scripts.Player
         {
         }
 
-        public void Update()
+        // avatar bone position
+
+        private Vector3 GetAvatarBonePos(HumanBodyBones bone) =>
+            animator.GetBoneTransform(bone).position - _tposeHipsPosition - transform.position;
+
+        private void SetAvatarBonePos(HumanBodyBones bone, Vector3 position) =>
+            animator.GetBoneTransform(bone).position = position + _tposeHipsPosition + transform.position;
+
+        private Vector3 GetAvatarDefaultBonePos(HumanBodyBones bone) => _tposeBones[bone].position;
+
+        // avatar bone rotation
+
+        private Quaternion GetAvatarBoneRot(HumanBodyBones bone)
         {
+            var rotation = animator.GetBoneTransform(bone).rotation;
+
+            // if (_boneRotationOffsets.TryGetValue(bone, out var offset))
+            // {
+            //     Quaternion.
+            //     rotation = Quaternion.Inverse(offset) * rotation;
+            // }
+
+            return rotation;
+        }
+
+        private void SetAvatarBoneRot(HumanBodyBones bone, Quaternion rotation)
+        {
+            // TODO: blelelele figure this out
+            
+            // if (_boneRotationOffsets.TryGetValue(bone, out var offset))
+            // {
+            //     rotation = offset * rotation;
+            // }
+
+            animator.GetBoneTransform(bone).rotation = rotation;
+        }
+
+        private Quaternion GetAvatarDefaultBoneRot(HumanBodyBones bone) => _tposeBones[bone].rotation;
+
+        private Vector3 GetUserEyePosition() => testHead.transform.position - _tposeHipsPosition - transform.position;
+
+        private Quaternion GetUserEyeRotation() => testHead.transform.rotation;
+
+        public void LateUpdate()
+        {
+            SetAvatarBonePos(HumanBodyBones.Head, GetUserEyePosition());
+            SetAvatarBoneRot(HumanBodyBones.Head, GetUserEyeRotation());
+
             var hipsMat = _hifiMyAvatar.DeriveBodyUsingCgModel();
-            testHips.position = hipsMat.GetPosition() + _tposeHipsPosition;
+            testHips.position = hipsMat.GetPosition() + _tposeHipsPosition + transform.position;
             testHips.rotation = hipsMat.rotation;
         }
     }
