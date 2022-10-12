@@ -136,7 +136,7 @@ GameObject:
   - component: {fileID: 293186118}
   - component: {fileID: 293186117}
   m_Layer: 0
-  m_Name: Head
+  m_Name: Test Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -509,7 +509,7 @@ GameObject:
   - component: {fileID: 2106419408}
   - component: {fileID: 2106419407}
   m_Layer: 0
-  m_Name: Hips
+  m_Name: Test Hips
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7745,5 +7745,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 3556290197826748253}
-  Head: {fileID: 293186116}
-  Hips: {fileID: 2106419406}
+  testHead: {fileID: 293186116}
+  testHips: {fileID: 2106419406}

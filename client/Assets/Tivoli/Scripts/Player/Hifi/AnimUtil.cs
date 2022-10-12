@@ -58,5 +58,59 @@ namespace Tivoli.Scripts.Player.Hifi
 
             return Quaternion.LookRotation(bodyForward, bodyUp);
         }
+
+        public class CriticallyDampedSpringPoseHelper
+        {
+            private AnimPose _prevPose;
+            private float _horizontalTranslationTimescale = 0.15f;
+            private float _verticalTranslationTimescale = 0.15f;
+            private float _rotationTimescale = 0.15f;
+            private bool _prevPoseValid = false;
+
+            public void SetHorizontalTranslationTimescale(float timescale)
+            {
+                _horizontalTranslationTimescale = timescale;
+            }
+
+            public void SetVerticalTranslationTimescale(float timescale)
+            {
+                _verticalTranslationTimescale = timescale;
+            }
+
+            public void SetRotationTimescale(float timescale)
+            {
+                _rotationTimescale = timescale;
+            }
+
+            public AnimPose update(AnimPose pose, float deltaTime)
+            {
+                if (!_prevPoseValid)
+                {
+                    _prevPose = pose;
+                    _prevPoseValid = true;
+                }
+
+                var horizontalTranslationAlpha = Mathf.Min(deltaTime / _horizontalTranslationTimescale, 1.0f);
+                var verticalTranslationAlpha = Mathf.Min(deltaTime / _verticalTranslationTimescale, 1.0f);
+                var rotationAlpha = Mathf.Min(deltaTime / _rotationTimescale, 1.0f);
+
+                var poseY = pose.Trans.y;
+                var newPose = new AnimPose(_prevPose);
+                newPose.Trans = Vector3.Lerp(_prevPose.Trans, pose.Trans, horizontalTranslationAlpha);
+                newPose.Trans.y = Mathf.Lerp(_prevPose.Trans.y, poseY, verticalTranslationAlpha);
+                newPose.Rot = Quaternion.Lerp(_prevPose.Rot, pose.Rot, rotationAlpha);
+
+                _prevPose = newPose;
+                _prevPoseValid = true;
+
+                return newPose;
+            }
+
+            public void Teleport(AnimPose pose)
+            {
+                _prevPoseValid = true;
+                _prevPose = pose;
+            }
+        }
     }
 }

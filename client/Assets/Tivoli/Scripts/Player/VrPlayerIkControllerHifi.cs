@@ -20,6 +20,7 @@ namespace Tivoli.Scripts.Player
         public Transform testHips;
 
         private MyAvatar _hifiMyAvatar;
+        private MySkeletonModel _hifiMySkeletonModel;
 
         private void Awake()
         {
@@ -110,6 +111,8 @@ namespace Tivoli.Scripts.Player
                 GetUserEyePosition = GetUserEyePosition,
                 GetUserEyeRotation = GetUserEyeRotation,
             };
+
+            _hifiMySkeletonModel = new MySkeletonModel(_hifiMyAvatar);
         }
 
         private void OnDestroy()
@@ -164,9 +167,9 @@ namespace Tivoli.Scripts.Player
             SetAvatarBonePos(HumanBodyBones.Head, GetUserEyePosition());
             SetAvatarBoneRot(HumanBodyBones.Head, GetUserEyeRotation());
 
-            var hipsMat = _hifiMyAvatar.DeriveBodyUsingCgModel();
-            testHips.position = hipsMat.GetPosition() + _tposeHipsPosition + transform.position;
-            testHips.rotation = hipsMat.rotation;
+            var hips = _hifiMySkeletonModel.UpdateRig(Time.deltaTime);
+            testHips.position = hips.Trans + _tposeHipsPosition + transform.position;
+            testHips.rotation = hips.Rot;
         }
     }
 }
