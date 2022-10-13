@@ -18,6 +18,7 @@ namespace Tivoli.Scripts.Player
 
         public Transform testHead;
         public Transform testHips;
+        public Transform testSpine2;
 
         private MyAvatar _hifiMyAvatar;
         private MySkeletonModel _hifiMySkeletonModel;
@@ -97,22 +98,30 @@ namespace Tivoli.Scripts.Player
                 _tposeBones[bone] = tposeBone;
             }
 
+
             // make hifi my avatar
 
             _hifiMyAvatar = new MyAvatar
             {
                 // avatar bone position
                 GetAvatarBonePos = GetAvatarBonePos,
+                SetAvatarBonePos = SetAvatarBonePos,
                 GetAvatarDefaultBonePos = GetAvatarDefaultBonePos,
                 // avatar bone rotation
                 GetAvatarBoneRot = GetAvatarBoneRot,
+                SetAvatarBoneRot = SetAvatarBoneRot,
                 GetAvatarDefaultBoneRot = GetAvatarDefaultBoneRot,
                 // user eyes
                 GetUserEyePosition = GetUserEyePosition,
                 GetUserEyeRotation = GetUserEyeRotation,
             };
 
-            _hifiMySkeletonModel = new MySkeletonModel(_hifiMyAvatar);
+            _hifiMySkeletonModel = new MySkeletonModel(_hifiMyAvatar, _tposeHipsPosition)
+            {
+                TestHead = testHead,
+                TestHips = testHips,
+                TestSpine2 = testSpine2
+            };
         }
 
         private void OnDestroy()
@@ -147,7 +156,7 @@ namespace Tivoli.Scripts.Player
         private void SetAvatarBoneRot(HumanBodyBones bone, Quaternion rotation)
         {
             // TODO: blelelele figure this out
-            
+
             // if (_boneRotationOffsets.TryGetValue(bone, out var offset))
             // {
             //     rotation = offset * rotation;
@@ -164,12 +173,7 @@ namespace Tivoli.Scripts.Player
 
         public void LateUpdate()
         {
-            SetAvatarBonePos(HumanBodyBones.Head, GetUserEyePosition());
-            SetAvatarBoneRot(HumanBodyBones.Head, GetUserEyeRotation());
-
-            var hips = _hifiMySkeletonModel.UpdateRig(Time.deltaTime);
-            testHips.position = hips.Trans + _tposeHipsPosition + transform.position;
-            testHips.rotation = hips.Rot;
+            _hifiMySkeletonModel.UpdateRig(Time.deltaTime, transform);
         }
     }
 }

@@ -8,16 +8,65 @@ namespace Tivoli.Scripts.Player.Hifi
     public class MyAvatar
     {
         public Func<HumanBodyBones, Vector3> GetAvatarBonePos = _ => Vector3.zero;
+        public Action<HumanBodyBones, Vector3> SetAvatarBonePos = (_, _) => { };
         public Func<HumanBodyBones, Vector3> GetAvatarDefaultBonePos = _ => Vector3.zero;
         
         public Func<HumanBodyBones, Quaternion> GetAvatarBoneRot = _ => Quaternion.identity;
+        public Action<HumanBodyBones, Quaternion> SetAvatarBoneRot = (_, _) => { };
         public Func<HumanBodyBones, Quaternion> GetAvatarDefaultBoneRot = _ => Quaternion.identity;
-        
+
         public Func<Vector3> GetUserEyePosition = () => Vector3.zero;
         public Func<Quaternion> GetUserEyeRotation = () => Quaternion.identity;
-        
+
         private float GetUserEyeHeight() => GetUserEyePosition().y;
-        
+
+        private float _spine2SplineRatio = DEFAULT_SPINE2_SPLINE_PROPORTION;
+        public float GetSpine2SplineRatio() => _spine2SplineRatio;
+
+        private Vector3 _spine2SplineOffset;
+        public Vector3 GetSpine2SplineOffset() => _spine2SplineOffset;
+
+        private void BuildSpine2SplineRatioCache()
+        {
+            var hipsRigDefaultPose = new AnimPose(GetAvatarDefaultBoneRot(HumanBodyBones.Hips),
+                GetAvatarDefaultBonePos(HumanBodyBones.Hips));
+            var headRigDefaultPose = new AnimPose(GetAvatarDefaultBoneRot(HumanBodyBones.Head),
+                GetAvatarDefaultBonePos(HumanBodyBones.Head));
+            var basePosition = hipsRigDefaultPose.Trans;
+            var tipPosition = headRigDefaultPose.Trans;
+            var spine2Position = GetAvatarDefaultBonePos(HumanBodyBones.UpperChest); // spine2 is upper chest
+
+            var baseToTip = tipPosition - basePosition;
+            var baseToTipLength = Vector3.Magnitude(baseToTip);
+            var baseToTipNormal = baseToTip / baseToTipLength;
+            var baseToSpine2 = spine2Position - basePosition;
+
+            _spine2SplineRatio = Vector3.Dot(baseToSpine2, baseToTipNormal) / baseToTipLength;
+
+            var defaultSpline = new CubicHermiteSplineFunctorWithArcLength(
+                headRigDefaultPose.Rot, headRigDefaultPose.Trans,
+                hipsRigDefaultPose.Rot, hipsRigDefaultPose.Trans
+            );
+
+            // measure the total arc length along the spline
+            var totalDefaultArcLength = defaultSpline.ArcLength(1.0f);
+            var t = defaultSpline.ArcLengthInverse(_spine2SplineRatio * totalDefaultArcLength);
+            var defaultSplineSpine2Translation = defaultSpline.Evaluate(t);
+
+            _spine2SplineOffset = spine2Position - defaultSplineSpine2Translation;
+        }
+
+        public void RigReady()
+        {
+            // buildUnscaledEyeHeightCache();
+            BuildSpine2SplineRatioCache();
+            // computeMultiSphereShapes();
+            // buildSpine2SplineRatioCache();
+            // setSkeletonData(getSkeletonDefaultData());
+            // sendSkeletonData();
+        }
+
+
         // ease in function for dampening cg movement
         private static float Slope(float num)
         {
