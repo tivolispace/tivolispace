@@ -3,8 +3,8 @@
     public class MySkeletonModel
     {
         private readonly MyAvatar _myAvatar;
-        
-        private readonly AnimUtil.CriticallyDampedSpringPoseHelper _smoothHipsHelper = new ();
+
+        private readonly AnimUtil.CriticallyDampedSpringPoseHelper _smoothHipsHelper = new();
 
         public MySkeletonModel(MyAvatar myAvatar)
         {
@@ -14,10 +14,10 @@
         private AnimPose ComputeHipsInSensorFrame()
         {
             // TODO: incomplete
-            
+
             var hipsMat = _myAvatar.DeriveBodyUsingCgModel();
             // deriveBodyFromHMDSensor();
-            
+
             var hipsPos = hipsMat.GetPosition();
             var hipsRot = hipsMat.rotation;
 
