@@ -47,6 +47,13 @@ jobs:
                   restore-keys: |
                       Library-
 
+            - name: Get Final IK 2.1
+              run: |
+                  cd client
+                  wget -O Final_IK_2.1.unitypackage ${{ secrets.FINAL_IK_URL }}
+                  pip install unitypackage_extractor
+                  python -m unitypackage_extractor Final_IK_2.1.unitypackage
+
             - name: Build client
               uses: game-ci/unity-builder@v2
               env:
