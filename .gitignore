@@ -6,3 +6,5 @@
 /export
 /build
 .DS_Store
+client/Assets/Plugins/RootMotion*
+client/Assets/_TerrainAutoUpgrade*

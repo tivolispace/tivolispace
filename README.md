@@ -8,6 +8,10 @@ Steam keys will be available sometime. In the mean time, dev builds are also [up
 
 See our [Trello page](https://trello.com/b/za4VZKkl/tivoli-space)!
 
+## Requirements
+
+-   Final IK 2.1 is needed. Just add to the client, it'll be git ignored
+
 ## Using a second Steam account for testing
 
 <!--
