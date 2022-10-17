@@ -1,8 +1,8 @@
 ﻿using Mirror;
 using Tivoli.Scripts.Managers;
 using Tivoli.Scripts.UI;
+using Tivoli.Scripts.Utils;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Tivoli.Scripts.Player
 {
@@ -17,8 +17,8 @@ namespace Tivoli.Scripts.Player
         public VrPlayerController vrPlayerController;
         public VrPlayerIkController vrPlayerIkController;
 
-        [SyncVar(hook = nameof(OnIkData))]
-        private VrPlayerController.IkData _ikData;
+        private const float SEND_IK_INTERVAL = 1f / 60f;
+        private float _sendIkTimer;
 
         public override async void OnStartLocalPlayer()
         {
@@ -50,25 +50,32 @@ namespace Tivoli.Scripts.Player
             nametag.GetComponent<Nametag>().UserId = newUserId;
         }
 
-        private void OnIkData(VrPlayerController.IkData oldIkData, VrPlayerController.IkData newIkData)
+        [Command(channel = Channels.Unreliable, requiresAuthority = true)]
+        public void SendIkData(short[] compressed)
         {
-            if (isLocalPlayer) return;
+            RpcReceiveIkData(compressed);
+        }
 
-            vrPlayerIkController.UpdateWithIkData(newIkData);
+        [ClientRpc(channel = Channels.Unreliable, includeOwner = false)]
+        private void RpcReceiveIkData(short[] compressed)
+        {
+            vrPlayerIkController.UpdateWithIkData(IkDataCompression.Decompress(compressed));
         }
 
         private void Update()
         {
-            if (isLocalPlayer) return;
-            
-            nametagTransform.LookAt(DependencyManager.Instance.UIManager.GetMainCamera().transform);
-        }
-
-        private void LateUpdate()
-        {
             if (isLocalPlayer)
             {
-                _ikData = vrPlayerController.GetIkData();
+                _sendIkTimer += Time.deltaTime;
+                if (_sendIkTimer >= SEND_IK_INTERVAL)
+                {
+                    SendIkData(IkDataCompression.Compress(vrPlayerController.GetIkData()));
+                    _sendIkTimer -= SEND_IK_INTERVAL;
+                }
+            }
+            else
+            {
+                nametagTransform.LookAt(DependencyManager.Instance.UIManager.GetMainCamera().transform);
             }
         }
     }

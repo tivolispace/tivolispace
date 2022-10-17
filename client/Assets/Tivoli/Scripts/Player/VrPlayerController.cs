@@ -11,7 +11,7 @@ namespace Tivoli.Scripts.Player
         private Transform _mainCameraTransform;
 
         public Animator animator;
-         
+
 
         private Rigidbody _rigidbody;
 
@@ -24,7 +24,7 @@ namespace Tivoli.Scripts.Player
         private const float TurnDegrees = 30f;
 
         public VrPlayerIkController ikController;
-        
+
         private void Awake()
         {
             _mainCamera = DependencyManager.Instance.UIManager.GetMainCamera();
@@ -160,49 +160,30 @@ namespace Tivoli.Scripts.Player
             public float LocalEyeHeight;
             public Vector3 LocalLeftHandPosition;
             public Vector3 LocalRightHandPosition;
-            public Quaternion LocalEyeRotation;
+            public Quaternion EyeRotation;
             public Quaternion LocalLeftHandRotation;
             public Quaternion LocalRightHandRotation;
         }
-
-        public IkData GetIkData()
+        
+        public IkData GetIkData() => new IkData
         {
-            var playerPosition = transform.position;
-            var playerY = Quaternion.Euler(0, transform.eulerAngles.y, 0);
+            LocalEyeHeight = _mainCameraTransform.transform.localPosition.y,
 
-            // var leftHandPosition =
-            //     playerY * (_inputActions.VRTracking.LeftHandPosition.ReadValue<Vector3>() -
-            //                _lastRigidbodyXZCenterEyePosition) + playerPosition;
+            LocalLeftHandPosition = _inputActions.VRTracking.LeftHandPosition.ReadValue<Vector3>() -
+                                    _lastRigidbodyXZCenterEyePosition,
 
-            var leftHandPosition = _inputActions.VRTracking.LeftHandPosition.ReadValue<Vector3>() -
-                                   _lastRigidbodyXZCenterEyePosition;
+            LocalRightHandPosition = _inputActions.VRTracking.RightHandPosition.ReadValue<Vector3>() -
+                                     _lastRigidbodyXZCenterEyePosition,
 
-            var leftHandRotation = _inputActions.VRTracking.LeftHandRotation.ReadValue<Quaternion>();
+            EyeRotation = _mainCameraTransform.rotation,
+            LocalLeftHandRotation = _inputActions.VRTracking.LeftHandRotation.ReadValue<Quaternion>(),
+            LocalRightHandRotation = _inputActions.VRTracking.RightHandRotation.ReadValue<Quaternion>()
+        };
 
-            // var rightHandPosition =
-            //     playerY * (_inputActions.VRTracking.RightHandPosition.ReadValue<Vector3>() -
-            //                _lastRigidbodyXZCenterEyePosition) + playerPosition;
-
-            var rightHandPosition = _inputActions.VRTracking.RightHandPosition.ReadValue<Vector3>() -
-                                    _lastRigidbodyXZCenterEyePosition;
-
-            var rightHandRotation = _inputActions.VRTracking.RightHandRotation.ReadValue<Quaternion>();
-
-            return new IkData
-            {
-                LocalEyeHeight = _mainCameraTransform.transform.localPosition.y,
-                LocalLeftHandPosition = leftHandPosition,
-                LocalRightHandPosition = rightHandPosition,
-                LocalEyeRotation = _mainCameraTransform.rotation,
-                LocalLeftHandRotation = leftHandRotation,
-                LocalRightHandRotation = rightHandRotation,
-            };
-        }
 
         private void IKUpdate()
         {
-            var ikData = GetIkData();
-            ikController.UpdateWithIkData(ikData);
+            ikController.UpdateWithIkData(GetIkData());
         }
     }
 }

@@ -91,8 +91,9 @@ namespace Tivoli.Scripts.Player
 
         public void UpdateWithIkData(VrPlayerController.IkData ikData)
         {
+            // has offset for eye position so this is correct
             _headTarget.transform.localPosition = new Vector3(0, ikData.LocalEyeHeight, 0);
-            _headTarget.transform.rotation = ikData.LocalEyeRotation;
+            _headTarget.transform.rotation = ikData.EyeRotation;
 
             _leftHandTarget.transform.localPosition = ikData.LocalLeftHandPosition;
             _leftHandTarget.transform.localRotation = ikData.LocalLeftHandRotation;

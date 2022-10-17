@@ -2667,7 +2667,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 337183753}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.50666666
+  m_Size: 0.50666654
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3298,7 +3298,7 @@ MonoBehaviour:
   dontDestroyOnLoad: 1
   runInBackground: 1
   autoStartServerBuild: 1
-  serverTickRate: 60
+  serverTickRate: 30
   offlineScene: Assets/Tivoli/Loading.unity
   onlineScene: Assets/Tivoli/InWorld.unity
   transport: {fileID: 1220311946}
