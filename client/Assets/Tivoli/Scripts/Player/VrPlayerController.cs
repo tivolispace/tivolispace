@@ -11,6 +11,7 @@ namespace Tivoli.Scripts.Player
         private Transform _mainCameraTransform;
 
         public Animator animator;
+         
 
         private Rigidbody _rigidbody;
 
@@ -23,7 +24,7 @@ namespace Tivoli.Scripts.Player
         private const float TurnDegrees = 30f;
 
         public VrPlayerIkController ikController;
-
+        
         private void Awake()
         {
             _mainCamera = DependencyManager.Instance.UIManager.GetMainCamera();
@@ -84,6 +85,7 @@ namespace Tivoli.Scripts.Player
         private void Update()
         {
             TrackingUpdate();
+            IKUpdate();
         }
 
         [BeforeRenderOrder(-30000)]
@@ -155,55 +157,50 @@ namespace Tivoli.Scripts.Player
 
         public class IkData
         {
-            public Vector3 HeadPosition;
-            public Quaternion HeadRotation;
-            public Vector3 LeftHandPosition;
-            public Quaternion LeftHandRotation;
-            public Vector3 RightHandPosition;
-            public Quaternion RightHandRotation;
+            public float LocalEyeHeight;
+            public Vector3 LocalLeftHandPosition;
+            public Vector3 LocalRightHandPosition;
+            public Quaternion LocalEyeRotation;
+            public Quaternion LocalLeftHandRotation;
+            public Quaternion LocalRightHandRotation;
         }
-
-        // public Vector3 leftHandRotateOffset = new(45, 60, 240);
-        // public Vector3 rightHandRotateOffset = new(-45, 120, 240);
-        public Vector3 leftHandRotateOffset = new(90, 0, 0);
-        public Vector3 rightHandRotateOffset = new(90, 0, 0);
 
         public IkData GetIkData()
         {
             var playerPosition = transform.position;
             var playerY = Quaternion.Euler(0, transform.eulerAngles.y, 0);
 
-            var leftHandPosition =
-                playerY * (_inputActions.VRTracking.LeftHandPosition.ReadValue<Vector3>() -
-                           _lastRigidbodyXZCenterEyePosition) + playerPosition;
+            // var leftHandPosition =
+            //     playerY * (_inputActions.VRTracking.LeftHandPosition.ReadValue<Vector3>() -
+            //                _lastRigidbodyXZCenterEyePosition) + playerPosition;
 
-            var leftHandRotation = playerY * _inputActions.VRTracking.LeftHandRotation.ReadValue<Quaternion>() *
-                                   Quaternion.Euler(leftHandRotateOffset.x, leftHandRotateOffset.y,
-                                       leftHandRotateOffset.z);
+            var leftHandPosition = _inputActions.VRTracking.LeftHandPosition.ReadValue<Vector3>() -
+                                   _lastRigidbodyXZCenterEyePosition;
 
-            var rightHandPosition =
-                playerY * (_inputActions.VRTracking.RightHandPosition.ReadValue<Vector3>() -
-                           _lastRigidbodyXZCenterEyePosition) + playerPosition;
+            var leftHandRotation = _inputActions.VRTracking.LeftHandRotation.ReadValue<Quaternion>();
 
-            var rightHandRotation = playerY * _inputActions.VRTracking.RightHandRotation.ReadValue<Quaternion>() *
-                                    Quaternion.Euler(rightHandRotateOffset.x, rightHandRotateOffset.y,
-                                        rightHandRotateOffset.z);
+            // var rightHandPosition =
+            //     playerY * (_inputActions.VRTracking.RightHandPosition.ReadValue<Vector3>() -
+            //                _lastRigidbodyXZCenterEyePosition) + playerPosition;
+
+            var rightHandPosition = _inputActions.VRTracking.RightHandPosition.ReadValue<Vector3>() -
+                                    _lastRigidbodyXZCenterEyePosition;
+
+            var rightHandRotation = _inputActions.VRTracking.RightHandRotation.ReadValue<Quaternion>();
 
             return new IkData
             {
-                HeadPosition = _mainCamera.transform.position,
-                HeadRotation = _mainCamera.transform.rotation,
-                LeftHandPosition = leftHandPosition,
-                LeftHandRotation = leftHandRotation,
-                RightHandPosition = rightHandPosition,
-                RightHandRotation = rightHandRotation,
+                LocalEyeHeight = _mainCameraTransform.transform.localPosition.y,
+                LocalLeftHandPosition = leftHandPosition,
+                LocalRightHandPosition = rightHandPosition,
+                LocalEyeRotation = _mainCameraTransform.rotation,
+                LocalLeftHandRotation = leftHandRotation,
+                LocalRightHandRotation = rightHandRotation,
             };
         }
 
-        private void LateUpdate()
+        private void IKUpdate()
         {
-            // update ik
-
             var ikData = GetIkData();
             ikController.UpdateWithIkData(ikData);
         }

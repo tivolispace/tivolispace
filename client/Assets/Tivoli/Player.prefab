@@ -236,9 +236,7 @@ GameObject:
   - component: {fileID: 2769634827809697800}
   - component: {fileID: 6076233065238459543}
   - component: {fileID: 3264886122204688834}
-  - component: {fileID: 4913238936374753879}
   - component: {fileID: 6298256609254051219}
-  - component: {fileID: 4231189289537554108}
   - component: {fileID: 1603769199627082357}
   m_Layer: 0
   m_Name: Player
@@ -353,6 +351,8 @@ MonoBehaviour:
   userId: 
   nametagTransform: {fileID: 5762042729076230666}
   nametag: {fileID: 3517345941057091282}
+  vrPlayerController: {fileID: 6298256609254051219}
+  vrPlayerIkController: {fileID: 7056634222449553661}
 --- !u!114 &3264886122204688834
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -368,26 +368,6 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   playerVoiceChatOutput: {fileID: 272401604267965849}
---- !u!95 &4913238936374753879
-Animator:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5250806471893161303}
-  m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
-  m_Controller: {fileID: 9100000, guid: ea70662b7b63e4049b6d1178a521a52b, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!114 &6298256609254051219
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -400,23 +380,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3eea873eccf34433949ef29ccf815e00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 4913238936374753879}
-  ikController: {fileID: 4231189289537554108}
-  leftHandRotateOffset: {x: 45, y: 60, z: 240}
-  rightHandRotateOffset: {x: -45, y: 120, z: 240}
---- !u!114 &4231189289537554108
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5250806471893161303}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc04a79cfbd76e74498f787c9eba6bf7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 4913238936374753879}
+  animator: {fileID: 9151445458419907813}
+  ikController: {fileID: 7056634222449553661}
+  eyePosition: {x: 0, y: 1.548, z: 0.0862}
 --- !u!136 &1603769199627082357
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -701,7 +667,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 100326, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
       propertyPath: m_Name
-      value: unitychan
+      value: Avatar
       objectReference: {fileID: 0}
     - target: {fileID: 400326, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
       propertyPath: m_RootOrder
@@ -859,9 +825,31 @@ PrefabInstance:
       propertyPath: m_AABB.m_Extent.z
       value: 0.0553375
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 9500000, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
+--- !u!95 &9151445458419907813 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 9500000, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
+  m_PrefabInstance: {fileID: 9151445458427185541}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &9151445458427285091 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100326, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
+  m_PrefabInstance: {fileID: 9151445458427185541}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7056634222449553661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9151445458427285091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc04a79cfbd76e74498f787c9eba6bf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eyePosition: {x: 0, y: 1.548, z: 0.0862}
 --- !u!4 &9151445458427318851 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400326, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}

@@ -2,11 +2,10 @@
 using Tivoli.Scripts.Managers;
 using Tivoli.Scripts.UI;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tivoli.Scripts.Player
 {
-    [RequireComponent(typeof(VrPlayerController))]
-    [RequireComponent(typeof(VrPlayerIkController))]
     public class Player : NetworkBehaviour
     {
         [SyncVar(hook = nameof(OnUserIdChanged))]
@@ -15,23 +14,17 @@ namespace Tivoli.Scripts.Player
         public Transform nametagTransform;
         public Nametag nametag;
 
-        private VrPlayerController _vrPlayerController;
-        private VrPlayerIkController _vrPlayerIkController;
+        public VrPlayerController vrPlayerController;
+        public VrPlayerIkController vrPlayerIkController;
 
         [SyncVar(hook = nameof(OnIkData))]
         private VrPlayerController.IkData _ikData;
-
-        public void Awake()
-        {
-            _vrPlayerController = GetComponent<VrPlayerController>();
-            _vrPlayerIkController = GetComponent<VrPlayerIkController>();
-        }
 
         public override async void OnStartLocalPlayer()
         {
             nametag.gameObject.SetActive(false);
 
-            _vrPlayerController.enabled = true;
+            vrPlayerController.enabled = true;
 
             await DependencyManager.Instance.AccountManager.WhenLoggedIn();
 
@@ -61,7 +54,7 @@ namespace Tivoli.Scripts.Player
         {
             if (isLocalPlayer) return;
 
-            _vrPlayerIkController.UpdateWithIkData(newIkData);
+            vrPlayerIkController.UpdateWithIkData(newIkData);
         }
 
         private void Update()
@@ -75,7 +68,7 @@ namespace Tivoli.Scripts.Player
         {
             if (isLocalPlayer)
             {
-                _ikData = _vrPlayerController.GetIkData();
+                _ikData = vrPlayerController.GetIkData();
             }
         }
     }
