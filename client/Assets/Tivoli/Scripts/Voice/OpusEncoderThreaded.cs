@@ -10,7 +10,10 @@ namespace Tivoli.Scripts.Voice
         private readonly OpusEncoder _opusEncoder;
 
         private readonly Queue<float[]> _encoderInput = new();
+        private readonly object _encoderInputLock = new();
+        
         private readonly Queue<byte[]> _encoderOutput = new();
+        private readonly object _encoderOutputLock = new();
 
         private bool _isRunning = true;
         private readonly Thread _encodeThread;
@@ -39,7 +42,7 @@ namespace Tivoli.Scripts.Voice
 
         public void AddToEncodeQueue(float[] pcmSamples)
         {
-            lock (_encoderInput)
+            lock (_encoderInputLock)
             {
                 if (_encoderInput.Count > MaxInQueue)
                 {
@@ -55,14 +58,14 @@ namespace Tivoli.Scripts.Voice
             while (_isRunning)
             {
                 float[] input;
-                lock (_encoderInput)
+                lock (_encoderInputLock)
                 {
                     if (_encoderInput.Count == 0) continue;
                     input = _encoderInput.Dequeue();
                 }
 
                 var output = _opusEncoder.Encode(input);
-                lock (_encoderOutput)
+                lock (_encoderOutputLock)
                 {
                     if (_encoderOutput.Count > MaxInQueue)
                     {
@@ -76,7 +79,7 @@ namespace Tivoli.Scripts.Voice
 
         public void Update()
         {
-            lock (_encoderOutput)
+            lock (_encoderOutputLock)
             {
                 while (_encoderOutput.Count > 0)
                 {

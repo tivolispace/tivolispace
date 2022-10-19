@@ -10,7 +10,10 @@ namespace Tivoli.Scripts.Voice
         private readonly SpeexMonoResampler _resampler;
 
         private readonly Queue<float[]> _resampleInput = new();
+        private readonly object _resampleInputLock = new();
+        
         private readonly Queue<float[]> _resampleOutput = new();
+        private readonly object _resampleOutputLock = new();
 
         private bool _isRunning = true;
         private readonly Thread _resampleThread;
@@ -37,7 +40,7 @@ namespace Tivoli.Scripts.Voice
 
         public void AddToResampleQueue(float[] pcmSamples)
         {
-            lock (_resampleInput)
+            lock (_resampleInputLock)
             {
                 if (_resampleInput.Count > MaxInQueue)
                 {
@@ -53,7 +56,7 @@ namespace Tivoli.Scripts.Voice
             while (_isRunning)
             {
                 float[] input;
-                lock (_resampleInput)
+                lock (_resampleInputLock)
                 {
                     if (_resampleInput.Count == 0) continue;
                     input = _resampleInput.Dequeue();
@@ -64,7 +67,7 @@ namespace Tivoli.Scripts.Voice
                 var resampledData = new float[length];
                 Array.Copy(resampledRawData, resampledData, length);
                 
-                lock (_resampleOutput)
+                lock (_resampleOutputLock)
                 {
                     if (_resampleOutput.Count > MaxInQueue)
                     {
@@ -78,7 +81,7 @@ namespace Tivoli.Scripts.Voice
 
         public void Update()
         {
-            lock (_resampleOutput)
+            lock (_resampleOutputLock)
             {
                 while (_resampleOutput.Count > 0)
                 {

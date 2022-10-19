@@ -12,9 +12,13 @@ namespace Tivoli.Scripts.Voice
         private readonly int _outputFrameSize;
         
         private readonly Queue<float[]> _denoiseInput = new();
+        private readonly object _denoiseInputLock = new();
+        
         private readonly PlaybackBuffer _denoiseInputBuffer = new();
         
         private readonly Queue<(float[], float)> _denoiseOutput = new();
+        private readonly object _denoiseOutputLock = new();
+        
         private readonly PlaybackBuffer _denoiseOutputBuffer = new();
         private readonly PlaybackBuffer _denoiseOutputBufferVadProb = new();
 
@@ -50,7 +54,7 @@ namespace Tivoli.Scripts.Voice
             while (_isRunning)
             {
                 float[] input;
-                lock (_denoiseInput)
+                lock (_denoiseInputLock)
                 {
                     if (_denoiseInput.Count == 0) continue;
                     input = _denoiseInput.Dequeue();
@@ -59,7 +63,7 @@ namespace Tivoli.Scripts.Voice
                 var denoiseData = new float[input.Length];
                 var vadProb = _rnnoise.Process(input, denoiseData);
                 
-                lock (_denoiseOutput)
+                lock (_denoiseOutputLock)
                 {
                     if (_denoiseOutput.Count > MaxInQueue)
                     {
@@ -78,7 +82,7 @@ namespace Tivoli.Scripts.Voice
                 var frameSizePcmSamples = new float[_denoiseFrameSize];
                 _denoiseInputBuffer.Read(frameSizePcmSamples, 0, _denoiseFrameSize);
                 
-                lock (_denoiseInput)
+                lock (_denoiseInputLock)
                 {
                     if (_denoiseInput.Count > MaxInQueue)
                     {
@@ -89,7 +93,7 @@ namespace Tivoli.Scripts.Voice
                 }
             }
 
-            lock (_denoiseOutput)
+            lock (_denoiseOutputLock)
             {
                 
                 while (_denoiseOutput.Count > 0)

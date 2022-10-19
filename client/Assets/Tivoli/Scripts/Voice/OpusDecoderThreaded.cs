@@ -10,7 +10,10 @@ namespace Tivoli.Scripts.Voice
         private readonly OpusDecoder _opusDecoder;
 
         private readonly Queue<byte[]> _decoderInput = new();
+        private readonly object _decoderInputLock = new();
+        
         private readonly Queue<float[]> _decoderOutput = new();
+        private readonly object _decoderOutputLock = new();
 
         private bool _isRunning = true;
         private readonly Thread _decodeThread;
@@ -44,7 +47,7 @@ namespace Tivoli.Scripts.Voice
 
         public void AddToDecodeQueue(byte[] opusData)
         {
-            lock (_decoderInput)
+            lock (_decoderInputLock)
             {
                 if (_decoderInput.Count > MaxInQueue)
                 {
@@ -61,7 +64,7 @@ namespace Tivoli.Scripts.Voice
             while (_isRunning)
             {
                 byte[] input;
-                lock (_decoderInput)
+                lock (_decoderInputLock)
                 {
                     if (_decoderInput.Count == 0) continue;
                     input = _decoderInput.Dequeue();
@@ -73,7 +76,7 @@ namespace Tivoli.Scripts.Voice
                 var pcmData = new float[length];
                 Array.Copy(pcmRawData, pcmData, length);
 
-                lock (_decoderOutput)
+                lock (_decoderOutputLock)
                 {
                     if (_decoderOutput.Count > MaxInQueue)
                     {
@@ -88,7 +91,7 @@ namespace Tivoli.Scripts.Voice
 
         public void Update()
         {
-            lock (_decoderOutput)
+            lock (_decoderOutputLock)
             {
                 while (_decoderOutput.Count > 0)
                 {
