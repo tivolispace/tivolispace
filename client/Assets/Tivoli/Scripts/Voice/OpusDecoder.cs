@@ -44,17 +44,19 @@ namespace Tivoli.Scripts.Voice
             _outputSampleRate = outputSampleRate;
             _outputChannels = outputChannels;
         }
-        
+
         public void ResetState()
         {
-            OpusNativeMethods.opus_reset_decoder(_decoder); 
+            if (_decoder == IntPtr.Zero) return;
+            OpusNativeMethods.opus_reset_decoder(_decoder);
         }
-        
+
         public int Decode(byte[] opusData, float[] pcmSamples)
         {
+            if (_decoder == IntPtr.Zero) return 0;
             return OpusNativeMethods.opus_decode(_decoder, opusData, pcmSamples, _outputSampleRate, _outputChannels);
         }
-        
+
         ~OpusDecoder()
         {
             if (_decoder == IntPtr.Zero) return;

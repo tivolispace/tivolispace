@@ -63,6 +63,8 @@ namespace Tivoli.Scripts.Voice
 
         public byte[] Encode(float[] pcmSamples)
         {
+            if (_encoder == IntPtr.Zero) return Array.Empty<byte>();
+
             var size = OpusNativeMethods.opus_encode(_encoder, pcmSamples, pcmSamples.Length, _encodedPacket);
 
             if (size > 1) return new ArraySegment<byte>(_encodedPacket, 0, size).ToArray();
@@ -78,6 +80,7 @@ namespace Tivoli.Scripts.Voice
 
         public void ResetState()
         {
+            if (_encoder == IntPtr.Zero) return;
             OpusNativeMethods.opus_reset_encoder(_encoder);
         }
 
