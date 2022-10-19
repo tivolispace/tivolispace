@@ -89,7 +89,7 @@ namespace Tivoli.Scripts.Player
             Destroy(_rightHandTarget);
         }
 
-        public void UpdateWithIkData(VrPlayerController.IkData ikData)
+        public void UpdateWithIkData(IkData ikData)
         {
             // has offset for eye position so this is correct
             _headTarget.transform.localPosition = new Vector3(0, ikData.LocalEyeHeight, 0);

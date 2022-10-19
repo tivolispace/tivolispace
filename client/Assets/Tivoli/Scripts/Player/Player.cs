@@ -17,8 +17,10 @@ namespace Tivoli.Scripts.Player
         public VrPlayerController vrPlayerController;
         public VrPlayerIkController vrPlayerIkController;
 
-        private const float SEND_IK_INTERVAL = 1f / 60f;
+        private const float SEND_IK_INTERVAL = 1f / 30f;
         private float _sendIkTimer;
+
+        private IkDataNetworkCompanion _ikDataNetworkCompanion = new();
 
         public override async void OnStartLocalPlayer()
         {
@@ -51,7 +53,7 @@ namespace Tivoli.Scripts.Player
         }
 
         [Command(channel = Channels.Unreliable, requiresAuthority = true)]
-        public void SendIkData(short[] compressed)
+        private void SendIkData(short[] compressed)
         {
             RpcReceiveIkData(compressed);
         }
@@ -59,7 +61,7 @@ namespace Tivoli.Scripts.Player
         [ClientRpc(channel = Channels.Unreliable, includeOwner = false)]
         private void RpcReceiveIkData(short[] compressed)
         {
-            vrPlayerIkController.UpdateWithIkData(IkDataCompression.Decompress(compressed));
+            _ikDataNetworkCompanion.ReceiveCompressed(compressed);
         }
 
         private void Update()
@@ -69,12 +71,18 @@ namespace Tivoli.Scripts.Player
                 _sendIkTimer += Time.deltaTime;
                 if (_sendIkTimer >= SEND_IK_INTERVAL)
                 {
-                    SendIkData(IkDataCompression.Compress(vrPlayerController.GetIkData()));
+                    SendIkData(_ikDataNetworkCompanion.Compress(vrPlayerController.GetIkData()));
                     _sendIkTimer -= SEND_IK_INTERVAL;
                 }
             }
             else
             {
+                var ikData = _ikDataNetworkCompanion.Update();
+                if (ikData != null)
+                {
+                    vrPlayerIkController.UpdateWithIkData(ikData);
+                }
+
                 nametagTransform.LookAt(DependencyManager.Instance.UIManager.GetMainCamera().transform);
             }
         }
