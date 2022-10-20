@@ -38,7 +38,7 @@ namespace Tivoli.Scripts.Utils
                 {
                     skeletonBone = skeleton.First(bone => bone.name == boneName);
                 }
-                catch (Exception _)
+                catch (Exception)
                 {
                     continue;
                 }

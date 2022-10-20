@@ -20,10 +20,8 @@ Running Steam twice on one machine is really difficult, so instead you need to s
 
 -   Copy the token and set it using `set AUTH_TOKEN=`
 
+-   Also `set DISABLE_VR=1` and if necessary `set OVERRIDE_API_URL=`
+
 -   Run `Tivoli Space.exe`, it will skip logging in with a Steam auth ticket
-
-    -   Eventually you'll be able to disable VR too but for now just build without OpenXR in project settings
-
-    -   If you want to login with a different backend, also supply `set OVERRIDE_API_URL=`
 
     -   Feel free to place .bat files in git root dir, it's ignored!

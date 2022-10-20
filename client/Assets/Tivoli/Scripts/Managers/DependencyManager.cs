@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 namespace Tivoli.Scripts.Managers
 {
@@ -20,8 +21,10 @@ namespace Tivoli.Scripts.Managers
         [Header("Connection Manager")] public TivoliNetworkManager connectionNetworkManager;
         public ConnectionManager ConnectionManager;
 
-        [Header("UI Manager")] public Camera uiMainCamera;
-        public Canvas uiCanvas;
+        public VRManager VRManager;
+        
+        [Header("UI Manager")] public Canvas uiCanvas;
+        public Camera uiMainCamera;
         public GameObject uiMainMenu;
         public UIManager UIManager;
 
@@ -30,7 +33,7 @@ namespace Tivoli.Scripts.Managers
 
         private Manager[] _managers;
         private bool _initialized;
-        
+
         private async void Awake()
         {
             if (Instance != null && Instance != this)
@@ -47,18 +50,20 @@ namespace Tivoli.Scripts.Managers
             managers.Add(WindowManager = new WindowManager());
             managers.Add(SteamManager = new SteamManager());
             managers.Add(AccountManager = new AccountManager());
-            
+
             managers.Add(ConnectionManager = new ConnectionManager(connectionNetworkManager));
             persistantGameObjects.Add(connectionNetworkManager.gameObject);
+
+            managers.Add(VRManager = new VRManager());
             
             managers.Add(UIManager = new UIManager(uiMainCamera, uiCanvas, uiMainMenu));
             persistantGameObjects.Add(uiMainCamera.gameObject);
             persistantGameObjects.Add(uiCanvas.gameObject);
 
             _managers = managers.ToArray();
-            
+
             DontDestroyOnLoad();
-            
+
             // switch to loading and start initializing!
             SceneManager.LoadScene(loadingScene);
 
@@ -74,7 +79,7 @@ namespace Tivoli.Scripts.Managers
                 DontDestroyOnLoad(persistantGameObject);
             }
         }
-        
+
         public void Update()
         {
             if (!_initialized) return;

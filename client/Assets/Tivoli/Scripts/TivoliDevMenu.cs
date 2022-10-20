@@ -10,12 +10,14 @@ namespace Tivoli.Scripts
     {
         public const string OverrideApiUrl = "TivoliOverrideApiUrl";
         public const string OverridePlayMode = "TivoliOverridePlayMode";
+        public const string PlayInVR = "TivoliPlayInVr";
     }
 
     public static class TivoliDefaultEditorPrefs
     {
         public const string OverrideApiUrl = "http://127.0.0.1:3000";
         public const bool OverridePlayMode = true;
+        public const bool PlayInVR = false;
     }
 
     public class TivoliDevMenu : EditorWindow
@@ -202,6 +204,89 @@ namespace Tivoli.Scripts
             buttonsFlexbox.Add(currentButton);
         }
 
+        private void DrawPlayInVR()
+        {
+            var playInVRText = new Func<string>(() =>
+                EditorPrefs.GetBool(TivoliEditorPrefs.PlayInVR, TivoliDefaultEditorPrefs.PlayInVR)
+                    ? "VR mode"
+                    : "desktop mode");
+
+            var labelFlexbox = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    paddingBottom = Padding
+                }
+            };
+
+            rootVisualElement.Add(labelFlexbox);
+
+            var preLabel = new Label
+            {
+                text = "Will start in  ",
+            };
+
+            labelFlexbox.Add(preLabel);
+
+            var label = new Label
+            {
+                text = playInVRText(),
+                style =
+                {
+                    unityFontStyleAndWeight = FontStyle.Bold
+                }
+            };
+
+            labelFlexbox.Add(label);
+
+            var buttonsFlexbox = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    alignItems = Align.Center,
+                    paddingBottom = Padding
+                }
+            };
+
+            rootVisualElement.Add(buttonsFlexbox);
+
+            var playInVRButton = new Button
+            {
+                text = "Play in VR",
+                style =
+                {
+                    marginRight = Padding
+                }
+            };
+
+            playInVRButton.clicked += () =>
+            {
+                EditorPrefs.SetBool(TivoliEditorPrefs.PlayInVR, true);
+                label.text = playInVRText();
+            };
+
+            buttonsFlexbox.Add(playInVRButton);
+
+            var playInDesktop = new Button
+            {
+                text = "Play in desktop",
+                style =
+                {
+                    marginRight = Padding
+                }
+            };
+
+            playInDesktop.clicked += () =>
+            {
+                EditorPrefs.SetBool(TivoliEditorPrefs.PlayInVR, false);
+                label.text = playInVRText();
+            };
+
+            buttonsFlexbox.Add(playInDesktop);
+        }
+
         public void CreateGUI()
         {
             rootVisualElement.style.paddingTop = Padding;
@@ -216,6 +301,9 @@ namespace Tivoli.Scripts
 
             DrawSubtitle("Override play mode");
             DrawOverridePlayMode();
+            
+            DrawSubtitle("Play in VR");
+            DrawPlayInVR();
         }
     }
 }

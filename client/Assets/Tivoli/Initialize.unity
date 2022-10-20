@@ -2817,8 +2817,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   connectionNetworkManager: {fileID: 1220311947}
-  uiMainCamera: {fileID: 946772373}
   uiCanvas: {fileID: 1996905271}
+  uiMainCamera: {fileID: 946772373}
   uiMainMenu: {fileID: 1406646070}
   loadingScene: Assets/Tivoli/Loading.unity
   persistantGameObjects:
