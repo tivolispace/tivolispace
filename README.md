@@ -12,35 +12,18 @@ See our [Trello page](https://trello.com/b/za4VZKkl/tivoli-space)!
 
 -   Final IK 2.1 is needed. Just add to the client, it'll be git ignored
 
-## Using a second Steam account for testing
+## Using a second account for testing
 
-<!--
--   Create a second user in Windows settings
+Running Steam twice on one machine is really difficult, so instead you need to set an environment variable before running.
 
--   `runas /user:Lobstertje /savecred "C:\Program Files (x86)\Steam\steam.exe"`
+-   Go to https://tivoli.space/api/auth/steam and login
 
-this doesnt work for steam lmao what!!!
+-   Copy the token and set it using `set AUTH_TOKEN=`
 
-it uses "C:\Program Files (x86)\Steam\config" instead of user appdata
+-   Run `Tivoli Space.exe`, it will skip logging in with a Steam auth ticket
 
--->
+    -   Eventually you'll be able to disable VR too but for now just build without OpenXR in project settings
 
-Using a second Windows user doesn't work with Steam. ¯\\\_(ツ)\_/¯
+    -   If you want to login with a different backend, also supply `set OVERRIDE_API_URL=`
 
--   Download **Sandboxie Plus** from https://sandboxie-plus.com/downloads (it's open source now!)
-
--   **Sandbox > Create New Box** and call it **SteamForTesting**
-
--   Download **Steam** from https://store.steampowered.com/about/
-
--   **SteamForTesting > Run > Run Program** and select SteamSetup.exe
-
-    -   You'll be asked to close Steam which is fine
-
-    -   You'll receive notifications on Sandboxie, remember choice and accept
-
-    -   When it gets stuck on **creating shortcut**, press **SteamForTesting > Terminate All Programs**
-
--   **Start Steam** using `"C:\Program Files\Sandboxie-Plus\Start.exe" /box:SteamForTesting "C:\Sandbox\Maki\SteamForTesting\drive\C\Program Files (x86)\Steam\steam.exe"`
-
--   **Start Tivoli builds** using `"C:\Program Files\Sandboxie-Plus\Start.exe" /box:SteamForTesting "Tivoli Space.exe"`
+    -   Feel free to place .bat files in git root dir, it's ignored!
