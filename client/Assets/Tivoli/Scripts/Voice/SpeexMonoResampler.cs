@@ -20,7 +20,8 @@ namespace Tivoli.Scripts.Voice
 
         public SpeexMonoResampler(int inputSampleRate, int outputSampleRate)
         {
-            resampler = SpeexNative.speex_resampler_init(1, (uint)  inputSampleRate, (uint) outputSampleRate, Quality, out var error);
+            resampler = SpeexNative.speex_resampler_init(1, (uint) inputSampleRate, (uint) outputSampleRate, Quality,
+                out var error);
             if (error != SpeexNative.SpeexResamplerError.Success)
             {
                 Debug.LogError("Failed to create resampler: " + error);
@@ -30,11 +31,12 @@ namespace Tivoli.Scripts.Voice
         public int Resample(float[] pcmInput, float[] pcmOutput)
         {
             if (resampler == IntPtr.Zero) return 0;
-            
+
             var inLen = (uint) pcmInput.Length;
             var outLen = (uint) pcmOutput.Length;
-            
-            var error = SpeexNative.speex_resampler_process_float(resampler, 0, pcmInput, ref inLen, pcmOutput, ref outLen);
+
+            var error = SpeexNative.speex_resampler_process_float(resampler, 0, pcmInput, ref inLen, pcmOutput,
+                ref outLen);
             if (error != SpeexNative.SpeexResamplerError.Success)
             {
                 Debug.LogWarning("Dropping because failed to resample: " + error);
@@ -43,12 +45,17 @@ namespace Tivoli.Scripts.Voice
             return (int) outLen;
         }
 
-        ~SpeexMonoResampler()
+        public void OnDestroy()
         {
             if (resampler != IntPtr.Zero)
             {
                 SpeexNative.speex_resampler_destroy(resampler);
             }
+        }
+
+        ~SpeexMonoResampler()
+        {
+            OnDestroy();
         }
     }
 }

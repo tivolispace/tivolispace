@@ -77,12 +77,21 @@ namespace Tivoli.Scripts.Voice
         {
             if (isLocalPlayer)
             {
+                _microphone.OnDestroy();
                 _microphone = null;
+                _opusEncoderThreaded.OnDestroy();
                 _opusEncoderThreaded = null;
             }
             else
             {
+                _opusDecoderThreaded.OnDestroy();
                 _opusDecoderThreaded = null;
+
+                if (_resamplingRequired)
+                {
+                    _resamplerThreaded.OnDestroy();
+                    _resamplerThreaded = null;
+                }
             }
         }
 

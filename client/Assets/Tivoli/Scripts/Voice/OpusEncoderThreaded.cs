@@ -11,7 +11,7 @@ namespace Tivoli.Scripts.Voice
 
         private readonly Queue<float[]> _encoderInput = new();
         private readonly object _encoderInputLock = new();
-        
+
         private readonly Queue<byte[]> _encoderOutput = new();
         private readonly object _encoderOutputLock = new();
 
@@ -19,7 +19,7 @@ namespace Tivoli.Scripts.Voice
         private readonly Thread _encodeThread;
 
         public Action<byte[]> OnEncoded;
-        
+
         private const int MaxInQueue = 20;
 
         public OpusEncoderThreaded(int inputSampleRate, int inputChannels)
@@ -34,10 +34,15 @@ namespace Tivoli.Scripts.Voice
             _opusEncoder.ResetState();
         }
 
-        ~OpusEncoderThreaded()
+        public void OnDestroy()
         {
             _isRunning = false;
             _encodeThread.Join();
+        }
+
+        ~OpusEncoderThreaded()
+        {
+            OnDestroy();
         }
 
         public void AddToEncodeQueue(float[] pcmSamples)
@@ -49,6 +54,7 @@ namespace Tivoli.Scripts.Voice
                     Debug.Log($"Encoder has more than {MaxInQueue} inputs waiting, will clear");
                     _encoderInput.Clear();
                 }
+
                 _encoderInput.Enqueue(pcmSamples);
             }
         }
@@ -72,6 +78,7 @@ namespace Tivoli.Scripts.Voice
                         Debug.Log($"Encoder has more than {MaxInQueue} outputs waiting, will clear");
                         _encoderOutput.Clear();
                     }
+
                     _encoderOutput.Enqueue(output);
                 }
             }

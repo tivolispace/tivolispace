@@ -11,7 +11,7 @@ namespace Tivoli.Scripts.Voice
 
         private readonly Queue<byte[]> _decoderInput = new();
         private readonly object _decoderInputLock = new();
-        
+
         private readonly Queue<float[]> _decoderOutput = new();
         private readonly object _decoderOutputLock = new();
 
@@ -33,16 +33,21 @@ namespace Tivoli.Scripts.Voice
             _decodeThread = new Thread(DecodeThread);
             _decodeThread.Start();
         }
-        
+
         public void ResetState()
         {
             _opusDecoder.ResetState();
         }
-        
-        ~OpusDecoderThreaded()
+
+        public void OnDestroy()
         {
             _isRunning = false;
             _decodeThread.Join();
+        }
+
+        ~OpusDecoderThreaded()
+        {
+            OnDestroy();
         }
 
         public void AddToDecodeQueue(byte[] opusData)

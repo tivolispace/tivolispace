@@ -7,7 +7,7 @@ namespace Tivoli.Scripts.Voice
 {
     public class Microphone
     {
-        private string _microphoneDeviceName;  // null is default mic
+        private string _microphoneDeviceName; // null is default mic
         private AudioClip _microphone;
 
         public Action<float[]> OnPcmSamples;
@@ -15,13 +15,14 @@ namespace Tivoli.Scripts.Voice
 
         // the whole program should revolve around this sample rate
         public const int MicrophoneSampleRate = 48000;
+
         // long enough to not hear clipping but short enough to fit in memory
         private const int MicrophoneRecordLength = 60 * 5;
-        
+
         private int _previousPosition;
         private int _totalSamplesSent;
         private int _numTimesLooped;
-        
+
         // 960 samples per outgoing packet, though opus will compress super well
         public const int NumFramesPerOutgoingPacket = 2;
         public const int NumSamplesPerOutgoingPacket = NumFramesPerOutgoingPacket * MicrophoneSampleRate / 100;
@@ -41,14 +42,16 @@ namespace Tivoli.Scripts.Voice
             _microphone = Resources.Load<AudioClip>("dankpods-testing-microphones");
 #else
             Debug.Log("Starting microphone");
-            _microphone = UnityEngine.Microphone.Start(_microphoneDeviceName, true, MicrophoneRecordLength, MicrophoneSampleRate);
+            _microphone = UnityEngine.Microphone.Start(_microphoneDeviceName, true, MicrophoneRecordLength,
+                MicrophoneSampleRate);
 #endif
 
             // usually doesn't happen. even on mac with airpods max where the mic is 24000,
             // the audio clip will output 48000. hooray lol no manual resampling
             if (_microphone.frequency != MicrophoneSampleRate)
             {
-                Debug.LogError($"Selected microphone has sample rate of {_microphone.frequency} but should be {MicrophoneSampleRate}");
+                Debug.LogError(
+                    $"Selected microphone has sample rate of {_microphone.frequency} but should be {MicrophoneSampleRate}");
                 StopMicrophone(true);
             }
 
@@ -102,9 +105,16 @@ namespace Tivoli.Scripts.Voice
             _microphone = null;
         }
 
-        ~Microphone()
+        public void OnDestroy()
         {
             StopMicrophone();
+            _rnnoiseThreaded.OnDestroy();
+            // _preprocessor.OnDestroy();
+        }
+
+        ~Microphone()
+        {
+            OnDestroy();
         }
 
         public void UpdateMicrophone(string microphoneDeviceName)
@@ -124,14 +134,15 @@ namespace Tivoli.Scripts.Voice
             // microphone sometimes turns off when people join
 #if !USE_TEST_CLIP
             var isRecording = UnityEngine.Microphone.IsRecording(_microphoneDeviceName);
-            if (!isRecording && _microphone != null) {
+            if (!isRecording && _microphone != null)
+            {
                 Debug.Log("Microphone turned off for no reason, restarting...");
                 StartMicrophone(true);
             }
 #endif
 
             if (_microphone == null) return;
-            
+
 #if USE_TEST_CLIP
             var currentPosition = (int) (Time.time * _microphone.frequency) % _microphone.samples;
 #else
@@ -145,13 +156,13 @@ namespace Tivoli.Scripts.Voice
 
             var totalSamples = currentPosition + _numTimesLooped * _microphone.samples;
             _previousPosition = currentPosition;
-            
+
             while (totalSamples - _totalSamplesSent >= NumSamplesPerOutgoingPacket * _microphone.channels)
             {
                 var samples = new float[NumSamplesPerOutgoingPacket * _microphone.channels];
                 _microphone.GetData(samples, _totalSamplesSent % _microphone.samples);
                 _totalSamplesSent += NumSamplesPerOutgoingPacket * _microphone.channels;
-                
+
                 switch (_microphone.channels)
                 {
                     case 1:
@@ -169,16 +180,17 @@ namespace Tivoli.Scripts.Voice
                 _rnnoiseThreaded.Update();
             }
         }
-        
+
         private const int VoiceHold = 20;
+
         // private const float VadMin = 0.80f;
         // private const float VadMax = 0.96f;
         private const float VadMin = 0.40f; // stops when under
         private const float VadMax = 0.48f; // starts when over
-                    
+
         private bool _previousVoice;
         private int _holdFrames;
-        
+
         private void InternalOnPcmSamples(float[] monoSamples)
         {
             _rnnoiseThreaded?.AddToDenoiseQueue(monoSamples);
@@ -187,12 +199,12 @@ namespace Tivoli.Scripts.Voice
         private void OnDenoise(float[] denoisedSamples, float vadProb)
         {
             // https://github.com/mumble-voip/mumble/blob/master/src/mumble/AudioInput.cpp#L955
-            
+
             // var prob = _preprocessor.GetInt(SpeexNative.SpeexPreprocessRequest.GetProb);
             // var level = prob / 100f;
-            
+
             var talking = vadProb > VadMax || (vadProb > VadMin && _previousVoice);
-            
+
             if (!talking)
             {
                 _holdFrames++;
@@ -205,7 +217,7 @@ namespace Tivoli.Scripts.Voice
             {
                 _holdFrames = 0;
             }
-            
+
             _previousVoice = talking;
 
 
@@ -213,7 +225,7 @@ namespace Tivoli.Scripts.Voice
             {
                 OnPcmSamples(denoisedSamples);
             }
-            
+
             OnInputLevelAndTalking(talking ? AudioUtils.Amplitude(denoisedSamples) * 4f : 0f, talking);
         }
     }
