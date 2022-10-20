@@ -53,20 +53,30 @@ namespace Tivoli.Scripts.Managers
         {
             await DependencyManager.Instance.SteamManager.WhenInitialized();
 
-            var authTicket = await DependencyManager.Instance.SteamManager.GetAuthSessionTicket();
+            var envAuthToken = Environment.GetEnvironmentVariable("AUTH_TOKEN");
 
-            var (res, error) = await new HttpFox(ApiUrl + "/api/auth/steam-ticket", "POST")
-                .WithJson(new {ticket = authTicket})
-                .ReceiveJson(new {accessToken = ""});
-
-            if (error != null)
+            if (envAuthToken != null)
             {
-                Debug.Log("Failed to login!\n" + error);
-                return;
+                _accessToken = envAuthToken;
+            }
+            else
+            {
+                var authTicket = await DependencyManager.Instance.SteamManager.GetAuthSessionTicket();
+
+                var (res, error) = await new HttpFox(ApiUrl + "/api/auth/steam-ticket", "POST")
+                    .WithJson(new {ticket = authTicket})
+                    .ReceiveJson(new {accessToken = ""});
+
+                if (error != null)
+                {
+                    Debug.Log("Failed to login!\n" + error);
+                    return;
+                }
+
+                _accessToken = res.accessToken;
             }
 
             Debug.Log("Logged in to: " + ApiUrl);
-            _accessToken = res.accessToken;
 
             // ConnectToWs();
             Heartbeat();
